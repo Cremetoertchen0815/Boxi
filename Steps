@@ -1,0 +1,11 @@
+Steps:
+1. Get the Arduino to display the splash screen
+2. Test SPI speeds and transmission distances
+3. Test UART speeds and transmission distances
+4. Develop Arduino -> Arduino protocol
+5. Develop RPI -> RPI protocol
+6. Update arduino software
+7. Develop App -> DisplayServer protocol
+8. Update DisplayServer with display switching logic
+9. Implement protocol into DisplayServer
+10. Develop web app

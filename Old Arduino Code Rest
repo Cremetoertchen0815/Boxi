@@ -1,0 +1,111 @@
+
+int isOn = -1;
+int lastWasOn = 1;
+float currentColorBrightness = -1;
+int currentColor = COLOR_A;
+int nextColor = COLOR_B;
+int colorTimer = 0;
+int brightTimer = 0;
+int mode = MODE_FAST_COLOR_SWITCH;
+int modeSwitchTimer = 0;
+int maxDiff = 0;
+int resetTimer = 100;
+int eastCounter = 0;
+bool enableColorFade = false;
+
+  if (mode == MODE_FAST_COLOR_FLASH) 
+      currentColorBrightness = exp(-brightTimer * 0.1) * 5 + DIMMED_COLOR_BRIGHTNESS;
+  else if (mode == MODE_FAST_STROBE && power < POWER_THRESHOLD_FLOOD) {
+      whiteBright = (int)((brightTimer / STROBE_SPEED) % 6) == 0;
+      currentColorBrightness = 0;
+  } else if (mode == MODE_FAST_COLOR_SWITCH) {
+      currentColorBrightness = STANDARD_COLOR_BRIGHTNESS;
+  }
+
+
+  //Make lights pulse in mode 1
+  if (mode != MODE_FAST_COLOR_FLASH) colorTimer++;
+
+  //If there hasn't been an impulse in a while, move to a slow mode
+  if (mode < MODE_SLOW_FADE && timeSinceLastBeat >= TIME_BEFORE_FADE_MODE) {
+    mode = MODE_SLOW_FADE + random(0, 3);
+    colorTimer = 0;
+    nextColor = getNextColor();
+  //Generate new color & tick color timer
+  } else if (colorTimer >= FADE_SPEED) {
+    currentColor = nextColor;
+    nextColor = getNextColor();
+    colorTimer = 0;
+    
+    //If in fade mode, fade to the common fade brightness
+    if (mode >= MODE_SLOW_FADE) currentColorBrightness = FADE_COLOR_BRIGHTNESS;
+  }
+  if (brightTimer < 10000) brightTimer++;
+  
+  //Automatically switch hard modes after a while(only change when beat hits)
+  //-Happens automatically after a while in fast mode to add variety
+  //-If in slow mode any trigger will bring it back to a hard mode
+  bool jumpingInFromSlow = mode >= MODE_SLOW_FADE;
+  bool jumpingInFromStrobe = mode == MODE_FAST_STROBE;
+  if ((--modeSwitchTimer <= 0 || jumpingInFromSlow) && triggeredChange) {
+    mode = random(0, (jumpingInFromSlow ? 3 : 5)) % 3; //Randomly pick new mode, while prefering slow modes by double if not switching from a slow mode
+    if (jumpingInFromStrobe && mode == MODE_FAST_STROBE) mode = MODE_FAST_COLOR_FLASH;
+    //Determine time till switching to the next mode
+    switch(mode) {
+      case MODE_FAST_STROBE:
+        modeSwitchTimer = random(50, 200);
+        break;
+      default:
+        modeSwitchTimer = random(400, 7000);
+        break;
+    }
+
+  //When changing back into fast mode, update the colors to something fresh
+    if (jumpingInFromSlow) {
+      currentColor = getColorByIndex(random(0, 6));
+      nextColor = getNextColor();
+    }
+  }
+
+  //Calculate current and future RGB values
+  float tto = (mode < MODE_SLOW_FADE) ? 0 : ((float)colorTimer / FADE_SPEED);
+  float colorBrightness = lerp(currentColorBrightness, FADE_COLOR_BRIGHTNESS, tto);
+  colorBrightness *= colorBrightMaster;
+  
+  float currentR = (currentColor & 0b11) * Third;
+  float currentG = ((currentColor >> 2) & 0b11) * Third;
+  float currentB = ((currentColor >> 4) & 0b11) * Third;
+  float currentA = ((currentColor >> 6) & 0b11) * Third;
+  float currentU = ((currentColor >> 8) & 0b11) * Third;
+  float nextR = (nextColor & 0b11) * Third;
+  float nextG = ((nextColor >> 2) & 0b11) * Third;
+  float nextB = ((nextColor >> 4) & 0b11) * Third;
+  float nextA = ((nextColor >> 6) & 0b11) * Third;
+  float nextU = ((nextColor >> 8) & 0b11) * Third;
+
+
+  //If sensitivity is turned all the way down, activate EAST mode
+  if (rawThreshold <= SENS_THRESHOLD_EAST_MODE) {
+    currentR = 0.3;
+    currentG = 0;
+    currentB = 1;
+    currentA = 0;
+    currentU = 0;
+    whiteBright = 0;
+    nextR = 0;
+    nextG = 1;
+    nextB = 0.6;
+    nextA = 0;
+    nextU = 0;
+    tto = (float)abs(eastCounter - EAST_COUNTER_MAX / 2) / EAST_COUNTER_MAX * 2;
+    eastCounter = (eastCounter+1) % EAST_COUNTER_MAX;
+    colorBrightness = colorBrightMaster;
+    
+    if (power >= POWER_THRESHOLD_FLOOD) whiteBright = 1;
+  }
+
+  //Prevent strobe oder flood from going off when the lighting is turned off
+  if (power <= POWER_THRESHOLD_OFF) {
+    whiteBright = 0;
+  }
+

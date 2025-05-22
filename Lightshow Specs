@@ -1,0 +1,50 @@
+Modes(+Args):
+-Off
+-Constant color switch(colorA, colorB)
+-Constant color fade(colorA, colorB, duration)
+-Fade(color[], biColor, duration)
+-Switch(color[], biColor)
+-Flash(color[], lowlevel, duration)
+-BiCueFlash(colorA, colorB, duration)
+-Strobe(color, softRollOff, speed)
+
+---Protocol---
+Header: 24 20 1F
+Field: 01-08
+Payload: 00-FF (x1-x4 -> length)
+
+---Fields(length---
+01: DISPLAY_STATUS_CODE(1)
+02: LIGHTING_APPLY(1) [0 => apply immediately, 1 => apply next beat]
+03: LIGHTING_MODE(1)
+04: LIGHTING_COLOR_SHIFT(1)
+05: LIGHTING_SPEED(1)
+06: LIGHTING_GENERAL_PURPOSE(2)
+07: LIGHTING_PALLETTE_SIZE(1)
+08: LIGHTING_PALLETTE_A(3)
+09: LIGHTING_PALLETTE_B(3)
+0A: LIGHTING_PALLETTE_C(3)
+0B: LIGHTING_PALLETTE_D(3)
+0C: LIGHTING_PALLETTE_E(3)
+0D: LIGHTING_PALLETTE_F(3)
+0E: LIGHTING_PALLETTE_G(3)
+0F: LIGHTING_PALLETTE_H(3)
+
+
+---Modes---
+00: OFF()
+01: SET_COLOR(PALLETTE_A boxi1Color, PALLETTE_B boxi2Color)
+02: FADE_TO_COLOR(PALLETTE_A boxi1Color, PALLETTE_B boxi2Color, SPEED speed)
+03: PALLETTE_FADE(PALLETTE colors, SPEED speed, LIGHTING_COLOR_SHIFT boxi2ColorIndexShift)
+04: PALLETTE_SWITCH(PALLETTE colors, LIGHTING_COLOR_SHIFT boxi2ColorIndexShift)
+05: PALLETTE_FLASH(PALLETTE colors, SPEED fadeOutSpeed, LIGHTING_GENERAL_PURPOSE targetBrightness, LIGHTING_COLOR_SHIFT boxi2ColorIndexShift)
+06: BI_COLOR_FLASH(PALLETTE_A startColor, PALLETTE_B endColor, SPEED speed)
+07: STROBE(PALLETTE_A color, SPEED frequency, GENERAL_PURPOSE rolloff)
+
+--Status Codes---
+00: BOOTING (transitions to 0x02 if host(RPI) doesn't change status code to any other status code til 12 seconds after bootup)
+01: HOST_AWAKE (all good, RPI connected)
+02: HOST_NO_ACTIVITY (the RPI shows no sign of activity)
+03: DSP_SERVER_FAILED (shows if the display server failed to start up)
+04: HOST_CONNECTION_FAILED (RPI couldn't connect to host WIFI)
+05: ACTIVE (display server is running)
