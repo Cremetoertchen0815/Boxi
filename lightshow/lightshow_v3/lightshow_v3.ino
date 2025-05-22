@@ -10,13 +10,8 @@
 #define MUSIC_PIN      7
 #define BRIGHTNESS_PIN A6
 #define TFT_CS         10
-#define TFT_RST       -1
+#define TFT_RST        3
 #define TFT_DC         9
-
-//TODO:
-//1. Implement all modes
-//2. Transmit values for Boxi 2 via UART
-//3. Change screen text with status code
 
 enum DataField {
   DISPLAY_STATUS_CODE = 0x01,
@@ -57,6 +52,15 @@ enum DisplayStatusCode {
 }; 
 
 struct Color {
+  uint8_t Red;
+  uint8_t Green;
+  uint8_t Blue;
+  uint8_t White;
+  uint8_t Amber;
+  uint8_t UltraViolet;
+}; 
+
+struct FloatColor {
   float Red;
   float Green;
   float Blue;
@@ -66,8 +70,8 @@ struct Color {
 }; 
 
 struct DualColor {
-  Color Boxi1;
-  Color Boxi2;
+  FloatColor Boxi1;
+  FloatColor Boxi2;
 }; 
 
 struct DataFieldSet {
@@ -80,11 +84,13 @@ struct DataFieldSet {
 }; 
 
 const int STROBE_SPEED = 7;
+const float BYTE_TO_FLOAT = 1.0 / 255;
 const float FADE_COLOR_BRIGHTNESS = 0.3; //The brightness of the color LEDs in fade mode
 const int BEAT_SHORTEST_SWITCH_TIME = 100; //The holding time between to music peaks to prevent too fast switching
 const int BEAT_MIN_DURATION = 1; //The number if cycles in a row that the beat line has to be pulled high to count as a beat
 const int POWER_THRESHOLD_OFF = 20;
 const int POWER_THRESHOLD_MAX = 1000;
+const uint16_t HOST_CONNECTION_TIMEOUT = 1000;
 
 //Variables
 int beatCheck = 0;
@@ -92,6 +98,7 @@ int beatPassed = -1;
 int timeSinceLastBeat = 0;
 int referenceIndex = 0;
 int referenceCounter = 0;
+uint16_t hostConnectionCounter = HOST_CONNECTION_TIMEOUT;
 DualColor referenceColor;
 DualColor lastOutputColor;
 bool updateReferenceColor = false;
@@ -114,15 +121,38 @@ float lerp(float a, float b, float f)
     return (a * (1.0 - f)) + (b * f);
 }
 
-Color lerpColor(Color a, Color b, float f) 
+FloatColor convertColor(Color color) {
+    FloatColor ret;
+    ret.Red = color.Red * BYTE_TO_FLOAT;
+    ret.Green = color.Green * BYTE_TO_FLOAT;
+    ret.Blue = color.Blue * BYTE_TO_FLOAT;
+    ret.White = color.White * BYTE_TO_FLOAT;
+    ret.Amber = color.Amber * BYTE_TO_FLOAT;
+    ret.UltraViolet = color.UltraViolet * BYTE_TO_FLOAT;
+    return ret;
+}
+
+FloatColor lerpColor(FloatColor a, Color b, float f) 
 {
-    Color ret;
-    ret.Red = lerp(a.Red, b.Red, f);
-    ret.Green = lerp(a.Green, b.Green, f);
-    ret.Blue = lerp(a.Blue, b.Blue, f);
-    ret.White = lerp(a.White, b.White, f);
-    ret.Amber = lerp(a.Amber, b.Amber, f);
-    ret.UltraViolet = lerp(a.UltraViolet, b.UltraViolet, f);
+    FloatColor ret;
+    ret.Red = lerp(a.Red, (float)b.Red * BYTE_TO_FLOAT, f);
+    ret.Green = lerp(a.Green, (float)b.Green * BYTE_TO_FLOAT, f);
+    ret.Blue = lerp(a.Blue, (float)b.Blue * BYTE_TO_FLOAT, f);
+    ret.White = lerp(a.White, (float)b.White * BYTE_TO_FLOAT, f);
+    ret.Amber = lerp(a.Amber, (float)b.Amber * BYTE_TO_FLOAT, f);
+    ret.UltraViolet = lerp(a.UltraViolet, (float)b.UltraViolet * BYTE_TO_FLOAT, f);
+    return ret;
+}
+
+FloatColor lerpColor(Color a, Color b, float f) 
+{
+    FloatColor ret;
+    ret.Red = lerp(a.Red * BYTE_TO_FLOAT, b.Red * BYTE_TO_FLOAT, f);
+    ret.Green = lerp(a.Green * BYTE_TO_FLOAT, b.Green * BYTE_TO_FLOAT, f);
+    ret.Blue = lerp(a.Blue * BYTE_TO_FLOAT, b.Blue * BYTE_TO_FLOAT, f);
+    ret.White = lerp(a.White * BYTE_TO_FLOAT, b.White * BYTE_TO_FLOAT, f);
+    ret.Amber = lerp(a.Amber * BYTE_TO_FLOAT, b.Amber * BYTE_TO_FLOAT, f);
+    ret.UltraViolet = lerp(a.UltraViolet * BYTE_TO_FLOAT, b.UltraViolet * BYTE_TO_FLOAT, f);
     return ret;
 }
 
@@ -144,33 +174,72 @@ DualColor multiplyDualColor(DualColor a, float f)
     return ret;
 }
 
-Color multiplyColor(Color a, float f) 
+FloatColor multiplyColor(Color a, float f) 
 {
-    Color ret;
-    ret.Red = a.Red * f;
-    ret.Green = a.Green * f;
-    ret.Blue = a.Blue * f;
-    ret.White = a.White * f;
-    ret.Amber = a.Amber * f;
-    ret.UltraViolet = a.UltraViolet * f;
+    FloatColor ret;
+    ret.Red = (float)a.Red * BYTE_TO_FLOAT * f;
+    ret.Green = (float)a.Green * BYTE_TO_FLOAT * f;
+    ret.Blue = (float)a.Blue * BYTE_TO_FLOAT * f;
+    ret.White = (float)a.White * BYTE_TO_FLOAT * f;
+    ret.Amber = (float)a.Amber * BYTE_TO_FLOAT * f;
+    ret.UltraViolet = (float)a.UltraViolet * BYTE_TO_FLOAT * f;
     return ret;
 }
 
-DataFieldSet createDefaultMode() {
-  DataFieldSet settings;
-  settings.Pallette[0] = {1, 0, 0, 0, 0, 0};
-  settings.Pallette[1] = {1, 1, 0, 0, 0, 0};
-  settings.Pallette[2] = {0, 1, 0, 0, 0, 0};
-  settings.Pallette[3] = {0, 1, 1, 0, 0, 0};
-  settings.Pallette[4] = {0, 0, 1, 0, 0, 0};
-  settings.Pallette[5] = {1, 0, 1, 0, 0, 0};
-  settings.PalletteSize = 6;
-  settings.Mode = PALLETTE_FADE;
-  settings.Speed = 20;
+void createDefaultMode() {
+  fieldSetA.Pallette[0] = {255, 0, 0, 0, 0, 0};
+  fieldSetA.Pallette[1] = {255, 255, 0, 0, 0, 0};
+  fieldSetA.Pallette[2] = {0, 255, 0, 0, 0, 0};
+  fieldSetA.Pallette[3] = {0, 255, 255, 0, 0, 0};
+  fieldSetA.Pallette[4] = {0, 0, 255, 0, 0, 0};
+  fieldSetA.Pallette[5] = {255, 0, 255, 0, 0, 0};
+  fieldSetA.PalletteSize = 6;
+  fieldSetA.Mode = PALLETTE_FADE;
+  fieldSetA.Speed = 200;
 }
 
 void handleDisplayStatusCode(DisplayStatusCode statusCode) {
   dspStatusCode = statusCode;
+  char* textToPrint;
+
+  switch(statusCode) {
+    case BOOTING:
+      textToPrint = "Booting...";
+      break;
+    case HOST_AWAKE:
+      return;
+    case HOST_NO_ACTIVITY:
+      textToPrint = "ERR_0x02: HOST_NO_ACTIVITY";
+      break;
+    case DSP_SERVER_FAILED:
+      textToPrint = "ERR_0x03: DSP_SERVER_FAILED";
+      break;
+    case HOST_CONNECTION_FAILED:
+      textToPrint = "ERR_0x04: HOST_CONNECTION_FAILED";
+      break;
+    case ACTIVE:
+      textToPrint = "Booting complete!";
+      break;
+    default:
+      textToPrint = "ERR_0xFF: UNKNOWN_ERR";
+      break;
+  }
+
+
+  tft.fillRect(0, 119, 160, 9, 0x0000);
+
+  tft.setCursor(0, 119);
+  tft.setTextColor(0XFFFF);
+  tft.print(textToPrint);
+}
+
+void checkHostActivity() {
+  if (hostConnectionCounter > 0) {
+    hostConnectionCounter--;
+    
+  } else if (hostConnectionCounter == 0 && dspStatusCode == BOOTING) {
+    handleDisplayStatusCode(HOST_NO_ACTIVITY);
+  }
 }
 
 void applyLighting() {
@@ -243,7 +312,7 @@ void processUart() {
       fieldSet->Mode = receivedData[0];
       break;
     case LIGHTING_SPEED:
-      fieldSet->Speed = (receivedData[0] << 8) + receivedData[1];
+      fieldSet->Speed = ((uint16_t)receivedData[0] << 8) + receivedData[1];
       break;
     case LIGHTING_PALLETTE_SIZE:
       fieldSet->PalletteSize = receivedData[0] > 8 ? 8 : receivedData[0];
@@ -259,12 +328,12 @@ void processUart() {
       if (index < 0 || index > 7) return;
 
       Color* color = &fieldSet->Pallette[index];
-      color->Red = receivedData[0] / 255.0;
-      color->Green = receivedData[1] / 255.0;
-      color->Blue = receivedData[2] / 255.0;
-      color->White = receivedData[3] / 255.0;
-      color->Amber = receivedData[4] / 255.0;
-      color->UltraViolet = receivedData[5] / 255.0;
+      color->Red = receivedData[0];
+      color->Green = receivedData[1];
+      color->Blue = receivedData[2];
+      color->White = receivedData[3];
+      color->Amber = receivedData[4];
+      color->UltraViolet = receivedData[5];
       break;
   }
 }
@@ -303,8 +372,8 @@ float getBrightness() {
 //Mode SET_COLOR
 DualColor handleModeA(DataFieldSet* settings) {
   DualColor ret;
-  ret.Boxi1 = settings->Pallette[0];
-  ret.Boxi2 = settings->Pallette[1];
+  ret.Boxi1 = convertColor(settings->Pallette[0]);
+  ret.Boxi2 = convertColor(settings->Pallette[1]);
   return ret;
 }
 
@@ -324,7 +393,7 @@ DualColor handleModeC(DataFieldSet* settings) {
   Color targetColorA = settings->Pallette[referenceIndex];
   Color targetColorB = settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize];
 
-  float fadeProgress = referenceCounter / (float)settings->Speed;
+  float fadeProgress = (float)referenceCounter / settings->Speed;
   ret.Boxi1 = lerpColor(referenceColor.Boxi1, targetColorA, fadeProgress);
   ret.Boxi2 = lerpColor(referenceColor.Boxi2, targetColorB, fadeProgress);
 
@@ -345,8 +414,8 @@ DualColor handleModeD(DataFieldSet* settings, bool onBeat) {
     referenceIndex = (referenceIndex + 1) % settings->PalletteSize;
   }
 
-  ret.Boxi1 = settings->Pallette[referenceIndex];
-  ret.Boxi2 = settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize];
+  ret.Boxi1 = convertColor(settings->Pallette[referenceIndex]);
+  ret.Boxi2 = convertColor(settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize]);
   return ret;
 }
 
@@ -360,8 +429,8 @@ DualColor handleModeE(DataFieldSet* settings, bool onBeat) {
   }
 
   float flashBrightness = clampFloat(exp(referenceCounter * settings->Speed * -0.05) * 5 + settings->GeneralPurpose / 255.0);
-  ret.Boxi1 = settings->Pallette[referenceIndex];
-  ret.Boxi2 = settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize];
+  ret.Boxi1 = convertColor(settings->Pallette[referenceIndex]);
+  ret.Boxi2 = convertColor(settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize]);
   return multiplyDualColor(ret, flashBrightness);
 }
 
@@ -378,7 +447,7 @@ DualColor handleModeF(DataFieldSet* settings, bool onBeat) {
   Color endColor = settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize];
 
   float flashValue = clampFloat(exp(referenceCounter * settings->Speed * -0.05) * 5 + settings->GeneralPurpose / 255.0);
-  Color resultColor = lerpColor(startColor, endColor, flashValue);
+  FloatColor resultColor = lerpColor(startColor, endColor, flashValue);
   ret.Boxi1 = resultColor;
   ret.Boxi2 = resultColor;
   return ret;
@@ -388,7 +457,7 @@ DualColor handleModeF(DataFieldSet* settings, bool onBeat) {
 DualColor handleModeG(DataFieldSet* settings) {
   DualColor ret;
   int strobeMultiplier = (int)((referenceCounter++ / settings->Speed) % 6) == 0;
-  Color resultColor = multiplyColor(settings->Pallette[0], strobeMultiplier);
+  FloatColor resultColor = multiplyColor(settings->Pallette[0], strobeMultiplier);
   ret.Boxi1 = resultColor;
   ret.Boxi2 = resultColor;
   return ret;
@@ -405,8 +474,6 @@ void transmitColors(DualColor outputColor) {
   uint16_t pwmValA = outputColor.Boxi1.Amber * MAX_PWM;
   uint16_t pwmValUV = outputColor.Boxi1.UltraViolet * MAX_PWM;
 
-  //TODO: Send RGBWAUV values to Boxi 2 via UART
-
   //Update internal PWM signals accordingly
   pwm.setPWM(0, 0, pwmValR);
   pwm.setPWM(1, 0, pwmValG);
@@ -414,6 +481,19 @@ void transmitColors(DualColor outputColor) {
   pwm.setPWM(3, 0, pwmValW);
   pwm.setPWM(7, 0, pwmValA);
   pwm.setPWM(5, 0, pwmValUV);
+
+  uint16_t sendValR = outputColor.Boxi1.Red * MAX_PWM;
+  uint16_t sendValG = outputColor.Boxi1.Green * MAX_PWM;
+  uint16_t sendValB = outputColor.Boxi1.Blue * MAX_PWM;
+  uint16_t sendValW = outputColor.Boxi1.White * MAX_PWM;
+  uint16_t sendValA = outputColor.Boxi1.Amber * MAX_PWM;
+  uint16_t sendValUV = outputColor.Boxi1.UltraViolet * MAX_PWM;
+  uint8_t bytesToSend[] = {
+    0xe6, 0x21,
+    sendValR>>8, sendValR, sendValG>>8, sendValG,
+    sendValB>>8, sendValB, sendValW>>8, sendValW,
+    sendValA>>8, sendValA, sendValUV>>8, sendValUV};
+  Serial.write(bytesToSend, 14);
 
   //Update external lighting via DMX
   uint8_t dmxValR1 = outputColor.Boxi1.Red * MAX_DMX;
@@ -478,12 +558,18 @@ void printSplashScreen() {
 }
 
 void setup() {
+  // Initialize the screens
+  tft.initR(INITR_BLACKTAB);
+  // tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
+  tft.setSPISpeed(2000000);
+  printSplashScreen();
+
   //Set up DMX
-  DmxSimple.usePin(11);
+  DmxSimple.usePin(6);
   DmxSimple.maxChannel(30);
   
   pinMode(MUSIC_PIN, INPUT);
-
+  
   pwm.begin();
   pwm.setOscillatorFrequency(27000000);
   pwm.setPWMFreq(1600);  // This is the maximum PWM frequency
@@ -498,17 +584,11 @@ void setup() {
   randomSeed(analogRead(7));
 
   //Send default colors
-  fieldSetA = createDefaultMode();
+  createDefaultMode();
   float brightness = getBrightness();
   referenceColor.Boxi1 = {brightness, 0, 0, 0, 0, 0};
   referenceColor.Boxi2 = {brightness, 0, 0, 0, 0, 0};
   transmitColors(referenceColor);
-
-  // Initialize the screens
-  tft.initR(INITR_BLACKTAB);
-  // tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
-  tft.setSPISpeed(400000);
-  printSplashScreen();
 
   Serial.begin(9600);
 }
@@ -517,6 +597,7 @@ void loop() {
   bool onBeat = checkForBeat();
 
   processUart();
+  checkHostActivity();
 
   if (applyLightingOnNextBeat) {
     applyLighting();
