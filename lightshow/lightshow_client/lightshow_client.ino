@@ -70,8 +70,8 @@ void checkHostActivity() {
 //Processes the incoming data from the RPI at the UART port
 bool processUart() {
   //Make sure header is fine before handling data
-  if (Serial.available() < 14 || 
-      Serial.read() != 0xe6 ||  
+  if (Serial.available() < 14 ||
+      Serial.read() != 0xe6 ||
       Serial.read() != 0x21) return false;
 
   //Read payload
@@ -146,17 +146,13 @@ void setup() {
   tft.setSPISpeed(2000000);
   printSplashScreen();
 
-  Serial.begin(9600);
+  Serial.begin(19200);
 }
 
 void loop() {
   checkHostActivity();
 
-  delay(15);
-
-  if (!processUart()) {
-    return;
-  }
+  processUart();
 
   //Update internal PWM signals accordingly
   pwm.setPWM(0, 0, currentOutput.Red);

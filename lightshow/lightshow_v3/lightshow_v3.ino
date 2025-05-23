@@ -86,7 +86,7 @@ struct DataFieldSet {
 const int STROBE_SPEED = 7;
 const float BYTE_TO_FLOAT = 1.0 / 255;
 const float FADE_COLOR_BRIGHTNESS = 0.3; //The brightness of the color LEDs in fade mode
-const int BEAT_SHORTEST_SWITCH_TIME = 100; //The holding time between to music peaks to prevent too fast switching
+const int BEAT_SHORTEST_SWITCH_TIME = 20; //The holding time between to music peaks to prevent too fast switching
 const int BEAT_MIN_DURATION = 1; //The number if cycles in a row that the beat line has to be pulled high to count as a beat
 const int POWER_THRESHOLD_OFF = 20;
 const int POWER_THRESHOLD_MAX = 1000;
@@ -187,15 +187,17 @@ FloatColor multiplyColor(Color a, float f)
 }
 
 void createDefaultMode() {
-  fieldSetA.Pallette[0] = {255, 0, 0, 0, 0, 0};
+  fieldSetA.Pallette[0] = {255, 255, 255, 0, 0, 0};
   fieldSetA.Pallette[1] = {255, 255, 0, 0, 0, 0};
   fieldSetA.Pallette[2] = {0, 255, 0, 0, 0, 0};
   fieldSetA.Pallette[3] = {0, 255, 255, 0, 0, 0};
   fieldSetA.Pallette[4] = {0, 0, 255, 0, 0, 0};
   fieldSetA.Pallette[5] = {255, 0, 255, 0, 0, 0};
   fieldSetA.PalletteSize = 6;
-  fieldSetA.Mode = PALLETTE_FADE;
-  fieldSetA.Speed = 200;
+  fieldSetA.Mode = STROBE;
+  fieldSetA.ColorShift = 1;
+  fieldSetA.Speed = 1;
+  fieldSetA.GeneralPurpose = 255;
 }
 
 void handleDisplayStatusCode(DisplayStatusCode statusCode) {
@@ -358,6 +360,7 @@ bool checkForBeat() {
 
 //Reads the master brightness
 float getBrightness() {
+  return 1.0;
   int power = analogRead(BRIGHTNESS_PIN);
   if (power <= POWER_THRESHOLD_OFF) {
     return 0;
@@ -380,7 +383,7 @@ DualColor handleModeA(DataFieldSet* settings) {
 //Mode FADE_TO_COLOR
 DualColor handleModeB(DataFieldSet* settings) {
   DualColor ret;
-  float fadeProgress = referenceCounter / (float)settings->Speed;
+  float fadeProgress = clampFloat(referenceCounter / (float)settings->Speed);
   ret.Boxi1 = lerpColor(referenceColor.Boxi1, settings->Pallette[0], fadeProgress);
   ret.Boxi2 = lerpColor(referenceColor.Boxi2, settings->Pallette[1], fadeProgress);
   referenceCounter++;
@@ -428,9 +431,10 @@ DualColor handleModeE(DataFieldSet* settings, bool onBeat) {
     referenceCounter = 0;
   }
 
-  float flashBrightness = clampFloat(exp(referenceCounter * settings->Speed * -0.05) * 5 + settings->GeneralPurpose / 255.0);
+  float flashBrightness = clampFloat(exp(referenceCounter * settings->Speed * -0.01) * 5 + settings->GeneralPurpose / 255.0);
   ret.Boxi1 = convertColor(settings->Pallette[referenceIndex]);
   ret.Boxi2 = convertColor(settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize]);
+  referenceCounter++;
   return multiplyDualColor(ret, flashBrightness);
 }
 
@@ -446,8 +450,9 @@ DualColor handleModeF(DataFieldSet* settings, bool onBeat) {
   Color startColor = settings->Pallette[referenceIndex];
   Color endColor = settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize];
 
-  float flashValue = clampFloat(exp(referenceCounter * settings->Speed * -0.05) * 5 + settings->GeneralPurpose / 255.0);
+  float flashValue = clampFloat(exp(referenceCounter * settings->Speed * -0.01) * 5);
   FloatColor resultColor = lerpColor(startColor, endColor, flashValue);
+  referenceCounter++;
   ret.Boxi1 = resultColor;
   ret.Boxi2 = resultColor;
   return ret;
@@ -479,8 +484,14 @@ void transmitColors(DualColor outputColor) {
   pwm.setPWM(1, 0, pwmValG);
   pwm.setPWM(2, 0, pwmValB);
   pwm.setPWM(3, 0, pwmValW);
-  pwm.setPWM(7, 0, pwmValA);
+  pwm.setPWM(4, 0, pwmValA);
   pwm.setPWM(5, 0, pwmValUV);
+  pwm.setPWM(15, 0, pwmValR);
+  pwm.setPWM(14, 0, pwmValG);
+  pwm.setPWM(13, 0, pwmValB);
+  pwm.setPWM(12, 0, pwmValW);
+  pwm.setPWM(11, 0, pwmValA);
+  pwm.setPWM(10, 0, pwmValUV);
 
   uint16_t sendValR = outputColor.Boxi1.Red * MAX_PWM;
   uint16_t sendValG = outputColor.Boxi1.Green * MAX_PWM;
@@ -566,7 +577,7 @@ void setup() {
 
   //Set up DMX
   DmxSimple.usePin(6);
-  DmxSimple.maxChannel(30);
+  DmxSimple.maxChannel(20);
   
   pinMode(MUSIC_PIN, INPUT);
   
@@ -590,7 +601,7 @@ void setup() {
   referenceColor.Boxi2 = {brightness, 0, 0, 0, 0, 0};
   transmitColors(referenceColor);
 
-  Serial.begin(9600);
+  Serial.begin(19200);
 }
 
 void loop() {
