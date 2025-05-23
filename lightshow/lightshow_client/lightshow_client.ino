@@ -7,6 +7,7 @@
 #define TFT_CS         10
 #define TFT_RST       -1
 #define TFT_DC         9
+#define TFT_LIGHT      8
 
 enum DisplayStatusCode {
   BOOTING = 0x00,
@@ -131,6 +132,9 @@ void handleDisplayStatusCode(DisplayStatusCode statusCode) {
 }
 
 void setup() {
+  pinMode(TFT_LIGHT, OUTPUT);
+  digitalWrite(TFT_LIGHT, LOW);
+  
   pwm.begin();
   pwm.setOscillatorFrequency(27000000);
   pwm.setPWMFreq(1600);  // This is the maximum PWM frequency
@@ -145,6 +149,7 @@ void setup() {
   // tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
   tft.setSPISpeed(2000000);
   printSplashScreen();
+  digitalWrite(TFT_LIGHT, HIGH);
 
   Serial.begin(19200);
 }
