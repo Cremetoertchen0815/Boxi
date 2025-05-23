@@ -257,9 +257,9 @@ void applyLighting() {
 void processUart() {
   //Make sure header is fine before handling data
   if (Serial.available() < 4 || 
-      Serial.read() != 0x24 ||  
-      Serial.read() != 0x20 ||  
-      Serial.read() != 0x1F) return;
+      Serial.read() != 0x55 ||  
+      Serial.read() != 0x77 ||  
+      Serial.read() != 0x4f) return;
 
   //Read field
   enum DataField field = Serial.read();

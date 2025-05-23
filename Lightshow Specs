@@ -15,7 +15,7 @@ Payload: 00-FF (x1-x4 -> length)
 
 ---Fields(length---
 01: DISPLAY_STATUS_CODE(1)
-02: LIGHTING_APPLY(1) [0 => apply immediately, 1 => apply next beat]
+02: LIGHTING_APPLY(2)
 03: LIGHTING_MODE(1)
 04: LIGHTING_COLOR_SHIFT(1)
 05: LIGHTING_SPEED(1)
