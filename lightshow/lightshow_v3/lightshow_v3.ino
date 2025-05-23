@@ -12,6 +12,7 @@
 #define TFT_CS         10
 #define TFT_RST        3
 #define TFT_DC         9
+#define TFT_LIGHT      8
 
 enum DataField {
   DISPLAY_STATUS_CODE = 0x01,
@@ -187,16 +188,16 @@ FloatColor multiplyColor(Color a, float f)
 }
 
 void createDefaultMode() {
-  fieldSetA.Pallette[0] = {255, 255, 255, 0, 0, 0};
+  fieldSetA.Pallette[0] = {255, 0, 0, 0, 0, 0};
   fieldSetA.Pallette[1] = {255, 255, 0, 0, 0, 0};
   fieldSetA.Pallette[2] = {0, 255, 0, 0, 0, 0};
   fieldSetA.Pallette[3] = {0, 255, 255, 0, 0, 0};
   fieldSetA.Pallette[4] = {0, 0, 255, 0, 0, 0};
   fieldSetA.Pallette[5] = {255, 0, 255, 0, 0, 0};
   fieldSetA.PalletteSize = 6;
-  fieldSetA.Mode = STROBE;
+  fieldSetA.Mode = PALLETTE_FADE;
   fieldSetA.ColorShift = 1;
-  fieldSetA.Speed = 1;
+  fieldSetA.Speed = 500;
   fieldSetA.GeneralPurpose = 255;
 }
 
@@ -569,17 +570,13 @@ void printSplashScreen() {
 }
 
 void setup() {
-  // Initialize the screens
-  tft.initR(INITR_BLACKTAB);
-  // tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
-  tft.setSPISpeed(2000000);
-  printSplashScreen();
+  pinMode(MUSIC_PIN, INPUT);
+  pinMode(TFT_LIGHT, OUTPUT);
+  digitalWrite(TFT_LIGHT, LOW);
 
   //Set up DMX
   DmxSimple.usePin(6);
   DmxSimple.maxChannel(20);
-  
-  pinMode(MUSIC_PIN, INPUT);
   
   pwm.begin();
   pwm.setOscillatorFrequency(27000000);
@@ -589,7 +586,6 @@ void setup() {
   // some i2c devices dont like this so much so if you're sharing the bus, watch
   // out for this!
   Wire.setClock(400000);
-
   
   //Get random seed
   randomSeed(analogRead(7));
@@ -600,6 +596,13 @@ void setup() {
   referenceColor.Boxi1 = {brightness, 0, 0, 0, 0, 0};
   referenceColor.Boxi2 = {brightness, 0, 0, 0, 0, 0};
   transmitColors(referenceColor);
+
+  // Initialize the screens
+  tft.initR(INITR_BLACKTAB);
+  // tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
+  tft.setSPISpeed(2000000);
+  printSplashScreen();
+  digitalWrite(TFT_LIGHT, HIGH);
 
   Serial.begin(19200);
 }
