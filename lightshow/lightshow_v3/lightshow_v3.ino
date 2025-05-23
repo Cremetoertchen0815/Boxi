@@ -103,10 +103,10 @@ uint16_t hostConnectionCounter = HOST_CONNECTION_TIMEOUT;
 DualColor referenceColor;
 DualColor lastOutputColor;
 bool updateReferenceColor = false;
-bool applyLightingOnNextBeat = false;
 DataFieldSet fieldSetA;
 DataFieldSet fieldSetB;
 uint8_t activeField = 0;
+int lightApplyCountdown = -1;
 DisplayStatusCode dspStatusCode = BOOTING;
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
@@ -250,6 +250,7 @@ void applyLighting() {
   updateReferenceColor = true;
   referenceCounter = 0;
   referenceIndex = 0;
+  lightApplyCountdown = -1;
 }
 
 //Processes the incoming data from the RPI at the UART port
@@ -267,13 +268,13 @@ void processUart() {
   uint8_t dataLen = 0;
   switch(field) {
     case DISPLAY_STATUS_CODE:
-    case LIGHTING_APPLY:
     case LIGHTING_MODE:
     case LIGHTING_PALLETTE_SIZE:
     case LIGHTING_COLOR_SHIFT:
     case LIGHTING_GENERAL_PURPOSE:
       dataLen = 1;
       break;
+    case LIGHTING_APPLY:
     case LIGHTING_SPEED:
       dataLen = 2;
       break;
@@ -305,11 +306,7 @@ void processUart() {
       handleDisplayStatusCode(receivedData[0]);
       break;
     case LIGHTING_APPLY:
-      if (receivedData[0] != 0) {
-        applyLightingOnNextBeat = true;
-      } else {
-        applyLighting();
-      }
+      lightApplyCountdown = ((int)receivedData[0] << 8) + receivedData[1];
       break;
     case LIGHTING_MODE:
       fieldSet->Mode = receivedData[0];
@@ -613,7 +610,7 @@ void loop() {
   processUart();
   checkHostActivity();
 
-  if (applyLightingOnNextBeat) {
+  if (lightApplyCountdown > 0 && --lightApplyCountdown == 0) {
     applyLighting();
   }
 
