@@ -597,7 +597,7 @@ void setup() {
   // Initialize the screens
   tft.initR(INITR_BLACKTAB);
   // tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
-  tft.setSPISpeed(2000000);
+  tft.setSPISpeed(4000000);
   printSplashScreen();
   digitalWrite(TFT_LIGHT, HIGH);
 
@@ -610,7 +610,7 @@ void loop() {
   processUart();
   checkHostActivity();
 
-  if (lightApplyCountdown > 0 && --lightApplyCountdown == 0) {
+  if (lightApplyCountdown > -1 && (--lightApplyCountdown == -1 || onBeat)) {
     applyLighting();
   }
 
