@@ -3,12 +3,8 @@ package BoxiBus
 import (
 	"errors"
 	"fmt"
+	"go.bug.st/serial"
 	"log"
-	"periph.io/x/conn/v3"
-	"periph.io/x/conn/v3/physic"
-	"periph.io/x/conn/v3/uart"
-	"periph.io/x/conn/v3/uart/uartreg"
-	"periph.io/x/host/v3"
 	"sync"
 )
 
@@ -34,33 +30,28 @@ type BusMessage struct {
 
 type CommunicationHub struct {
 	lock       *sync.Mutex
-	connection conn.Conn
-	portClose  uart.PortCloser
+	connection serial.Port
 	connected  bool
 }
 
 func ConnectToArduino(baudRate int) (*CommunicationHub, error) {
-	// Initialize host
-	if _, err := host.Init(); err != nil {
-		return nil, err
+
+	mode := &serial.Mode{
+		BaudRate: baudRate,
+		DataBits: 8,
+		Parity:   serial.NoParity,
+		StopBits: serial.OneStopBit,
 	}
 
-	// Open UART port
-	port, err := uartreg.Open("/dev/serial0")
+	port, err := serial.Open("/dev/ttyS0", mode)
 	if err != nil {
-		return nil, err
-	}
-
-	connection, err := port.Connect(physic.Frequency(baudRate), uart.One, uart.NoParity, uart.NoFlow, 8)
-	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open UART: %w", err)
 	}
 
 	sendMutex := sync.Mutex{}
 
 	return &CommunicationHub{
 		&sendMutex,
-		connection,
 		port,
 		true,
 	}, nil
@@ -85,8 +76,8 @@ func (hub *CommunicationHub) sendSingleMessage(message BusMessage) error {
 		sendBuffer[4+i] = message.payload[i]
 	}
 
-	receiveBuffer := make([]byte, payloadLen+4)
-	return hub.connection.Tx(sendBuffer, receiveBuffer)
+	_, err := hub.connection.Write(sendBuffer)
+	return err
 }
 
 func (hub *CommunicationHub) Send(block MessageBlock) error {
@@ -100,7 +91,7 @@ func (hub *CommunicationHub) Send(block MessageBlock) error {
 }
 
 func (hub *CommunicationHub) Close() {
-	err := hub.portClose.Close()
+	err := hub.connection.Close()
 	if err != nil {
 		log.Fatal(err)
 	}

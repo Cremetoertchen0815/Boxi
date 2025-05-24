@@ -62,16 +62,17 @@ func CreateLightingFadeToColor(boxi1 Color, boxi2 Color, speed uint16, cyclesBef
 	return []BusMessage{colorAMessage, colorBMessage, speedMessage, modeMessage, applyMessage}
 }
 
-func CreateLightingPaletteFade(palette []Color, speed uint16, paletteShift byte, cyclesBeforeApply uint16) MessageBlock {
-	colorMessages := make([]BusMessage, len(palette))
-	for i := 0; i < len(palette); i++ {
-		colorMessages[i] = BusMessage{LightingPaletteA + MemoryField(i), convertColor(palette[i])}
+func CreateLightingPaletteFade(palette []Color, speed uint16, paletteShift byte, cyclesBeforeApply uint16) (MessageBlock, error) {
+	paletteMessages, err := convertPalette(palette)
+	if err != nil {
+		return nil, err
 	}
+
 	speedMessage := BusMessage{LightingSpeed, convertShort(speed)}
 	shiftMessage := BusMessage{LightingColorShift, []byte{paletteShift}}
 	modeMessage := BusMessage{LightingMode, []byte{byte(PaletteFade)}}
 	applyMessage := BusMessage{LightingApply, convertShort(cyclesBeforeApply)}
-	return append(colorMessages, speedMessage, shiftMessage, modeMessage, applyMessage)
+	return append(paletteMessages, speedMessage, shiftMessage, modeMessage, applyMessage), nil
 }
 
 func CreateLightingPaletteSwitch(palette []Color, paletteShift byte, cyclesBeforeApply uint16) (MessageBlock, error) {
@@ -126,7 +127,7 @@ func CreateLightingStrobe(color Color, frequency uint16, rolloff byte, cyclesBef
 }
 
 func convertShort(short uint16) []byte {
-	return []byte{byte(short >> 8), byte(short | 0xff)}
+	return []byte{byte(short >> 8), byte(short & 0xff)}
 }
 
 func convertPalette(palette []Color) ([]BusMessage, error) {

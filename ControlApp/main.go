@@ -12,8 +12,8 @@ func main() {
 	}
 	defer connection.Close()
 
-	color := BoxiBus.Color{Green: 255, Blue: 255}
-	message := BoxiBus.CreateLightingSetColor(color, color, 0)
+	colorA := BoxiBus.Color{Blue: 255}
+	message := BoxiBus.CreateLightingStrobe(colorA, 3, 0, 0)
 	err = connection.Send(message)
 	if err != nil {
 		log.Fatal(err)
