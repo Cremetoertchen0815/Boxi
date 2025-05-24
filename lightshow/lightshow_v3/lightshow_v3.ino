@@ -441,7 +441,7 @@ DualColor handleModeF(DataFieldSet* settings, bool onBeat) {
   DualColor ret;
 
   if (onBeat) {
-    referenceIndex = (referenceIndex + 1) % settings->PalletteSize;
+    referenceIndex = (referenceIndex + 2) % settings->PalletteSize;
     referenceCounter = 0;
   }
 
