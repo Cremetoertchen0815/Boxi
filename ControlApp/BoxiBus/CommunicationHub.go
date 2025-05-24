@@ -1,6 +1,7 @@
 package BoxiBus
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"periph.io/x/conn/v3"
@@ -34,36 +35,42 @@ type BusMessage struct {
 type CommunicationHub struct {
 	lock       *sync.Mutex
 	connection conn.Conn
-	portClose  *uart.PortCloser
+	portClose  uart.PortCloser
+	connected  bool
 }
 
-func ConnectToArduino(baudRate int) CommunicationHub {
+func ConnectToArduino(baudRate int) (*CommunicationHub, error) {
 	// Initialize host
 	if _, err := host.Init(); err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	// Open UART port
 	port, err := uartreg.Open("/dev/serial0")
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	connection, err := port.Connect(physic.Frequency(baudRate), uart.One, uart.NoParity, uart.NoFlow, 8)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	sendMutex := sync.Mutex{}
 
-	return CommunicationHub{
+	return &CommunicationHub{
 		&sendMutex,
 		connection,
-		&port,
-	}
+		port,
+		true,
+	}, nil
 }
 
-func (hub *CommunicationHub) Send(message BusMessage) error {
+func (hub *CommunicationHub) sendSingleMessage(message BusMessage) error {
+	if !hub.connected {
+		return errors.New("connection is closed")
+	}
+
 	payloadLen := len(message.payload)
 	if payloadLen > 6 {
 		return fmt.Errorf("the payload length cannot exceed 6 bytes, but payload is %d bytes", payloadLen)
@@ -82,12 +89,20 @@ func (hub *CommunicationHub) Send(message BusMessage) error {
 	return hub.connection.Tx(sendBuffer, receiveBuffer)
 }
 
-func (hub *CommunicationHub) SendBlock(block MessageBlock) error {
+func (hub *CommunicationHub) Send(block MessageBlock) error {
 	for _, message := range block {
-		if err := hub.Send(message); err != nil {
+		if err := hub.sendSingleMessage(message); err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func (hub *CommunicationHub) Close() {
+	err := hub.portClose.Close()
+	if err != nil {
+		log.Fatal(err)
+	}
+	hub.connected = false
 }
