@@ -2,6 +2,7 @@ package main
 
 import (
 	"ControlApp/BoxiBus"
+	"ControlApp/Display"
 	"log"
 )
 
@@ -12,10 +13,26 @@ func main() {
 	}
 	defer connection.Close()
 
-	colorA := BoxiBus.Color{Blue: 255}
-	message := BoxiBus.CreateLightingStrobe(colorA, 3, 0, 0)
-	err = connection.Send(message)
+	displays, err := Display.ListenForServers(true)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	go transmitDisplayServerLogon(displays.ServerConnected, connection)
+}
+
+func transmitDisplayServerLogon(logonChannel <-chan int, boxiBus *BoxiBus.CommunicationHub) {
+	for {
+		serverId := <-logonChannel
+
+		if serverId != 1 {
+			continue
+		}
+
+		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.Active)
+		err := boxiBus.Send(message)
+		if err != nil {
+			log.Print(err)
+		}
 	}
 }
