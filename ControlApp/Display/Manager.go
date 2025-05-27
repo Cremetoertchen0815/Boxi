@@ -9,9 +9,9 @@ import (
 )
 
 type ServerManager struct {
-	Connections     map[int]*Server
+	connections     map[byte]*Server
 	connectionMutex *sync.Mutex
-	ServerConnected <-chan int
+	ServerConnected <-chan byte
 }
 
 func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
@@ -21,13 +21,13 @@ func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 		return nil, err
 	}
 
-	serverConnected := make(chan int)
+	serverConnected := make(chan byte)
 	manager := ServerManager{
-		make(map[int]*Server),
+		make(map[byte]*Server),
 		&sync.Mutex{},
 		serverConnected}
 
-	go listenForClients(&manager, listener, serverConnected)
+	go manager.listenForClients(listener, serverConnected)
 
 	if startLocalDisplayServer {
 		c := exec.Command("Tools/display_server.py")
@@ -40,7 +40,15 @@ func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 	return &manager, nil
 }
 
-func listenForClients(manager *ServerManager, listener net.Listener, serverConnected chan<- int) {
+func (manager *ServerManager) GetConnectedDisplays() []ServerDisplay {
+	keys := make([]ServerDisplay, 0, len(manager.connections))
+	for _, s := range manager.connections {
+		keys = append(keys, ServerDisplay(s.identifier*2), ServerDisplay(s.identifier*2+1))
+	}
+	return keys
+}
+
+func (manager *ServerManager) listenForClients(listener net.Listener, serverConnected chan<- byte) {
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
@@ -48,53 +56,60 @@ func listenForClients(manager *ServerManager, listener net.Listener, serverConne
 			continue
 		}
 
-		go handleClient(manager, conn, serverConnected)
+		go manager.handleClient(conn, serverConnected)
 	}
 }
 
-func handleClient(manager *ServerManager, conn net.Conn, serverConnected chan<- int) {
+func (manager *ServerManager) handleClient(conn net.Conn, serverConnected chan<- byte) {
 	defer conn.Close()
 
-	welcomeBuffer := make([]byte, 3)
-	if i, err := conn.Read(welcomeBuffer); i != 3 || err != nil {
+	welcomeBuffer := make([]byte, 7)
+	if i, err := conn.Read(welcomeBuffer); i != 10 || err != nil {
 		fmt.Println("Welcome message could not be received:", err)
 		return
 	}
 
-	if welcomeBuffer[0] != 0xE6 || welcomeBuffer[1] != 0x21 {
+	if welcomeBuffer[0] != 'h' ||
+		welcomeBuffer[1] != 'e' ||
+		welcomeBuffer[2] != 'w' ||
+		welcomeBuffer[3] != 'w' ||
+		welcomeBuffer[4] != 'o' ||
+		welcomeBuffer[5] != ':' {
 		fmt.Println("Welcome message had bad header.")
 		return
 	}
 
-	id := int(welcomeBuffer[2])
-	animationReceived := make(chan uint64)
-	server := Server{id, conn, animationReceived}
+	id := welcomeBuffer[6]
+	callbacks := make(map[uint32]chan<- bool)
+	writeLock := sync.Mutex{}
+	server := Server{id, conn, callbacks, &writeLock}
 
 	manager.connectionMutex.Lock()
-	manager.Connections[id] = &server
+	manager.connections[id] = &server
 	manager.connectionMutex.Unlock()
 
 	defer func() {
 		manager.connectionMutex.Lock()
-		delete(manager.Connections, id)
+		delete(manager.connections, id)
 		manager.connectionMutex.Unlock()
 	}()
 
 	serverConnected <- id
 
 	for {
-		messageBuffer := make([]byte, 6)
+		messageBuffer := make([]byte, 7)
 		i, err := conn.Read(welcomeBuffer)
 		if err != nil {
 			return
 		}
 
-		if i != 6 || messageBuffer[0] != 0x00 || messageBuffer[1] != 0x01 {
+		if i != 6 || messageBuffer[0] != 0xE6 || messageBuffer[1] != 0x21 {
 			continue
 		}
 
-		//As of now, only one message is supported, that is “AnimationReceived”
-		animationId := binary.BigEndian.Uint64(messageBuffer[2:])
-		animationReceived <- animationId
+		//Report callbacks
+		callbackId := binary.BigEndian.Uint32(messageBuffer[2:5])
+		callbackCh := callbacks[callbackId]
+		callbackCh <- messageBuffer[6] != 0
 	}
 }
