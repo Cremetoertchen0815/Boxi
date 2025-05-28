@@ -2,9 +2,11 @@ package Display
 
 import (
 	"encoding/binary"
+	"os"
+	"slices"
 )
 
-func (manager *ServerManager) UploadAnimation(animationId uint32, frames []string, displays ServerDisplay) {
+func (manager *ServerManager) UploadAnimation(animationId uint32, frames []string, displays ServerDisplay) error {
 	servers := make(map[byte]*Server)
 
 	//Find all display servers
@@ -31,6 +33,26 @@ func (manager *ServerManager) UploadAnimation(animationId uint32, frames []strin
 	}
 
 	//Send frames
+	for i, frame := range frames {
+		frameNr := uint16(i)
+		frameData, err := os.ReadFile(frame) // just pass the file name
+		if err != nil {
+			return err
+		}
+
+		frameData = append(animationIdBytes, frameData...)
+
+		for _, serverId := range serversToBeUpdates {
+			server := manager.connections[serverId]
+
+			success, err := server.sendInstructionWithCallback(UploadFrame, frameNr, frameData)
+			if err != nil || !success {
+				serversToBeUpdates = slices.DeleteFunc(serversToBeUpdates, func(element byte) bool { return element == serverId })
+			}
+		}
+	}
+
+	return nil
 }
 
 func (manager *ServerManager) PlayAnimation(animationId uint32, displays ServerDisplay) {
@@ -57,6 +79,6 @@ func (manager *ServerManager) DisplayText(textToDisplay string, displays ServerD
 		}
 
 		localDisplays := (displays >> (serverId * 2)) & allLocalDisplays
-		server.sendInstructionWithoutCallback(PlayAnimation, uint16(localDisplays), payload)
+		server.sendInstructionWithoutCallback(ShowText, uint16(localDisplays), payload)
 	}
 }

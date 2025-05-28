@@ -2,6 +2,7 @@ package Display
 
 import (
 	"encoding/binary"
+	"errors"
 	"math/rand"
 	"net"
 	"sync"
@@ -15,14 +16,14 @@ const (
 	DoesAnimationExist instructionType = 0x01
 	UploadFrame        instructionType = 0x02
 	PlayAnimation      instructionType = 0x02
-	DisplayText        instructionType = 0x03
+	ShowText           instructionType = 0x03
 )
 
 const (
-	Boxi1_D1         ServerDisplay = 0b00000001
-	Boxi1_D2         ServerDisplay = 0b00000010
-	Boxi2_D1         ServerDisplay = 0b00000100
-	Boxi2_D2         ServerDisplay = 0b00001000
+	Boxi1D1          ServerDisplay = 0b00000001
+	Boxi1D2          ServerDisplay = 0b00000010
+	Boxi2D1          ServerDisplay = 0b00000100
+	Boxi2D2          ServerDisplay = 0b00001000
 	allLocalDisplays ServerDisplay = 0b00000011
 	AllDisplays      ServerDisplay = 0b00001111
 )
@@ -61,7 +62,7 @@ func (server *Server) sendInstructionWithCallback(instructionType instructionTyp
 	server.writeLock.Unlock()
 
 	if i != len(data) {
-		return false, nil
+		return false, errors.New("data wasn't completely transmitted")
 	}
 
 	if err != nil {
