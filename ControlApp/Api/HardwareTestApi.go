@@ -1,0 +1,227 @@
+package Api
+
+import (
+	"ControlApp/Display"
+	"ControlApp/Logic"
+	"encoding/json"
+	"fmt"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"strconv"
+)
+
+func (fixture Fixture) HandleDisplayFetchApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	displayIndices := fixture.Hardware.DisplayServers.GetConnectedDisplays()
+
+	//Encode data
+	if err := json.NewEncoder(w).Encode(displayIndices); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
+func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Limit file size to 100 MB. This line saves you from those accidental 100 MB uploads!
+	err := r.ParseMultipartForm(10 << 24)
+	if err != nil {
+		http.Error(w, "Error retrieving the file", http.StatusInternalServerError)
+	}
+
+	// Retrieve the file from form data
+	file, _, err := r.FormFile("animationFile")
+	if err != nil {
+		http.Error(w, "Error retrieving the file", http.StatusBadRequest)
+		return
+	}
+	defer func(file multipart.File) {
+		_ = file.Close()
+	}(file)
+
+	// Now let's save it locally
+	dst, err := createTempFile()
+	if err != nil {
+		http.Error(w, "Error saving the file", http.StatusInternalServerError)
+		return
+	}
+	defer func() {
+		_ = dst.Close()
+		_ = os.Remove(dst.Name())
+	}()
+
+	// Copy the uploaded file to the destination file
+	if _, err := dst.ReadFrom(file); err != nil {
+		http.Error(w, "Error saving the file", http.StatusInternalServerError)
+	}
+
+	//Get animation ID
+	var animationId uint32
+	animationIdStr := r.FormValue("id")
+	if animationIdStr != "" {
+		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing animation ID", http.StatusBadRequest)
+			return
+		}
+		animationId = uint32(tempId)
+	}
+
+	//Convert animation
+	err = Logic.ExtractFrames(animationId, dst.Name())
+	if err != nil {
+		http.Error(w, "Error converting animation.", http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (fixture Fixture) HandleDisplayUploadAnimationApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusNotImplemented)
+		return
+	}
+
+	//Get animation ID
+	var animationId uint32
+	animationIdStr := r.FormValue("id")
+	if animationIdStr != "" {
+		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing animation ID.", http.StatusBadRequest)
+			return
+		}
+		animationId = uint32(tempId)
+	}
+
+	//Get display byte
+	var displayNr byte
+	displayNrStr := r.FormValue("display")
+	if displayNrStr != "" {
+		tempId, err := strconv.ParseInt(displayNrStr, 10, 8)
+		if err != nil || animationId < 0 {
+			http.Error(w, "Error parsing display number.", http.StatusBadRequest)
+			return
+		}
+		displayNr = byte(tempId)
+	}
+
+	dirPath := fmt.Sprintf("blob/animations/%d", animationId)
+	if !exists(dirPath) {
+		http.Error(w, "Animation does not exist.", http.StatusBadRequest)
+	}
+
+	fixture.Hardware.DisplayServers.PlayAnimation(animationId, Display.ServerDisplay(displayNr))
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (fixture Fixture) HandleDisplayShowAnimationApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusNotImplemented)
+		return
+	}
+
+	//Get animation ID
+	var animationId uint32
+	animationIdStr := r.FormValue("id")
+	if animationIdStr != "" {
+		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing animation ID.", http.StatusBadRequest)
+			return
+		}
+		animationId = uint32(tempId)
+	}
+
+	//Get display byte
+	var displayNr byte
+	displayNrStr := r.FormValue("display")
+	if displayNrStr != "" {
+		tempId, err := strconv.ParseInt(displayNrStr, 10, 8)
+		if err != nil || animationId < 0 {
+			http.Error(w, "Error parsing display number.", http.StatusBadRequest)
+			return
+		}
+		displayNr = byte(tempId)
+	}
+
+	dirPath := fmt.Sprintf("blob/animations/%d", animationId)
+	if !exists(dirPath) {
+		http.Error(w, "Animation does not exist.", http.StatusBadRequest)
+	}
+
+	//Read frames
+	frames, err := Logic.GetAnimationFrames(animationId)
+	if err != nil {
+		http.Error(w, "Error fetching animation.", http.StatusInternalServerError)
+	}
+
+	err = fixture.Hardware.DisplayServers.UploadAnimation(animationId, frames, Display.ServerDisplay(displayNr))
+
+	//Encode data
+	if err != nil {
+		http.Error(w, "Error uploading animation.", http.StatusInternalServerError)
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func (fixture Fixture) HandleDisplayShowTextApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusNotImplemented)
+		return
+	}
+
+	//Get animation ID
+	displayText := r.FormValue("text")
+
+	//Get display byte
+	var displayNr byte
+	displayNrStr := r.FormValue("display")
+	if displayNrStr != "" {
+		tempId, err := strconv.ParseInt(displayNrStr, 10, 8)
+		if err != nil {
+			http.Error(w, "Error parsing display number.", http.StatusBadRequest)
+			return
+		}
+		displayNr = byte(tempId)
+	}
+
+	fixture.Hardware.DisplayServers.DisplayText(displayText, Display.ServerDisplay(displayNr))
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func createTempFile() (*os.File, error) {
+	// Create an uploads directory if it doesn’t exist
+	if _, err := os.Stat("blob/temp"); os.IsNotExist(err) {
+		err := os.MkdirAll("blob/temp", 0755)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Build the file path and create it
+	dst, err := os.CreateTemp("blob/temp", "animation_*")
+	if err != nil {
+		return nil, err
+	}
+
+	return dst, nil
+}
+
+func exists(path string) bool {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return false
+	}
+	return true
+}

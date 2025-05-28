@@ -1,38 +1,34 @@
 package main
 
 import (
-	"ControlApp/BoxiBus"
-	"ControlApp/Display"
+	"ControlApp/Api"
+	"ControlApp/Frontend"
+	"ControlApp/Logic"
+	"fmt"
 	"log"
+	"net/http"
 )
 
 func main() {
-	connection, err := BoxiBus.ConnectToArduino(19200)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer connection.Close()
 
-	displays, err := Display.ListenForServers(true)
+	//Initialize hardware
+	hardware, err := Logic.InitializeHardware()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	go transmitDisplayServerLogon(displays.ServerConnected, connection)
-}
+	//Setup static file server
+	fileServer := http.FileServer(http.Dir("Frontend/static/"))
+	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
-func transmitDisplayServerLogon(logonChannel <-chan int, boxiBus *BoxiBus.CommunicationHub) {
-	for {
-		serverId := <-logonChannel
+	//Setup views
+	pages := Frontend.CreatePageProvider()
+	http.HandleFunc("/", pages.HandleStartPage)
 
-		if serverId != 1 {
-			continue
-		}
+	//Setup api
+	fixture := Api.Fixture{Hardware: hardware}
+	http.HandleFunc("/api/display/connected", fixture.HandleFetchDisplaysAPI)
 
-		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.Active)
-		err := boxiBus.Send(message)
-		if err != nil {
-			log.Print(err)
-		}
-	}
+	//Start server(listening on localhost prevents firewall popup on Windows)
+	log.Fatalln(http.ListenAndServe(fmt.Sprintf("%s:%d", "localhost", 8080), nil))
 }
