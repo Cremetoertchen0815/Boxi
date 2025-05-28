@@ -16,7 +16,7 @@ type ServerManager struct {
 
 func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 	//Open listener
-	listener, err := net.Listen("tcp", "localhost:621")
+	listener, err := net.Listen("tcp", "0.0.0.0:621")
 	if err != nil {
 		return nil, err
 	}

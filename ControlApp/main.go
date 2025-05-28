@@ -4,7 +4,6 @@ import (
 	"ControlApp/Api"
 	"ControlApp/Frontend"
 	"ControlApp/Logic"
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -34,5 +33,5 @@ func main() {
 	http.HandleFunc("/api/display/text", fixture.HandleDisplayShowTextApi)
 
 	//Start server(listening on localhost prevents firewall popup on Windows)
-	log.Fatalln(http.ListenAndServe(fmt.Sprintf("%s:%d", "localhost", 8080), nil))
+	log.Fatalln(http.ListenAndServe("0.0.0.0:80", nil))
 }
