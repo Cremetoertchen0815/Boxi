@@ -46,14 +46,14 @@ while True:
             exit()
 
 
-        if header[0] != 'y' or header[1] != 'i' or header[2] != 'f' or header[3] != 'f' or header[4] > 4 or header[4] < 1:
+        if header[0] != ord('y') or header[1] != ord('i') or header[2] != ord('f') or header[3] != ord('f') or header[4] > 4 or header[4] < 1:
             continue
 
         callback = bytes([header[5], header[6], header[7], header[8]])
         parameter = int.from_bytes([header[9], header[10]], byteorder='big', signed=False)
         payloadLen = int.from_bytes([header[11], header[12], header[13], header[14]], byteorder='big', signed=False)
         payload = sock.recv(payloadLen)
-        if not payload or len(payload) != payload:
+        if not payload or len(payload) != payloadLen:
             continue
 
         match header[4]:
@@ -76,7 +76,7 @@ while True:
 
                 try:
                     anim_path = os.path.join(ANIMATION_DIR, str(animationId))
-                    file_path = f"{anim_path}/{parameter:05d}.png"
+                    file_path = f"{anim_path}/{parameter:04d}.png"
 
                     # Create the directory if it doesn't exist
                     os.makedirs(anim_path, exist_ok=True)
