@@ -44,6 +44,24 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 		http.Error(w, "Error retrieving the file", http.StatusInternalServerError)
 	}
 
+	//Get animation ID
+	var animationId uint32
+	animationIdStr := r.FormValue("id")
+	if animationIdStr != "" {
+		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing animation ID", http.StatusBadRequest)
+			return
+		}
+		animationId = uint32(tempId)
+	}
+
+	info, err := os.Stat(fmt.Sprintf("blob/animations/%d", animationId))
+	if err == nil && info.IsDir() {
+		http.Error(w, "Animation with ID already exists.", http.StatusBadRequest)
+		return
+	}
+
 	// Retrieve the file from form data
 	file, _, err := r.FormFile("animationFile")
 	if err != nil {
@@ -68,18 +86,6 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	// Copy the uploaded file to the destination file
 	if _, err := dst.ReadFrom(file); err != nil {
 		http.Error(w, "Error saving the file", http.StatusInternalServerError)
-	}
-
-	//Get animation ID
-	var animationId uint32
-	animationIdStr := r.FormValue("id")
-	if animationIdStr != "" {
-		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
-		if err != nil || tempId < 0 {
-			http.Error(w, "Error parsing animation ID", http.StatusBadRequest)
-			return
-		}
-		animationId = uint32(tempId)
 	}
 
 	//Convert animation
@@ -211,7 +217,7 @@ func (fixture Fixture) HandleDisplayShowTextApi(w http.ResponseWriter, r *http.R
 func createTempFile() (*os.File, error) {
 	// Create an uploads directory if it doesn’t exist
 	if _, err := os.Stat("blob/temp"); os.IsNotExist(err) {
-		err := os.MkdirAll("blob/temp", 0755)
+		err := os.MkdirAll("blob/temp", 0o775)
 		if err != nil {
 			return nil, err
 		}

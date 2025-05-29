@@ -9,13 +9,9 @@ import (
 // ExtractFrames converts the specified source file into displayable frames.
 func ExtractFrames(animationId uint32, sourcePath string) error {
 	// Input and output file names
-
-	rootPath := fmt.Sprintf("blob/animations/%d", animationId)
-	err := os.RemoveAll(rootPath)
-	if err != nil {
-		return err
-	}
-	err = os.MkdirAll(rootPath, 0655)
+	rootPath := fmt.Sprintf("blob/animations/%d/", animationId)
+	_ = os.RemoveAll(rootPath)
+	err := os.MkdirAll(rootPath, 0o775)
 	if err != nil {
 		return err
 	}
