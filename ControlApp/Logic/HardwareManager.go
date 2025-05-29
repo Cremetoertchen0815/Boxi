@@ -19,7 +19,7 @@ func InitializeHardware() (HardwareManager, error) {
 	//	defer connection.Close()
 	//
 
-	displays, err := Display.ListenForServers(true)
+	displays, err := Display.ListenForServers(false)
 	if err != nil {
 		return HardwareManager{}, err
 	}

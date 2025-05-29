@@ -11,16 +11,23 @@ import (
 	"strconv"
 )
 
+type fetchResult struct {
+	ConnectedDisplays []int
+}
+
 func (fixture Fixture) HandleDisplayConnectedApi(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
 
-	displayIndices := fixture.Hardware.DisplayServers.GetConnectedDisplays()
+	indices := make([]int, 0)
+	for _, index := range fixture.Hardware.DisplayServers.GetConnectedDisplays() {
+		indices = append(indices, int(index))
+	}
 
 	//Encode data
-	if err := json.NewEncoder(w).Encode(displayIndices); err != nil {
+	if err := json.NewEncoder(w).Encode(fetchResult{indices}); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 }

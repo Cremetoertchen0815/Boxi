@@ -15,8 +15,8 @@ type ServerDisplay byte
 const (
 	DoesAnimationExist instructionType = 0x01
 	UploadFrame        instructionType = 0x02
-	PlayAnimation      instructionType = 0x02
-	ShowText           instructionType = 0x03
+	PlayAnimation      instructionType = 0x03
+	ShowText           instructionType = 0x04
 )
 
 const (

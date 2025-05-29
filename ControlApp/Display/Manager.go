@@ -16,7 +16,7 @@ type ServerManager struct {
 
 func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 	//Open listener
-	listener, err := net.Listen("tcp", "0.0.0.0:621")
+	listener, err := net.Listen("tcp", "0.0.0.0:25621")
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 	go manager.listenForClients(listener, serverConnected)
 
 	if startLocalDisplayServer {
-		c := exec.Command("Tools/display_server.py")
+		c := exec.Command("python3", "Display/Server/display_server.py")
 		err := c.Start()
 		if err != nil {
 			return nil, err
@@ -64,7 +64,7 @@ func (manager *ServerManager) handleClient(conn net.Conn, serverConnected chan<-
 	defer conn.Close()
 
 	welcomeBuffer := make([]byte, 7)
-	if i, err := conn.Read(welcomeBuffer); i != 10 || err != nil {
+	if i, err := conn.Read(welcomeBuffer); i != 7 || err != nil {
 		fmt.Println("Welcome message could not be received:", err)
 		return
 	}
@@ -98,7 +98,7 @@ func (manager *ServerManager) handleClient(conn net.Conn, serverConnected chan<-
 
 	for {
 		messageBuffer := make([]byte, 7)
-		i, err := conn.Read(welcomeBuffer)
+		i, err := conn.Read(messageBuffer)
 		if err != nil {
 			return
 		}
