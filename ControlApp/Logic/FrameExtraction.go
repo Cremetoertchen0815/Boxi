@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 // ExtractFrames converts the specified source file into displayable frames.
@@ -36,12 +37,13 @@ func GetAnimationFrames(animationId uint32) ([]string, error) {
 	}
 
 	var result []string
-	for _, file := range files {
-		if file.IsDir() {
+	for _, entry := range files {
+		if entry.IsDir() {
 			continue
 		}
 
-		result = append(result, file.Name())
+		absPath := filepath.Join(rootPath, entry.Name())
+		result = append(result, absPath)
 	}
 
 	return result, nil

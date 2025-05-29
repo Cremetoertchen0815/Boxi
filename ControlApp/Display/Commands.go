@@ -11,7 +11,7 @@ func (manager *ServerManager) UploadAnimation(animationId uint32, frames []strin
 
 	//Find all display servers
 	for display := range displays {
-		server, ok := manager.connections[byte(display)/2]
+		server, ok := manager.connections[byte(display/2)]
 
 		//If specified display has no registered server, skip display
 		if !ok {
@@ -60,7 +60,7 @@ func (manager *ServerManager) PlayAnimation(animationId uint32, displays ServerD
 
 	for serverId, server := range manager.connections {
 		//If the current server isn't linked to any display that should show, continue.
-		if displays&(allLocalDisplays<<(serverId*2)) != 0 {
+		if displays&(allLocalDisplays<<(serverId*2)) == 0 {
 			continue
 		}
 

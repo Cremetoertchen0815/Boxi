@@ -28,10 +28,10 @@ func main() {
 	fixture := Api.Fixture{Hardware: hardware}
 	http.HandleFunc("/api/display/connected", fixture.HandleDisplayConnectedApi)
 	http.HandleFunc("/api/display/import", fixture.HandleDisplayImportAnimationApi)
-	http.HandleFunc("/api/display/upload", fixture.HandleDisplayImportAnimationApi)
-	http.HandleFunc("/api/display/show", fixture.HandleDisplayUploadAnimationApi)
+	http.HandleFunc("/api/display/upload", fixture.HandleDisplayUploadAnimationApi)
+	http.HandleFunc("/api/display/show", fixture.HandleDisplayPlayAnimationApi)
 	http.HandleFunc("/api/display/text", fixture.HandleDisplayShowTextApi)
 
-	//Start server(listening on localhost prevents firewall popup on Windows)
+	//Start server (listening on localhost prevents firewall popup on Windows)
 	log.Fatalln(http.ListenAndServe("0.0.0.0:8080", nil))
 }
