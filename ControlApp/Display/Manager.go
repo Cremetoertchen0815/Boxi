@@ -94,7 +94,12 @@ func (manager *ServerManager) handleClient(conn net.Conn, serverConnected chan<-
 		manager.connectionMutex.Unlock()
 	}()
 
-	serverConnected <- id
+	select {
+	case serverConnected <- id:
+		// message sent
+	default:
+		// message dropped
+	}
 
 	for {
 		messageBuffer := make([]byte, 7)
@@ -103,12 +108,12 @@ func (manager *ServerManager) handleClient(conn net.Conn, serverConnected chan<-
 			return
 		}
 
-		if i != 6 || messageBuffer[0] != 0xE6 || messageBuffer[1] != 0x21 {
+		if i != 7 || messageBuffer[0] != 0xE6 || messageBuffer[1] != 0x21 {
 			continue
 		}
 
 		//Report callbacks
-		callbackId := binary.BigEndian.Uint32(messageBuffer[2:5])
+		callbackId := binary.BigEndian.Uint32(messageBuffer[2:6])
 		callbackCh := callbacks[callbackId]
 		callbackCh <- messageBuffer[6] != 0
 	}

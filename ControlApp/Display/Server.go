@@ -43,12 +43,12 @@ func (server *Server) sendInstructionWithoutCallback(instructionType instruction
 
 	server.writeLock.Lock()
 	defer server.writeLock.Unlock()
-	server.connection.Write(data)
+	_, _ = server.connection.Write(data)
 }
 
 func (server *Server) sendInstructionWithCallback(instructionType instructionType, parameter uint16, payload []byte) (bool, error) {
 	callbackId := uint32(rand.Int31())
-	callbackCh := make(chan bool)
+	callbackCh := make(chan bool, 1)
 	server.callbacks[callbackId] = callbackCh
 
 	data := []byte{'y', 'i', 'f', 'f', byte(instructionType)}
