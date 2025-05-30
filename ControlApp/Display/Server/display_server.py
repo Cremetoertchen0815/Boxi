@@ -79,8 +79,10 @@ class DisplayWorker:
         self.anim_dirty = False
         self.stop_flag = False
 
+        self.cached_frame_paths = []
         self.cached_raw_frames = []
-        self.last_overlay_text = ""
+        self.cached_live_frames = []
+        self.text_dirty_frame = []
         self.thread = threading.Thread(target=self.run, daemon=True)
         self.thread.start()
 
@@ -95,59 +97,73 @@ class DisplayWorker:
             if new_anim_name != self.anim_name:
                 self.anim_name = new_anim_name
                 self.anim_dirty = True
+                self.text_dirty = True
                 self.stop_flag = True
 
     def run(self):
         while True:
             with self.lock:
                 anim_changed = self.anim_dirty
-                text_changed = self.text_dirty
                 anim_name = self.anim_name
-                current_text = self.text
                 self.anim_dirty = False
-                self.text_dirty = False
                 self.stop_flag = False
 
             # Reload animation frames if needed
             if anim_changed and anim_name:
-                self.cached_raw_frames = self.load_frames(anim_name)
+                self.cached_frame_paths = self.load_frame_paths(anim_name)
+                self.cached_raw_frames = [None] * len(self.cached_frame_paths)
+                self.cached_live_frames = [None] * len(self.cached_frame_paths)
 
-            if not self.cached_raw_frames:
+            if not self.cached_live_frames:
                 time.sleep(0.1)
                 continue
 
+            animation_updated_flag = anim_changed
+
             while not self.stop_flag:
-                for base_frame in self.cached_raw_frames:
+                for frame_nr in range(len(self.cached_frame_paths)):
                     frame_start = time.perf_counter()
-
-                    # Draw text on a copy of the base frame only if text changed
-                    if text_changed or current_text != self.last_overlay_text:
-                        img = base_frame.copy()
-                        draw_text_overlay(img, current_text)
-                        self.last_overlay_text = current_text
-                    else:
-                        img = base_frame
-
-                    self.display.display(img)
-
-                    elapsed = time.perf_counter() - frame_start
-                    time.sleep(max(0.0, FRAME_DELAY - elapsed))
 
                     with self.lock:
                         if self.stop_flag:
                             break
-                        text_changed = self.text_dirty
+                        if animation_updated_flag or self.text_dirty:
+                            self.text_dirty_frame = [True] * len(self.cached_frame_paths)
+                        rerender_text = self.text_dirty_frame[frame_nr]
                         current_text = self.text
                         self.text_dirty = False
+                    
+                    animation_updated_flag = False
 
-    def load_frames(self, anim_name):
+                    live_frame = self.cached_live_frames[frame_nr]
+                    if rerender_text or live_frame is None:
+
+                        live_frame = self.cached_raw_frames[frame_nr]
+                        if live_frame is None:
+                            live_frame = Image.open(self.cached_frame_paths[frame_nr])
+                            self.cached_raw_frames[frame_nr] = live_frame
+                            self.text_dirty_frame[frame_nr] = False
+
+                        # Draw text on a copy of the base frame only if text changed
+                        if rerender_text and current_text != "":
+                            live_frame = live_frame.copy()
+                            draw_text_overlay(live_frame, current_text)
+
+                        self.cached_live_frames[frame_nr] = live_frame
+
+                    self.display.display(live_frame)
+
+                    elapsed = time.perf_counter() - frame_start
+                    time.sleep(max(0.0, FRAME_DELAY - elapsed))
+
+    def load_frame_paths(self, anim_name):
         try:
             a_path = os.path.join(ANIMATION_DIR, anim_name)
             frame_files = sorted(
                 [f for f in os.listdir(a_path) if f.endswith('.png') and f[:-4].isdigit()],
                 key=lambda f: int(f[:-4])
             )
-            return [Image.open(os.path.join(a_path, f)).convert("RGB") for f in frame_files]
+            return [os.path.join(a_path, f) for f in frame_files]
         except Exception as exx:
             print(f"[{self.name}] Failed to load animation: {exx}")
             return []
@@ -161,7 +177,7 @@ GPIO.setup(GPIO_DISPLAY_RESET, GPIO.OUT)
 
 
 
-GPIO.output(GPIO_BACKLIGHT_DISABLE, GPIO.HIGH)
+GPIO.output(GPIO_BACKLIGHT_DISABLE, GPIO.LOW)
 GPIO.output(GPIO_DISPLAY_ENABLE, GPIO.LOW) # (active low)
 GPIO.output(GPIO_DISPLAY_RESET, GPIO.LOW) # (active low)
 time.sleep(0.250)
@@ -169,8 +185,10 @@ GPIO.output(GPIO_DISPLAY_RESET, GPIO.HIGH)
 time.sleep(0.250)
 
 print("Establishing connection with displays...")
+os.nice(-20)  # Requires appropriate privileges (root for -20)
+
 # Setup displays
-disp1 = st7735.ST7735(port=0, cs=st7735.BG_SPI_CS_BACK, dc="GPIO23", rotation=90, invert=False, spi_speed_hz=50000000)
+disp1 = st7735.ST7735(port=0, cs=st7735.BG_SPI_CS_BACK, dc="GPIO24", rotation=90, invert=False, spi_speed_hz=50000000)
 disp2 = st7735.ST7735(port=1, cs=st7735.BG_SPI_CS_BACK, dc="GPIO12", rotation=90, invert=False, spi_speed_hz=50000000)
 disp1.begin()
 disp2.begin()
@@ -183,7 +201,7 @@ worker1.update_animation("testcard")
 worker2.update_animation("testcard")
 
 sleep(0.25)
-GPIO.output(GPIO_BACKLIGHT_DISABLE, GPIO.LOW)
+GPIO.output(GPIO_BACKLIGHT_DISABLE, GPIO.HIGH)
 print("Displays connected!")
 
 # Create TCP socket
@@ -260,7 +278,7 @@ while True:
                     send_answer(callback, False)
 
             case 0x03: #PlayAnimation
-                animationId = int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False)
+                animationId = str(int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False))
                 if (parameter & 0b01) == 0b01:
                     worker1.update_animation(animationId)
                 if (parameter & 0b10) == 0b10:
