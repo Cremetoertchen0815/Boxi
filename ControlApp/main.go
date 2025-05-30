@@ -33,5 +33,5 @@ func main() {
 	http.HandleFunc("/api/display/text", fixture.HandleDisplayShowTextApi)
 
 	//Start server (listening on localhost prevents firewall popup on Windows)
-	log.Fatalln(http.ListenAndServe("0.0.0.0:8080", nil))
+	log.Fatalln(http.ListenAndServe("192.168.4.1:8080", nil))
 }

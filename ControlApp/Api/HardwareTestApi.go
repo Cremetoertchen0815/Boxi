@@ -91,7 +91,7 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	//Convert animation
 	err = Logic.ExtractFrames(animationId, dst.Name())
 	if err != nil {
-		http.Error(w, "Error converting animation.", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Error converting animation. error %s", err), http.StatusInternalServerError)
 	}
 
 	w.WriteHeader(http.StatusOK)

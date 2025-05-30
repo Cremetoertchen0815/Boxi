@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 from PIL import Image, ImageDraw, ImageFont
 import st7735
 
-SERVER_HOST = '127.0.0.1'  # Replace with server IP
+SERVER_HOST = '192.168.4.1'  # Replace with server IP
 SERVER_ID = 0
 HEADER_BUFFER_SIZE = 15
 
@@ -18,7 +18,9 @@ FRAME_DELAY = 1.0 / FRAME_RATE
 WIDTH = 160
 HEIGHT = 128
 LINE_HEIGHT = 12
-GPIO_BACKLIGHT_DISABLE = 5
+GPIO_BACKLIGHT_DISABLE = 29
+GPIO_DISPLAY_ENABLE = 31
+GPIO_DISPLAY_RESET = 37
 
 font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 font = ImageFont.truetype(font_path, 14)
@@ -146,15 +148,25 @@ class DisplayWorker:
                 key=lambda f: int(f[:-4])
             )
             return [Image.open(os.path.join(a_path, f)).convert("RGB") for f in frame_files]
-        except Exception as ex:
-            print(f"[{self.name}] Failed to load animation: {ex}")
+        except Exception as exx:
+            print(f"[{self.name}] Failed to load animation: {exx}")
             return []
 
 
 print("Turn off display backlights...")
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(GPIO_BACKLIGHT_DISABLE, GPIO.OUT)
+GPIO.setup(GPIO_DISPLAY_ENABLE, GPIO.OUT)
+GPIO.setup(GPIO_DISPLAY_RESET, GPIO.OUT)
+
+
+
 GPIO.output(GPIO_BACKLIGHT_DISABLE, GPIO.HIGH)
+GPIO.output(GPIO_DISPLAY_ENABLE, GPIO.LOW) # (active low)
+GPIO.output(GPIO_DISPLAY_RESET, GPIO.LOW) # (active low)
+time.sleep(0.250)
+GPIO.output(GPIO_DISPLAY_RESET, GPIO.HIGH)
+time.sleep(0.250)
 
 print("Establishing connection with displays...")
 # Setup displays
@@ -177,17 +189,6 @@ print("Displays connected!")
 # Create TCP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def connect_to_server():
-    try:
-        # Connect to the server
-        sock.connect((SERVER_HOST, 25621))
-        welcome_message = bytes(['h', 'e', 'w', 'w', 'o', ':', SERVER_ID])
-        sock.send(welcome_message)
-        print(f"Connected to {SERVER_HOST}:25621")
-    except Exception as ex:
-        print("Connection error:", ex)
-        exit()
-
 def send_answer(callback_bytes, success):
     if callback_bytes[0] == 0 and callback_bytes[1] == 0 and callback_bytes[2] == 0 and callback_bytes[3] == 0:
         return
@@ -195,7 +196,15 @@ def send_answer(callback_bytes, success):
     return_bytes = bytes([0xE6, 0x21, callback_bytes[0], callback_bytes[1], callback_bytes[2], callback_bytes[3], 0x01 if success else 0x00])
     sock.send(return_bytes)
 
-connect_to_server()
+try:
+    # Connect to the server
+    sock.connect((SERVER_HOST, 25621))
+    welcome_message = bytes([ord('h'), ord('e'), ord('w'), ord('w'), ord('o'), ord(':'), SERVER_ID])
+    sock.send(welcome_message)
+    print(f"Connected to {SERVER_HOST}:25621")
+except Exception as ex:
+    print("Connection error:", ex)
+    exit()
 
 print("Display server ready. Waiting for commands...")
 # Main send loop
@@ -203,18 +212,18 @@ while True:
     try:
         header = sock.recv(HEADER_BUFFER_SIZE)
         if not header or len(header) != 15:
-            print("Server disconnected. Trying to reconnect")
-            connect_to_server()
+            print("Server disconnected. Closing application...")
+            exit()
 
 
-        if header[0] != 'y' or header[1] != 'i' or header[2] != 'f' or header[3] != 'f' or header[4] > 4 or header[4] < 1:
+        if header[0] != ord('y') or header[1] != ord('i') or header[2] != ord('f') or header[3] != ord('f') or header[4] > 4 or header[4] < 1:
             continue
 
         callback = bytes([header[5], header[6], header[7], header[8]])
         parameter = int.from_bytes([header[9], header[10]], byteorder='big', signed=False)
         payloadLen = int.from_bytes([header[11], header[12], header[13], header[14]], byteorder='big', signed=False)
         payload = sock.recv(payloadLen)
-        if not payload or len(payload) != payload:
+        if not payload or len(payload) != payloadLen:
             continue
 
         match header[4]:
@@ -237,7 +246,7 @@ while True:
 
                 try:
                     anim_path = os.path.join(ANIMATION_DIR, str(animationId))
-                    file_path = f"{anim_path}/{parameter:05d}.png"
+                    file_path = f"{anim_path}/{parameter:04d}.png"
 
                     # Create the directory if it doesn't exist
                     os.makedirs(anim_path, exist_ok=True)
