@@ -12,12 +12,11 @@ type HardwareManager struct {
 }
 
 func InitializeHardware() (HardwareManager, error) {
-	//connection, err := BoxiBus.ConnectToArduino(19200)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//	defer connection.Close()
-	//
+	connection, err := BoxiBus.ConnectToArduino(19200)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer connection.Close()
 
 	displays, err := Display.ListenForServers(true)
 	if err != nil {

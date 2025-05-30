@@ -30,7 +30,7 @@ func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 	go manager.listenForClients(listener, serverConnected)
 
 	if startLocalDisplayServer {
-		c := exec.Command("python3", "Display/Server/display_server.py")
+		c := exec.Command("sudo", "python3", "Display/Server/display_server.py")
 		err := c.Start()
 		if err != nil {
 			return nil, err
