@@ -23,6 +23,8 @@ func InitializeHardware() (HardwareManager, error) {
 		return HardwareManager{}, err
 	}
 
+	go transmitDisplayServerLogon(displays.ServerConnected, connection)
+
 	return HardwareManager{
 		DisplayServers:  displays,
 		MicroController: nil,

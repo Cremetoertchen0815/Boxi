@@ -16,6 +16,9 @@ func main() {
 		log.Fatal(err)
 	}
 
+	//Initialize lighting manager
+	Logic.CreateLightingManager(hardware)
+
 	//Setup static file server
 	fileServer := http.FileServer(http.Dir("Frontend/static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
