@@ -83,10 +83,11 @@ func (manager *ServerManager) DisplayText(textToDisplay string, displays ServerD
 	}
 }
 
-func (manager *ServerManager) SetBrightness(brightness float64) {
+func (manager *ServerManager) SetBrightness(brightness float64, decrement uint16) {
 	intBrightness := uint16(brightness * 0xFFFF)
+	payload := binary.BigEndian.AppendUint16([]byte{}, decrement)
 
 	for _, server := range manager.connections {
-		server.sendInstructionWithoutCallback(SetBrightness, intBrightness, nil)
+		server.sendInstructionWithoutCallback(SetBrightness, intBrightness, payload)
 	}
 }

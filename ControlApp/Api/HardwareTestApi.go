@@ -232,7 +232,19 @@ func (fixture Fixture) HandleDisplaySetBrightnessApi(w http.ResponseWriter, r *h
 		}
 	}
 
-	fixture.Hardware.DisplayServers.SetBrightness(valueNr)
+	//Get brightness value
+	var decrementNr uint16
+	decrementNrStr := r.FormValue("decrement")
+	if decrementNrStr != "" {
+		nr, err := strconv.ParseInt(decrementNrStr, 10, 16)
+		if err != nil {
+			http.Error(w, "Error parsing display number.", http.StatusBadRequest)
+			return
+		}
+		decrementNr = uint16(nr)
+	}
+
+	fixture.Hardware.DisplayServers.SetBrightness(valueNr, decrementNr)
 
 	w.WriteHeader(http.StatusOK)
 }
