@@ -174,21 +174,26 @@ class BrightnessManager:
         self._thread = None
         self._stop_event = threading.Event()
         self._lock = threading.Lock()
-        self.brightness = 1_000_000  # Initial brightness value
+        self.brightness = 1.0  # Initial brightness value
         self.PI = pigpio.pi()
 
     def start_countdown(self, decrement, initial_value):
         if decrement <= 0 or initial_value > 1_000_000 or initial_value < 0:
             raise ValueError("Decrement must be a positive number")
 
+        if initial_value == 0:
+            self.set_brightness(0)
+            return
+
+
         def run():
             self.brightness = initial_value
-            interval = 0.005  # 5 ms
+            interval = 0.002  # 2 ms
             next_time = time.perf_counter()
 
             while self.brightness > 0 and not self._stop_event.is_set():
                 self.brightness = max(self.brightness - decrement, 0)
-                self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 1_000_000 - self.brightness)
+                self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, int((1 - (self.brightness ** 3)) * 1_000_000))
 
                 # Wait until the next interval
                 next_time += interval
@@ -214,7 +219,7 @@ class BrightnessManager:
                 self._stop_event.set()
                 self._thread.join()
             self.brightness = value
-            self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 1_000_000 - value)
+            self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, int((1 - (self.brightness ** 3)) * 1_000_000))
 
 print("Turn off display backlights...")
 GPIO.setmode(GPIO.BOARD)
@@ -246,7 +251,7 @@ worker1.update_animation("testcard")
 worker2.update_animation("testcard")
 
 sleep(0.5)
-brightnessManager.set_brightness(1_000_000)
+brightnessManager.set_brightness(1)
 print("Displays connected!")
 
 # Create TCP socket
@@ -336,13 +341,13 @@ while True:
                     worker2.update_text(text)
             case 0x05: #DisplayBrightness
                 try:
-                    brightness = int(parameter / float(0xFFFF) * 1000000)
-                    decrementNumber = int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False)
+                    brightness = parameter / float(0xFFFF)
+                    decrementNumber = int.from_bytes([payload[0], payload[1]], byteorder='big', signed=False) / float(0xFFFF)
 
                     if decrementNumber > 0:
-                        brightnessManager.set_brightness(brightness)
-                    else:
                         brightnessManager.start_countdown(decrementNumber, brightness)
+                    else:
+                        brightnessManager.set_brightness(brightness)
                 except Exception:
                     send_answer(callback, False)
 
