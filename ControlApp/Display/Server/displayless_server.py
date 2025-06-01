@@ -46,16 +46,20 @@ while True:
             exit()
 
 
-        if header[0] != ord('y') or header[1] != ord('i') or header[2] != ord('f') or header[3] != ord('f') or header[4] > 4 or header[4] < 1:
+        if header[0] != ord('y') or header[1] != ord('i') or header[2] != ord('f') or header[3] != ord('f') or header[4] > 5 or header[4] < 1:
             continue
 
         callback = bytes([header[5], header[6], header[7], header[8]])
         parameter = int.from_bytes([header[9], header[10]], byteorder='big', signed=False)
         payloadLen = int.from_bytes([header[11], header[12], header[13], header[14]], byteorder='big', signed=False)
-        payload = sock.recv(payloadLen)
-        if not payload or len(payload) != payloadLen:
-            continue
+        print("Saas '", payloadLen, "'")
+        if payloadLen > 0:
+            payload = sock.recv(payloadLen)
+            if not payload or len(payload) != payloadLen:
+                continue
 
+
+        print("Sooss '", payloadLen, "'")
         match header[4]:
             case 0x01: #DoesAnimationExist, parameter is expected frameCount
                 if payloadLen != 4:
@@ -101,6 +105,12 @@ while True:
                     print("Display 1 text set to: '", text, "'")
                 if (parameter & 0b10) == 0b10:
                     print("Display 2 text set to: '", text, "'")
+            case 0x05: #DisplayBrightness
+                try:
+                    brightness = int((1 - parameter / float(0xFFFF)) * 1000000)
+                    print("Display brightness set to: '", brightness, "'")
+                except Exception:
+                    send_answer(callback, False)
 
 
     except Exception as e:
