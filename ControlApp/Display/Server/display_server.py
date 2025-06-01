@@ -4,6 +4,7 @@ import threading
 import socket
 from time import sleep
 
+import pigpio
 import RPi.GPIO as GPIO
 from PIL import Image, ImageDraw, ImageFont
 import st7735
@@ -18,7 +19,7 @@ FRAME_DELAY = 1.0 / FRAME_RATE
 WIDTH = 160
 HEIGHT = 128
 LINE_HEIGHT = 12
-GPIO_BACKLIGHT_DISABLE = 29
+GPIO_BACKLIGHT_DISABLE = 19
 GPIO_DISPLAY_ENABLE = 31
 GPIO_DISPLAY_RESET = 37
 
@@ -170,6 +171,7 @@ class DisplayWorker:
 
 
 print("Turn off display backlights...")
+PI = pigpio.pi()
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(GPIO_BACKLIGHT_DISABLE, GPIO.OUT)
 GPIO.setup(GPIO_DISPLAY_ENABLE, GPIO.OUT)
@@ -177,7 +179,7 @@ GPIO.setup(GPIO_DISPLAY_RESET, GPIO.OUT)
 
 
 
-GPIO.output(GPIO_BACKLIGHT_DISABLE, GPIO.LOW)
+PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 1000000)
 GPIO.output(GPIO_DISPLAY_ENABLE, GPIO.LOW) # (active low)
 GPIO.output(GPIO_DISPLAY_RESET, GPIO.LOW) # (active low)
 time.sleep(0.250)
@@ -201,7 +203,7 @@ worker1.update_animation("testcard")
 worker2.update_animation("testcard")
 
 sleep(0.25)
-GPIO.output(GPIO_BACKLIGHT_DISABLE, GPIO.HIGH)
+PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 0)
 print("Displays connected!")
 
 # Create TCP socket
@@ -289,6 +291,12 @@ while True:
                     worker1.update_text(text)
                 if (parameter & 0b10) == 0b10:
                     worker2.update_text(text)
+            case 0x05: #DisplayBrightness
+                try:
+                    brightness = int((1 - parameter / float(0xFFFF)) * 1000000)
+                    PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, brightness)
+                except Exception:
+                    send_answer(callback, False)
 
 
     except Exception as e:
