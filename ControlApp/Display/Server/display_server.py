@@ -169,17 +169,60 @@ class DisplayWorker:
             print(f"[{self.name}] Failed to load animation: {exx}")
             return []
 
+class BrightnessManager:
+    def __init__(self):
+        self._thread = None
+        self._stop_event = threading.Event()
+        self._lock = threading.Lock()
+        self.brightness = 1_000_000  # Initial brightness value
+        self.PI = pigpio.pi()
+
+    def start_countdown(self, decrement, initial_value):
+        if decrement <= 0 or initial_value > 1_000_000 or initial_value < 0:
+            raise ValueError("Decrement must be a positive number")
+
+        def run():
+            self.brightness = initial_value
+            interval = 0.005  # 5 ms
+            next_time = time.perf_counter()
+
+            while self.brightness > 0 and not self._stop_event.is_set():
+                self.brightness = max(self.brightness - decrement, 0)
+                self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 1_000_000 - self.brightness)
+
+                # Wait until the next interval
+                next_time += interval
+                sleep_duration = next_time - time.perf_counter()
+                if sleep_duration > 0:
+                    time.sleep(sleep_duration)
+                else:
+                    # If we're running late, skip sleeping
+                    next_time = time.perf_counter()
+
+        with self._lock:
+            if self._thread and self._thread.is_alive():
+                self._stop_event.set()
+                self._thread.join()
+
+            self._stop_event.clear()
+            self._thread = threading.Thread(target=run, daemon=True)
+            self._thread.start()
+
+    def set_brightness(self, value):
+        with self._lock:
+            if self._thread and self._thread.is_alive():
+                self._stop_event.set()
+                self._thread.join()
+            self.brightness = value
+            self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 1_000_000 - value)
 
 print("Turn off display backlights...")
-PI = pigpio.pi()
 GPIO.setmode(GPIO.BOARD)
-GPIO.setup(GPIO_BACKLIGHT_DISABLE, GPIO.OUT)
 GPIO.setup(GPIO_DISPLAY_ENABLE, GPIO.OUT)
 GPIO.setup(GPIO_DISPLAY_RESET, GPIO.OUT)
 
-
-
-PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 1000000)
+brightnessManager = BrightnessManager()
+brightnessManager.set_brightness(0)
 GPIO.output(GPIO_DISPLAY_ENABLE, GPIO.LOW) # (active low)
 GPIO.output(GPIO_DISPLAY_RESET, GPIO.LOW) # (active low)
 time.sleep(0.250)
@@ -202,8 +245,8 @@ worker2 = DisplayWorker(disp2, "Display 2")
 worker1.update_animation("testcard")
 worker2.update_animation("testcard")
 
-sleep(0.25)
-PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, 0)
+sleep(0.5)
+brightnessManager.set_brightness(1_000_000)
 print("Displays connected!")
 
 # Create TCP socket
@@ -242,10 +285,9 @@ while True:
         callback = bytes([header[5], header[6], header[7], header[8]])
         parameter = int.from_bytes([header[9], header[10]], byteorder='big', signed=False)
         payloadLen = int.from_bytes([header[11], header[12], header[13], header[14]], byteorder='big', signed=False)
-        if payloadLen > 0:
-            payload = sock.recv(payloadLen)
-            if not payload or len(payload) != payloadLen:
-                continue
+        payload = sock.recv(payloadLen)
+        if not payload or len(payload) != payloadLen:
+            continue
 
         match header[4]:
             case 0x01: #DoesAnimationExist, parameter is expected frameCount
@@ -294,8 +336,13 @@ while True:
                     worker2.update_text(text)
             case 0x05: #DisplayBrightness
                 try:
-                    brightness = int((1 - parameter / float(0xFFFF)) * 1000000)
-                    PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, brightness)
+                    brightness = int(parameter / float(0xFFFF) * 1000000)
+                    decrementNumber = int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False)
+
+                    if decrementNumber > 0:
+                        brightnessManager.set_brightness(brightness)
+                    else:
+                        brightnessManager.start_countdown(decrementNumber, brightness)
                 except Exception:
                     send_answer(callback, False)
 
