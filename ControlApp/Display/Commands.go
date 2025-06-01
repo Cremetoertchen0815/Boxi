@@ -82,3 +82,11 @@ func (manager *ServerManager) DisplayText(textToDisplay string, displays ServerD
 		server.sendInstructionWithoutCallback(ShowText, uint16(localDisplays), payload)
 	}
 }
+
+func (manager *ServerManager) SetBrightness(brightness float64) {
+	intBrightness := uint16(brightness * 0xFFFF)
+
+	for _, server := range manager.connections {
+		server.sendInstructionWithoutCallback(SetBrightness, intBrightness, nil)
+	}
+}

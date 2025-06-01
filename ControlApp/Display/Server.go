@@ -17,6 +17,7 @@ const (
 	UploadFrame        instructionType = 0x02
 	PlayAnimation      instructionType = 0x03
 	ShowText           instructionType = 0x04
+	SetBrightness      instructionType = 0x05
 )
 
 const (

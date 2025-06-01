@@ -214,6 +214,29 @@ func (fixture Fixture) HandleDisplayShowTextApi(w http.ResponseWriter, r *http.R
 	w.WriteHeader(http.StatusOK)
 }
 
+func (fixture Fixture) HandleDisplaySetBrightnessApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusNotImplemented)
+		return
+	}
+
+	//Get brightness value
+	var valueNr float64
+	valueNrStr := r.FormValue("value")
+	if valueNrStr != "" {
+		var err error
+		valueNr, err = strconv.ParseFloat(valueNrStr, 64)
+		if err != nil {
+			http.Error(w, "Error parsing display number.", http.StatusBadRequest)
+			return
+		}
+	}
+
+	fixture.Hardware.DisplayServers.SetBrightness(valueNr)
+
+	w.WriteHeader(http.StatusOK)
+}
+
 func createTempFile() (*os.File, error) {
 	// Create an uploads directory if it doesn’t exist
 	if _, err := os.Stat("blob/temp"); os.IsNotExist(err) {

@@ -31,6 +31,7 @@ func main() {
 	http.HandleFunc("/api/display/upload", fixture.HandleDisplayUploadAnimationApi)
 	http.HandleFunc("/api/display/show", fixture.HandleDisplayPlayAnimationApi)
 	http.HandleFunc("/api/display/text", fixture.HandleDisplayShowTextApi)
+	http.HandleFunc("/api/display/brightness", fixture.HandleDisplaySetBrightnessApi)
 
 	//Start server (listening on localhost prevents firewall popup on Windows)
 	log.Fatalln(http.ListenAndServe("192.168.4.1:8080", nil))
