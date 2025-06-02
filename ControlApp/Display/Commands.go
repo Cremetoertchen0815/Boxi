@@ -6,7 +6,9 @@ import (
 	"slices"
 )
 
-func (manager *ServerManager) UploadAnimation(animationId uint32, frames []string, displays ServerDisplay) error {
+type AnimationId uint32
+
+func (manager *ServerManager) UploadAnimation(animation AnimationId, frames []string, displays ServerDisplay) error {
 	servers := make(map[byte]*Server)
 
 	//Find all display servers
@@ -23,7 +25,7 @@ func (manager *ServerManager) UploadAnimation(animationId uint32, frames []strin
 
 	//Check, which display servers still need the animations
 	var serversToBeUpdates []byte
-	animationIdBytes := binary.BigEndian.AppendUint32([]byte{}, animationId)
+	animationIdBytes := binary.BigEndian.AppendUint32([]byte{}, uint32(animation))
 	frameCount := uint16(len(frames))
 	for _, server := range servers {
 		exists, err := server.sendInstructionWithCallback(DoesAnimationExist, frameCount, animationIdBytes)
@@ -55,8 +57,8 @@ func (manager *ServerManager) UploadAnimation(animationId uint32, frames []strin
 	return nil
 }
 
-func (manager *ServerManager) PlayAnimation(animationId uint32, displays ServerDisplay) {
-	payload := binary.BigEndian.AppendUint32([]byte{}, animationId)
+func (manager *ServerManager) PlayAnimation(animation AnimationId, displays ServerDisplay) {
+	payload := binary.BigEndian.AppendUint32([]byte{}, uint32(animation))
 
 	for serverId, server := range manager.connections {
 		//If the current server isn't linked to any display that should show, continue.

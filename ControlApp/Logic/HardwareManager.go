@@ -7,8 +7,11 @@ import (
 )
 
 type HardwareManager struct {
-	DisplayServers  *Display.ServerManager
-	MicroController *BoxiBus.CommunicationHub
+	DisplayServers   *Display.ServerManager
+	MicroController  *BoxiBus.CommunicationHub
+	lightingManual   bool
+	animationsManual bool
+	textManual       bool
 }
 
 func InitializeHardware() (HardwareManager, error) {
@@ -23,7 +26,7 @@ func InitializeHardware() (HardwareManager, error) {
 		return HardwareManager{}, err
 	}
 
-	go transmitDisplayServerLogon(displays.ServerConnected, connection)
+	go handleDisplayServerLogon(displays.ServerConnected, connection)
 
 	return HardwareManager{
 		DisplayServers:  displays,
@@ -31,7 +34,8 @@ func InitializeHardware() (HardwareManager, error) {
 	}, nil
 }
 
-func transmitDisplayServerLogon(logonChannel <-chan byte, boxiBus *BoxiBus.CommunicationHub) {
+// handleDisplayServerLogon reports the logon of a display server to the µCs.
+func handleDisplayServerLogon(logonChannel <-chan byte, boxiBus *BoxiBus.CommunicationHub) {
 	for {
 		serverId := <-logonChannel
 
@@ -44,5 +48,7 @@ func transmitDisplayServerLogon(logonChannel <-chan byte, boxiBus *BoxiBus.Commu
 		if err != nil {
 			log.Print(err)
 		}
+
+		// TODO: Sync animations with client when logging on
 	}
 }
