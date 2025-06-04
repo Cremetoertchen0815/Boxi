@@ -3,7 +3,8 @@ package main
 import (
 	"ControlApp/Api"
 	"ControlApp/Frontend"
-	"ControlApp/Logic"
+	"ControlApp/Infrastructure"
+	"ControlApp/Lightshow"
 	"log"
 	"net/http"
 )
@@ -11,13 +12,13 @@ import (
 func main() {
 
 	//Initialize hardware
-	hardware, err := Logic.InitializeHardware()
+	hardware, err := Infrastructure.InitializeHardware()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	//Initialize lighting manager
-	Logic.CreateLightingManager(hardware)
+	Lightshow.CreateLightingManager(hardware)
 
 	//Setup static file server
 	fileServer := http.FileServer(http.Dir("Frontend/static/"))

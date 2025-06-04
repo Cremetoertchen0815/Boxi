@@ -1,7 +1,7 @@
 package Api
 
-import "ControlApp/Logic"
+import "ControlApp/Infrastructure"
 
 type Fixture struct {
-	Hardware Logic.HardwareManager
+	Hardware Infrastructure.HardwareManager
 }

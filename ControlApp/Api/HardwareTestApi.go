@@ -2,7 +2,7 @@ package Api
 
 import (
 	"ControlApp/Display"
-	"ControlApp/Logic"
+	"ControlApp/Infrastructure"
 	"encoding/json"
 	"fmt"
 	"mime/multipart"
@@ -89,7 +89,7 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	}
 
 	//Convert animation
-	err = Logic.ExtractFrames(animationId, dst.Name())
+	err = Infrastructure.ExtractFrames(animationId, dst.Name())
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error converting animation. error %s", err), http.StatusInternalServerError)
 	}
@@ -133,7 +133,7 @@ func (fixture Fixture) HandleDisplayUploadAnimationApi(w http.ResponseWriter, r 
 	}
 
 	//Read frames
-	frames, err := Logic.GetAnimationFrames(animationId)
+	frames, err := Infrastructure.GetAnimationFrames(animationId)
 	if err != nil {
 		http.Error(w, "Error fetching animation.", http.StatusInternalServerError)
 	}
