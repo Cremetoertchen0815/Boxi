@@ -1,53 +1,29 @@
 package Lightshow
 
 import (
-	"ControlApp/BoxiBus"
-	"ControlApp/Infrastructure"
 	"github.com/stianeikeland/go-rpio/v4"
 	"math/rand"
 	"time"
 )
 
 type VisualSwitch interface {
-	applyLighting(instruction Infrastructure.LightingInstruction)
-	applyAnimation(instruction Infrastructure.AnimationInstruction)
+	applyLighting(instruction LightingInstruction)
+	applyAnimation(instruction AnimationsInstruction)
 	triggerBeat()
 }
 
 type AutoModeContext struct {
-	Configuration      AutoModeConfiguration
-	switcher           VisualSwitch
-	beatInputPin       rpio.Pin
-	lastBeat           *time.Time
-	lightingDeadTime   *time.Duration
-	animationDeadTime  *time.Duration
-	lightingBeatsLeft  int
-	animationBeatsLeft int
+	Configuration         AutoModeConfiguration
+	switcher              VisualSwitch
+	beatInputPin          rpio.Pin
+	lastBeat              *time.Time
+	lightingSwitchToCalm  *time.Time
+	animationSwitchToCalm *time.Time
+	lightingDeadTime      *time.Duration
+	animationDeadTime     *time.Duration
+	lightingBeatsLeft     int
+	animationBeatsLeft    int
 }
-
-type AutoModeConfiguration struct {
-	Mood                 LightingMood
-	MinTimeBetweenBeats  time.Duration
-	NormalBeatModeTiming TimingConstraint //The timing constraints of all regular beat-based modes
-	StrobeModeTiming     TimingConstraint //The timing constraints of the strobe mode
-	AnimationTiming      TimingConstraint //The timing constraints of an energetic animation
-	SlowModeDeadTime     time.Duration    //The duration since the last mode change in slow mode when forcibly switching to another mode.
-}
-
-type TimingConstraint struct {
-	MinNumberOfBeats int           //The least number of beats before switching to the next mode.
-	MaxNumberOfBeats int           //The most number of beats before switching to the next mode.
-	NoBeatDeadTime   time.Duration //The duration since the last beat when forcibly switching to a calm mode.
-}
-
-type LightingMood uint8
-
-const (
-	Chill LightingMood = iota
-	Moody
-	Regular
-	Party
-)
 
 const soundInputPin = 16
 const loopDelayMs = 5
@@ -67,8 +43,11 @@ func (context *AutoModeContext) calculateAutoMode() {
 	for {
 		time.Sleep(loopDelayMs * time.Millisecond)
 
-		pendingBeat := context.beatInputPin.Read() == rpio.High
+		//Only count beat if we're not in an exclusively calm mood
+		pendingBeat := context.beatInputPin.Read() == rpio.High && context.Configuration.Mood.IsCalm()
 		now := time.Now()
+		context.lightingSwitchToCalm = nil
+		context.animationSwitchToCalm = nil
 
 		var lastBeat time.Time
 		if context.lastBeat == nil {
@@ -85,12 +64,14 @@ func (context *AutoModeContext) calculateAutoMode() {
 			// Count down the display beat timer and play new animation if limit was reached
 			context.animationBeatsLeft--
 			if context.animationBeatsLeft <= 0 {
-				for _, animation := range context.getNextAnimation(OnBeat) {
-					context.switcher.applyAnimation(animation)
-				}
+				animation := context.getNextAnimation(OnBeat)
+				context.switcher.applyAnimation(animation)
 
-				context.animationBeatsLeft = getNextBeatConstraint(context.Configuration.AnimationTiming)
-				context.animationDeadTime = &context.Configuration.AnimationTiming.NoBeatDeadTime
+				timingConstraint, ok := context.Configuration.AnimationModeTiming[animation.character]
+				if ok {
+					context.animationBeatsLeft = getNextBeatConstraint(timingConstraint)
+					context.animationDeadTime = &timingConstraint.NoBeatDeadTime
+				}
 			}
 
 			// Count down the animation beat timer and play new animation if limit was reached
@@ -99,13 +80,11 @@ func (context *AutoModeContext) calculateAutoMode() {
 				lighting := context.getNextLighting(OnBeat)
 				context.switcher.applyLighting(lighting)
 
-				timingConstraint := context.Configuration.NormalBeatModeTiming
-				if lighting.Mode == BoxiBus.Strobe {
-					timingConstraint = context.Configuration.StrobeModeTiming
+				timingConstraint, ok := context.Configuration.LightingModeTiming[lighting.character]
+				if ok {
+					context.animationBeatsLeft = getNextBeatConstraint(timingConstraint)
+					context.lightingDeadTime = &timingConstraint.NoBeatDeadTime
 				}
-
-				context.animationBeatsLeft = getNextBeatConstraint(timingConstraint)
-				context.lightingDeadTime = &timingConstraint.NoBeatDeadTime
 			}
 
 			return
@@ -114,9 +93,48 @@ func (context *AutoModeContext) calculateAutoMode() {
 		//Check beat dead time for animation
 		if context.animationDeadTime != nil && lastBeat.Add(*context.animationDeadTime).Before(time.Now()) {
 			context.animationDeadTime = nil
+			animation := context.getNextAnimation(InDeadTime)
+			context.switcher.applyAnimation(animation)
 
-			for _, animation := range context.getNextAnimation(InDeadTime) {
-				context.switcher.applyAnimation(animation)
+			if animation.character == Calm {
+				timeWhenBoring := time.Now().Add(context.Configuration.AnimationCalmModeBoring)
+				context.animationSwitchToCalm = &timeWhenBoring
+			}
+		}
+
+		//Check beat dead time for lighting
+		if context.lightingDeadTime != nil && lastBeat.Add(*context.lightingDeadTime).Before(time.Now()) {
+			context.lightingDeadTime = nil
+			lighting := context.getNextLighting(InDeadTime)
+			context.switcher.applyLighting(lighting)
+
+			if lighting.character == Calm {
+				timeWhenBoring := time.Now().Add(context.Configuration.LightingCalmModeBoring)
+				context.lightingSwitchToCalm = &timeWhenBoring
+			}
+		}
+
+		//Check if the calm animation is boring
+		if context.animationSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) {
+			context.animationSwitchToCalm = nil
+			animation := context.getNextAnimation(InCalmMode)
+			context.switcher.applyAnimation(animation)
+
+			if animation.character == Calm {
+				timeWhenBoring := time.Now().Add(context.Configuration.AnimationCalmModeBoring)
+				context.animationSwitchToCalm = &timeWhenBoring
+			}
+		}
+
+		//Check if the calm lighting is boring
+		if context.lightingSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) {
+			context.lightingSwitchToCalm = nil
+			lighting := context.getNextLighting(InCalmMode)
+			context.switcher.applyLighting(lighting)
+
+			if lighting.character == Calm {
+				timeWhenBoring := time.Now().Add(context.Configuration.LightingCalmModeBoring)
+				context.lightingSwitchToCalm = &timeWhenBoring
 			}
 		}
 	}

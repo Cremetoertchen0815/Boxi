@@ -13,22 +13,6 @@ type HardwareManager struct {
 	blinkSpeed      uint16
 }
 
-type LightingInstruction struct {
-	BoxiBus.MessageBlock
-	Mode BoxiBus.LightingModeId
-}
-
-type AnimationInstruction struct {
-	animation  Display.AnimationId
-	displays   []Display.ServerDisplay
-	blinkSpeed uint16
-}
-
-type TextInstruction struct {
-	text     string
-	displays []Display.ServerDisplay
-}
-
 func InitializeHardware() (HardwareManager, error) {
 	connection, err := BoxiBus.ConnectToArduino(19200)
 	if err != nil {
@@ -64,34 +48,40 @@ func handleDisplayServerLogon(logonChannel <-chan byte, boxiBus *BoxiBus.Communi
 	}
 }
 
-func (manager HardwareManager) SendLightingInstruction(instruction LightingInstruction) {
-	err := manager.MicroController.Send(instruction.MessageBlock)
+func (manager HardwareManager) SendLightingInstruction(block BoxiBus.MessageBlock) {
+	err := manager.MicroController.Send(block)
 	if err != nil {
 		log.Print(err)
 	}
 }
 
-func (manager HardwareManager) SendAnimationInstruction(instruction AnimationInstruction) {
+func (manager HardwareManager) SendAnimationInstruction(animation Display.AnimationId, displays []Display.ServerDisplay) {
 	totalDisplay := 0
-	for _, display := range instruction.displays {
+	for _, display := range displays {
 		totalDisplay |= int(display)
 	}
 
-	oldVal := manager.blinkSpeed
-	manager.blinkSpeed = instruction.blinkSpeed
-	if instruction.blinkSpeed != oldVal {
-		manager.SendBeatToDisplay(true)
-	}
-
-	manager.DisplayServers.PlayAnimation(instruction.animation, Display.ServerDisplay(totalDisplay))
+	manager.DisplayServers.PlayAnimation(animation, Display.ServerDisplay(totalDisplay))
 }
 
-func (manager HardwareManager) SendTextInstruction(instruction TextInstruction) {
+func (manager HardwareManager) SendTextInstruction(text string, displays []Display.ServerDisplay) {
 	totalDisplay := 0
-	for display := range instruction.displays {
+	for display := range displays {
 		totalDisplay |= display
 	}
-	manager.DisplayServers.DisplayText(instruction.text, Display.ServerDisplay(totalDisplay))
+	manager.DisplayServers.DisplayText(text, Display.ServerDisplay(totalDisplay))
+}
+
+func (manager HardwareManager) SendBrightnessChange(brightness *float64, blinkSpeed uint16) {
+	if brightness != nil {
+		manager.brightness = *brightness
+	}
+
+	oldVal := manager.blinkSpeed
+	manager.blinkSpeed = blinkSpeed
+	if blinkSpeed != oldVal {
+		manager.SendBeatToDisplay(true)
+	}
 }
 
 func (manager HardwareManager) SendBeatToDisplay(force bool) {

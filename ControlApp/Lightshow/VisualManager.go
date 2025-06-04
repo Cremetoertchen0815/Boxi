@@ -1,6 +1,8 @@
 package Lightshow
 
 import (
+	"ControlApp/BoxiBus"
+	"ControlApp/Display"
 	"ControlApp/Infrastructure"
 	"sync"
 )
@@ -8,9 +10,9 @@ import (
 type VisualManager struct {
 	autoContext        *AutoModeContext
 	hardwareManager    Infrastructure.HardwareManager
-	lightingOverwrite  *Infrastructure.LightingInstruction
-	animationOverwrite []Infrastructure.AnimationInstruction
-	textOverwrite      []Infrastructure.TextInstruction
+	lightingOverwrite  *LightingInstruction
+	animationOverwrite *AnimationsInstruction
+	textOverwrite      *TextsInstruction
 	accessLock         *sync.Mutex
 }
 
@@ -20,11 +22,29 @@ func CreateLightingManager(hardwareManager Infrastructure.HardwareManager) *Visu
 	return &visual
 }
 
-func loadConfiguration() AutoModeConfiguration {
-	return AutoModeConfiguration{}
+type LightingInstruction struct {
+	BoxiBus.MessageBlock
+	character ModeCharacter
 }
 
-func (manager VisualManager) applyLighting(instruction Infrastructure.LightingInstruction) {
+type animationInstruction struct {
+	animation Display.AnimationId
+	displays  []Display.ServerDisplay
+}
+
+type AnimationsInstruction struct {
+	animations []animationInstruction
+	character  ModeCharacter
+	blinkSpeed uint16
+}
+
+type textInstruction struct {
+	text     string
+	displays []Display.ServerDisplay
+}
+type TextsInstruction []textInstruction
+
+func (manager VisualManager) applyLighting(instruction LightingInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
@@ -32,10 +52,10 @@ func (manager VisualManager) applyLighting(instruction Infrastructure.LightingIn
 		return
 	}
 
-	manager.hardwareManager.SendLightingInstruction(instruction)
+	manager.hardwareManager.SendLightingInstruction(instruction.MessageBlock)
 }
 
-func (manager VisualManager) applyAnimation(instruction Infrastructure.AnimationInstruction) {
+func (manager VisualManager) applyAnimation(instruction AnimationsInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
@@ -43,43 +63,46 @@ func (manager VisualManager) applyAnimation(instruction Infrastructure.Animation
 		return
 	}
 
-	manager.hardwareManager.SendAnimationInstruction(instruction)
+	for _, animation := range instruction.animations {
+		manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
+	}
+	manager.hardwareManager.SendBrightnessChange(nil, instruction.blinkSpeed)
 }
 
 func (manager VisualManager) triggerBeat() {
 	manager.hardwareManager.SendBeatToDisplay(false)
 }
 
-func (manager VisualManager) SetLightingOverwrite(instruction *Infrastructure.LightingInstruction) {
+func (manager VisualManager) SetLightingOverwrite(instruction *LightingInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
 	manager.lightingOverwrite = instruction
 	if instruction != nil {
-		manager.hardwareManager.SendLightingInstruction(*instruction)
+		manager.hardwareManager.SendLightingInstruction(instruction.MessageBlock)
 	}
 }
 
-func (manager VisualManager) SetAnimationsOverwrite(instructions []Infrastructure.AnimationInstruction) {
+func (manager VisualManager) SetAnimationsOverwrite(instructions *AnimationsInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
 	manager.animationOverwrite = instructions
 	if instructions != nil {
-		for _, animation := range instructions {
-			manager.hardwareManager.SendAnimationInstruction(animation)
+		for _, animation := range instructions.animations {
+			manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
 		}
 	}
 }
 
-func (manager VisualManager) SetTextsOverwrite(instructions []Infrastructure.TextInstruction) {
+func (manager VisualManager) SetTextsOverwrite(instructions *TextsInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
 	manager.textOverwrite = instructions
 	if instructions != nil {
-		for _, text := range instructions {
-			manager.hardwareManager.SendTextInstruction(text)
+		for _, text := range *instructions {
+			manager.hardwareManager.SendTextInstruction(text.text, text.displays)
 		}
 	}
 }
