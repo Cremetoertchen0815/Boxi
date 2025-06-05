@@ -3,7 +3,6 @@ package Lightshow
 import (
 	"ControlApp/Display"
 	"math/rand"
-	"slices"
 )
 
 type switchType uint8
@@ -47,10 +46,10 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 		return AnimationsInstruction{character: Unknown}
 	}
 
-	var dsp1A, dsp1B, dsp2A, dsp2B Animation
+	var dsp1A, dsp1B, dsp2A, dsp2B Display.AnimationId
 
 	mirrorAcrossScreens := rand.Intn(2)
-	generateBoxiScreens := func() (Animation, Animation) {
+	generateBoxiScreens := func() (Display.AnimationId, Display.AnimationId) {
 		randomIndex := rand.Intn(len(validIndices))
 		firstAnimation := animationManager.animations[validIndices[randomIndex]]
 
@@ -68,17 +67,17 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 			}
 
 			if foundSecondAnimation {
-				return firstAnimation, secondAnimation
+				return firstAnimation.Id, secondAnimation.Id
 			}
 		}
 
 		if mirrorAcrossScreens != 0 {
-			return firstAnimation, firstAnimation
+			return firstAnimation.Id, firstAnimation.Id
 		}
 
 		randomIndex = rand.Intn(len(validIndices))
 		secondAnimation := animationManager.animations[validIndices[randomIndex]]
-		return firstAnimation, secondAnimation
+		return firstAnimation.Id, secondAnimation.Id
 	}
 
 	dsp1A, dsp1B = generateBoxiScreens()
@@ -92,7 +91,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 	}
 
 	doDaBounce := rand.Intn(7)
-	blinkSpeed := 0
+	var blinkSpeed uint16
 	if doDaBounce == 6 && baseMood == Party {
 		blinkSpeed = defaultBlinkSpeed
 	}
@@ -101,6 +100,20 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 	if baseMood == Regular || baseMood == Party {
 		character = Rhythmic
 	}
+
+	//Find grouped animations
+	screensPerAnimation := make(map[Display.AnimationId]Display.ServerDisplay)
+	screensPerAnimation[dsp1A] |= Display.Boxi1D1
+	screensPerAnimation[dsp1B] |= Display.Boxi1D2
+	screensPerAnimation[dsp2A] |= Display.Boxi2D1
+	screensPerAnimation[dsp2B] |= Display.Boxi2D2
+
+	instructions := make([]animationInstruction, 0)
+	for animationId, display := range screensPerAnimation {
+		instructions = append(instructions, animationInstruction{animationId, []Display.ServerDisplay{display}})
+	}
+
+	return AnimationsInstruction{instructions, character, blinkSpeed}
 }
 
 func (context *AutoModeContext) getNextLighting(switchType switchType) LightingInstruction {
