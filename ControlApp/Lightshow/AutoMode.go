@@ -10,6 +10,7 @@ type VisualSwitch interface {
 	applyLighting(instruction LightingInstruction)
 	applyAnimation(instruction AnimationsInstruction)
 	triggerBeat()
+	getAnimations() *AnimationManager
 }
 
 type AutoModeContext struct {

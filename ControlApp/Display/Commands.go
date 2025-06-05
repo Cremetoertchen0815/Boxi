@@ -8,6 +8,8 @@ import (
 
 type AnimationId uint32
 
+const None AnimationId = 0
+
 func (manager *ServerManager) UploadAnimation(animation AnimationId, frames []string, displays ServerDisplay) error {
 	servers := make(map[byte]*Server)
 

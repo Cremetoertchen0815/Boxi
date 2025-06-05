@@ -9,6 +9,7 @@ import (
 
 type VisualManager struct {
 	autoContext        *AutoModeContext
+	animations         AnimationManager
 	hardwareManager    Infrastructure.HardwareManager
 	lightingOverwrite  *LightingInstruction
 	animationOverwrite *AnimationsInstruction
@@ -18,6 +19,7 @@ type VisualManager struct {
 
 func CreateLightingManager(hardwareManager Infrastructure.HardwareManager) *VisualManager {
 	visual := VisualManager{hardwareManager: hardwareManager}
+	visual.animations = LoadAnimations()
 	visual.autoContext = CreateAutoMode(visual, loadConfiguration())
 	return &visual
 }
@@ -71,6 +73,10 @@ func (manager VisualManager) applyAnimation(instruction AnimationsInstruction) {
 
 func (manager VisualManager) triggerBeat() {
 	manager.hardwareManager.SendBeatToDisplay(false)
+}
+
+func (manager VisualManager) getAnimations() *AnimationManager {
+	return &manager.animations
 }
 
 func (manager VisualManager) SetLightingOverwrite(instruction *LightingInstruction) {

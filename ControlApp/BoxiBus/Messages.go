@@ -34,8 +34,8 @@ type Color struct {
 	UltraViolet byte
 }
 
-func CreateDisplayStatusUpdate(statusCode DisplayStatusCode) MessageBlock {
-	message := BusMessage{StatusCode, []byte{byte(statusCode)}}
+func CreateDisplayStatusUpdate(statusCode DisplayStatusCode, serverId byte) MessageBlock {
+	message := BusMessage{StatusCode, []byte{byte(statusCode), serverId}}
 	return []BusMessage{message}
 }
 

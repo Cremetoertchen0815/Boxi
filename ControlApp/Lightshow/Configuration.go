@@ -22,7 +22,7 @@ type TimingConstraint struct {
 type LightingMood uint8
 
 const (
-	Chill LightingMood = iota
+	Happy LightingMood = iota
 	Moody
 	Regular
 	Party
@@ -34,5 +34,5 @@ func loadConfiguration() AutoModeConfiguration {
 
 // IsCalm returns whether the mood has exclusively calm character.
 func (mood LightingMood) IsCalm() bool {
-	return mood == Moody || mood == Chill
+	return mood == Moody || mood == Happy
 }
