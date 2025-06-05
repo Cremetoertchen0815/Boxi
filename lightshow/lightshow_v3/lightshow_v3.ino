@@ -201,9 +201,13 @@ void createDefaultMode() {
   fieldSetA.GeneralPurpose = 255;
 }
 
-void handleDisplayStatusCode(DisplayStatusCode statusCode) {
+void handleDisplayStatusCode(DisplayStatusCode statusCode, byte destinationDevice) {
   dspStatusCode = statusCode;
   char* textToPrint;
+
+  if (destinationDevice != 0x00) {
+    return;
+  }
 
   switch(statusCode) {
     case BOOTING:
@@ -241,7 +245,7 @@ void checkHostActivity() {
     hostConnectionCounter--;
     
   } else if (hostConnectionCounter == 0 && dspStatusCode == BOOTING) {
-    handleDisplayStatusCode(HOST_NO_ACTIVITY);
+    handleDisplayStatusCode(HOST_NO_ACTIVITY, 0);
   }
 }
 
@@ -267,13 +271,13 @@ void processUart() {
   //Determine how much data should be received
   uint8_t dataLen = 0;
   switch(field) {
-    case DISPLAY_STATUS_CODE:
     case LIGHTING_MODE:
     case LIGHTING_PALLETTE_SIZE:
     case LIGHTING_COLOR_SHIFT:
     case LIGHTING_GENERAL_PURPOSE:
       dataLen = 1;
       break;
+    case DISPLAY_STATUS_CODE:
     case LIGHTING_APPLY:
     case LIGHTING_SPEED:
       dataLen = 2;
@@ -303,7 +307,7 @@ void processUart() {
 
   switch(field) {
     case DISPLAY_STATUS_CODE:
-      handleDisplayStatusCode(receivedData[0]);
+      handleDisplayStatusCode(receivedData[0], receivedData[1]);
       break;
     case LIGHTING_APPLY:
       lightApplyCountdown = ((int)receivedData[0] << 8) + receivedData[1];
