@@ -1,6 +1,7 @@
 package Lightshow
 
 import (
+	"ControlApp/BoxiBus"
 	"ControlApp/Display"
 	"math/rand"
 )
@@ -117,5 +118,31 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 }
 
 func (context *AutoModeContext) getNextLighting(switchType switchType) LightingInstruction {
+	baseMood := context.Configuration.Mood
+	var possibleModes []BoxiBus.LightingModeId
 
+	if baseMood ==
+
+	//When in a calmer section of a beat mode, randomly pick between moody and happy
+	if (baseMood == Regular || baseMood == Party) && switchType != OnBeat {
+		randNbr := rand.Intn(2)
+		if randNbr == 0 {
+			baseMood = Moody
+		} else {
+			baseMood = Happy
+		}
+
+		if switchType == InDeadTime {
+			possibleModes = []BoxiBus.LightingModeId{BoxiBus.FadeToColor}
+		} else {
+			possibleModes = []BoxiBus.LightingModeId{BoxiBus.PaletteFade}
+		}
+	}
+}
+
+func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
+	switch mood {
+	case Happy, Moody:
+		return []BoxiBus.LightingModeId{BoxiBus.FadeToColor, BoxiBus.PaletteFade}
+	}
 }

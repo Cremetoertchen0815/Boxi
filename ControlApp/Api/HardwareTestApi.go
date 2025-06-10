@@ -138,7 +138,7 @@ func (fixture Fixture) HandleDisplayUploadAnimationApi(w http.ResponseWriter, r 
 		http.Error(w, "Error fetching animation.", http.StatusInternalServerError)
 	}
 
-	err = fixture.Hardware.DisplayServers.UploadAnimation(animationId, frames, Display.ServerDisplay(displayNr))
+	err = fixture.Hardware.DisplayServers.UploadAnimation(Display.AnimationId(animationId), frames, Display.ServerDisplay(displayNr))
 
 	//Encode data
 	if err != nil {
@@ -183,7 +183,7 @@ func (fixture Fixture) HandleDisplayPlayAnimationApi(w http.ResponseWriter, r *h
 		http.Error(w, "Animation does not exist.", http.StatusBadRequest)
 	}
 
-	fixture.Hardware.DisplayServers.PlayAnimation(animationId, Display.ServerDisplay(displayNr))
+	fixture.Hardware.DisplayServers.PlayAnimation(Display.AnimationId(animationId), Display.ServerDisplay(displayNr))
 
 	w.WriteHeader(http.StatusOK)
 }
