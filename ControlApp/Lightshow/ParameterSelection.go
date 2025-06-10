@@ -121,7 +121,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	baseMood := context.Configuration.Mood
 	var possibleModes []BoxiBus.LightingModeId
 
-	if baseMood ==
+	// if baseMood ==
 
 	//When in a calmer section of a beat mode, randomly pick between moody and happy
 	if (baseMood == Regular || baseMood == Party) && switchType != OnBeat {
