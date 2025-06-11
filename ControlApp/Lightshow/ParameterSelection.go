@@ -9,7 +9,8 @@ import (
 type switchType uint8
 
 const (
-	OnBeat switchType = iota
+	FirstBeat switchType = iota
+	OnBeat
 	InDeadTime
 	InCalmMode
 )
@@ -121,10 +122,8 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	baseMood := context.Configuration.Mood
 	var possibleModes []BoxiBus.LightingModeId
 
-	// if baseMood ==
-
-	//When in a calmer section of a beat mode, randomly pick between moody and happy
 	if (baseMood == Regular || baseMood == Party) && switchType != OnBeat {
+		//When in a calmer section of a beat mode, randomly pick between moody and happy
 		randNbr := rand.Intn(2)
 		if randNbr == 0 {
 			baseMood = Moody
@@ -132,17 +131,39 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 			baseMood = Happy
 		}
 
+		// Also only allow the transition Beat -> FadeToColor -> PaletteFade
 		if switchType == InDeadTime {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.FadeToColor}
 		} else {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.PaletteFade}
 		}
+	} else {
+		//If in any other section of any other mode, just pick mode from any of the default mode list
+		possibleModes = getLightingModesByMood(baseMood)
 	}
+
+	randNbr := rand.Intn(len(possibleModes))
+	mode := possibleModes[randNbr]
+
+	palette := []BoxiBus.Color{{255, 255, 255, 0, 0, 0}}
+	// TODO: Implement palette management/selection
+
+	if switchType == FirstBeat && context.Configuration.StrobeChance > 0 {
+		randNbr = rand.Intn(context.Configuration.StrobeChance)
+		if randNbr == 0 {
+			mode = BoxiBus.Strobe
+			palette = []BoxiBus.Color{{0, 0, 0, 255, 0, 0}}
+		}
+	}
+
+	// TODO: Convert mode, palette and hue shift parameter to mode struct and return
 }
 
 func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
 	switch mood {
 	case Happy, Moody:
 		return []BoxiBus.LightingModeId{BoxiBus.FadeToColor, BoxiBus.PaletteFade}
+	case Regular, Party:
+		return []BoxiBus.LightingModeId{BoxiBus.PaletteSwitch, BoxiBus.PaletteBrightnessFlash, BoxiBus.PaletteHueFlash}
 	}
 }

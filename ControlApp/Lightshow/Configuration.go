@@ -6,6 +6,8 @@ import (
 
 type AutoModeConfiguration struct {
 	Mood                    LightingMood
+	StrobeChance            int
+	HueShiftChance          int
 	MinTimeBetweenBeats     time.Duration
 	LightingCalmModeBoring  time.Duration                      //How long it takes until a calm animation is boring
 	AnimationCalmModeBoring time.Duration                      //How long it takes until a calm animation is boring
