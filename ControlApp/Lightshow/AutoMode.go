@@ -24,6 +24,7 @@ type AutoModeContext struct {
 	animationDeadTime     *time.Duration
 	lightingBeatsLeft     int
 	animationBeatsLeft    int
+	wasInCalmMode         bool
 }
 
 const soundInputPin = 16
@@ -78,7 +79,13 @@ func (context *AutoModeContext) calculateAutoMode() {
 			// Count down the animation beat timer and play new animation if limit was reached
 			context.lightingBeatsLeft--
 			if context.lightingBeatsLeft <= 0 {
-				lighting := context.getNextLighting(OnBeat)
+				var lighting LightingInstruction
+				if context.wasInCalmMode {
+					lighting = context.getNextLighting(FirstBeat)
+				} else {
+					lighting = context.getNextLighting(OnBeat)
+				}
+
 				context.switcher.applyLighting(lighting)
 
 				timingConstraint, ok := context.Configuration.LightingModeTiming[lighting.character]
@@ -108,6 +115,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 			context.lightingDeadTime = nil
 			lighting := context.getNextLighting(InDeadTime)
 			context.switcher.applyLighting(lighting)
+			context.wasInCalmMode = true
 
 			if lighting.character == Calm {
 				timeWhenBoring := time.Now().Add(context.Configuration.LightingCalmModeBoring)
@@ -132,6 +140,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 			context.lightingSwitchToCalm = nil
 			lighting := context.getNextLighting(InCalmMode)
 			context.switcher.applyLighting(lighting)
+			context.wasInCalmMode = true
 
 			if lighting.character == Calm {
 				timeWhenBoring := time.Now().Add(context.Configuration.LightingCalmModeBoring)
