@@ -32,7 +32,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 		}
 	}
 
-	animationManager := context.switcher.getAnimations()
+	animationManager := context.manager.getAnimations()
 	animationManager.accessLock.Lock()
 	defer animationManager.accessLock.Unlock()
 
@@ -156,7 +156,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	hueShift := randNbr == 0
 
 	if possiblePalettes == nil {
-		possiblePalettes = context.switcher.getPalettes().GetPalettesForMood(baseMood)
+		possiblePalettes = context.manager.getPalettes().GetPalettesForMood(baseMood)
 	}
 	if possiblePalettes == nil || len(possiblePalettes) == 0 {
 		possiblePalettes = getDefaultPalettes()
@@ -173,7 +173,15 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		}
 	}
 
-	return createLightingInstruction(mode, palette, hueShift)
+	// Figure out whether the mode should be applied on the next beat
+	applyOnNextBeat := false
+	if switchType == OnBeat {
+		applyOnNextBeat = true
+	}
+
+	messages := getLightingMessages(mode, palette, hueShift, applyOnNextBeat)
+	character := getLightingModeCharacter(mode)
+	return LightingInstruction{messages, character}
 }
 
 func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
@@ -185,6 +193,9 @@ func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
 	}
 }
 
-func createLightingInstruction(mode BoxiBus.LightingModeId, palette []BoxiBus.Color, hueShift bool) LightingInstruction {
-
+func getLightingMessages(mode BoxiBus.LightingModeId, palette []BoxiBus.Color, hueShift bool, applyOnBeat bool) BoxiBus.MessageBlock {
+	switch mode {
+	default:
+		return BoxiBus.CreateLightingOff(applyOnBeat)
+	}
 }

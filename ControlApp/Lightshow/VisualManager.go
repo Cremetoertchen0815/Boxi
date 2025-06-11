@@ -29,7 +29,6 @@ func CreateLightingManager(hardwareManager Infrastructure.HardwareManager) *Visu
 type LightingInstruction struct {
 	BoxiBus.MessageBlock
 	character ModeCharacter
-	SlowMode  bool
 }
 
 type animationInstruction struct {

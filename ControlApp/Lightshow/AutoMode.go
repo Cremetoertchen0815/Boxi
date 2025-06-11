@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type VisualSwitch interface {
+type Manager interface {
 	applyLighting(instruction LightingInstruction)
 	applyAnimation(instruction AnimationsInstruction)
 	triggerBeat()
@@ -16,7 +16,7 @@ type VisualSwitch interface {
 
 type AutoModeContext struct {
 	Configuration         AutoModeConfiguration
-	switcher              VisualSwitch
+	manager               Manager
 	beatInputPin          rpio.Pin
 	lastBeat              *time.Time
 	lightingSwitchToCalm  *time.Time
@@ -31,11 +31,11 @@ type AutoModeContext struct {
 const soundInputPin = 16
 const loopDelayMs = 5
 
-func CreateAutoMode(switcher VisualSwitch, configuration AutoModeConfiguration) *AutoModeContext {
+func CreateAutoMode(switcher Manager, configuration AutoModeConfiguration) *AutoModeContext {
 	pin := rpio.Pin(soundInputPin)
 	pin.Input()
 
-	result := &AutoModeContext{Configuration: configuration, switcher: switcher, beatInputPin: pin}
+	result := &AutoModeContext{Configuration: configuration, manager: switcher, beatInputPin: pin}
 
 	go result.calculateAutoMode()
 	return result
@@ -62,13 +62,13 @@ func (context *AutoModeContext) calculateAutoMode() {
 		isBeat := pendingBeat && (context.lastBeat == nil || now.After(context.lastBeat.Add(context.Configuration.MinTimeBetweenBeats)))
 		if isBeat {
 			context.lastBeat = &now
-			context.switcher.triggerBeat()
+			context.manager.triggerBeat()
 
 			// Count down the display beat timer and play new animation if limit was reached
 			context.animationBeatsLeft--
 			if context.animationBeatsLeft <= 0 {
 				animation := context.getNextAnimation(OnBeat)
-				context.switcher.applyAnimation(animation)
+				context.manager.applyAnimation(animation)
 
 				timingConstraint, ok := context.Configuration.AnimationModeTiming[animation.character]
 				if ok {
@@ -87,7 +87,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 					lighting = context.getNextLighting(OnBeat)
 				}
 
-				context.switcher.applyLighting(lighting)
+				context.manager.applyLighting(lighting)
 
 				timingConstraint, ok := context.Configuration.LightingModeTiming[lighting.character]
 				if ok {
@@ -103,7 +103,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		if context.animationDeadTime != nil && lastBeat.Add(*context.animationDeadTime).Before(time.Now()) {
 			context.animationDeadTime = nil
 			animation := context.getNextAnimation(InDeadTime)
-			context.switcher.applyAnimation(animation)
+			context.manager.applyAnimation(animation)
 
 			if animation.character == Calm {
 				timeWhenBoring := time.Now().Add(context.Configuration.AnimationCalmModeBoring)
@@ -115,10 +115,10 @@ func (context *AutoModeContext) calculateAutoMode() {
 		if context.lightingDeadTime != nil && lastBeat.Add(*context.lightingDeadTime).Before(time.Now()) {
 			context.lightingDeadTime = nil
 			lighting := context.getNextLighting(InDeadTime)
-			context.switcher.applyLighting(lighting)
-			context.wasInCalmMode = true
+			context.manager.applyLighting(lighting)
+			context.wasInCalmMode = lighting.character == Calm
 
-			if lighting.character == Calm {
+			if context.wasInCalmMode {
 				timeWhenBoring := time.Now().Add(context.Configuration.LightingCalmModeBoring)
 				context.lightingSwitchToCalm = &timeWhenBoring
 			}
@@ -128,7 +128,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		if context.animationSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) {
 			context.animationSwitchToCalm = nil
 			animation := context.getNextAnimation(InCalmMode)
-			context.switcher.applyAnimation(animation)
+			context.manager.applyAnimation(animation)
 
 			if animation.character == Calm {
 				timeWhenBoring := time.Now().Add(context.Configuration.AnimationCalmModeBoring)
@@ -140,7 +140,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		if context.lightingSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) {
 			context.lightingSwitchToCalm = nil
 			lighting := context.getNextLighting(InCalmMode)
-			context.switcher.applyLighting(lighting)
+			context.manager.applyLighting(lighting)
 			context.wasInCalmMode = true
 
 			if lighting.character == Calm {

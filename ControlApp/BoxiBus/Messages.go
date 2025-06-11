@@ -3,7 +3,6 @@ package BoxiBus
 import "errors"
 
 type DisplayStatusCode byte
-type LightingModeId byte
 
 const (
 	Booting              DisplayStatusCode = 0x00
@@ -13,6 +12,8 @@ const (
 	HostConnectionFailed DisplayStatusCode = 0x04
 	Active               DisplayStatusCode = 0x05
 )
+
+type LightingModeId byte
 
 const (
 	Off                    LightingModeId = 0x00
