@@ -193,9 +193,20 @@ func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
 	}
 }
 
-func getLightingMessages(mode BoxiBus.LightingModeId, palette []BoxiBus.Color, hueShift bool, applyOnBeat bool) BoxiBus.MessageBlock {
+func getLightingMessages(config AutoModeConfiguration, mode BoxiBus.LightingModeId, palette []BoxiBus.Color, hueShift byte, applyOnBeat bool) BoxiBus.MessageBlock {
 	switch mode {
-	default:
+	case BoxiBus.Off:
 		return BoxiBus.CreateLightingOff(applyOnBeat)
+	case BoxiBus.SetColor:
+		return BoxiBus.CreateLightingSetColor(palette[0], palette[int(hueShift)%len(palette)], applyOnBeat)
+	case BoxiBus.FadeToColor:
+		return BoxiBus.CreateLightingFadeToColor(palette[0], palette[int(hueShift)%len(palette)], config.FadeToColorCycles, applyOnBeat)
+	case BoxiBus.PaletteFade:
+		result, err := BoxiBus.CreateLightingPaletteFade(palette, config.PaletteFadeCycles, hueShift, applyOnBeat)
+		if err == nil {
+			return result
+		}
 	}
+
+	return nil
 }
