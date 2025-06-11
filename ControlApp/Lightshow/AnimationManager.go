@@ -16,6 +16,6 @@ type AnimationManager struct {
 	accessLock *sync.Mutex
 }
 
-func LoadAnimations() AnimationManager {
-	return AnimationManager{}
+func LoadAnimations() *AnimationManager {
+	return &AnimationManager{}
 }

@@ -11,6 +11,7 @@ type VisualSwitch interface {
 	applyAnimation(instruction AnimationsInstruction)
 	triggerBeat()
 	getAnimations() *AnimationManager
+	getPalettes() *PaletteManager
 }
 
 type AutoModeContext struct {

@@ -121,6 +121,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 func (context *AutoModeContext) getNextLighting(switchType switchType) LightingInstruction {
 	baseMood := context.Configuration.Mood
 	var possibleModes []BoxiBus.LightingModeId
+	var possiblePalettes []Palette
 
 	if (baseMood == Regular || baseMood == Party) && switchType != OnBeat {
 		//When in a calmer section of a beat mode, randomly pick between moody and happy
@@ -134,23 +135,36 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		// Also only allow the transition Beat -> FadeToColor -> PaletteFade
 		if switchType == InDeadTime {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.FadeToColor}
+			possiblePalettes = []Palette{
+				{[]BoxiBus.Color{{255, 0, 0, 0, 0, 255}}, nil},
+				{[]BoxiBus.Color{{0, 0, 255, 0, 0, 0}}, nil},
+				{[]BoxiBus.Color{{0, 0, 0, 0, 255, 0}}, nil},
+				{[]BoxiBus.Color{{0, 0, 0, 0, 0, 255}}, nil},
+			}
 		} else {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.PaletteFade}
 		}
-	} else {
-		//If in any other section of any other mode, just pick mode from any of the default mode list
-		possibleModes = getLightingModesByMood(baseMood)
 	}
 
+	if possibleModes == nil {
+		possibleModes = getLightingModesByMood(baseMood)
+	}
 	randNbr := rand.Intn(len(possibleModes))
 	mode := possibleModes[randNbr]
 
 	randNbr = rand.Intn(context.Configuration.HueShiftChance)
 	hueShift := randNbr == 0
 
-	palette := []BoxiBus.Color{{255, 255, 255, 0, 0, 0}}
-	// TODO: Implement palette management/selection
+	if possiblePalettes == nil {
+		possiblePalettes = context.switcher.getPalettes().GetPalettesForMood(baseMood)
+	}
+	if possiblePalettes == nil || len(possiblePalettes) == 0 {
+		possiblePalettes = getDefaultPalettes()
+	}
+	randNbr = rand.Intn(len(possiblePalettes))
+	palette := possiblePalettes[randNbr].Colors
 
+	// If first beat since a while, have a chance for strobe to flash bang you
 	if switchType == FirstBeat && context.Configuration.StrobeChance > 0 {
 		randNbr = rand.Intn(context.Configuration.StrobeChance)
 		if randNbr == 0 {
@@ -166,7 +180,7 @@ func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
 	switch mood {
 	case Happy, Moody:
 		return []BoxiBus.LightingModeId{BoxiBus.FadeToColor, BoxiBus.PaletteFade}
-	case Regular, Party:
+	default:
 		return []BoxiBus.LightingModeId{BoxiBus.PaletteSwitch, BoxiBus.PaletteBrightnessFlash, BoxiBus.PaletteHueFlash}
 	}
 }
