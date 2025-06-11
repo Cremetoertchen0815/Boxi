@@ -145,6 +145,9 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	randNbr := rand.Intn(len(possibleModes))
 	mode := possibleModes[randNbr]
 
+	randNbr = rand.Intn(context.Configuration.HueShiftChance)
+	hueShift := randNbr == 0
+
 	palette := []BoxiBus.Color{{255, 255, 255, 0, 0, 0}}
 	// TODO: Implement palette management/selection
 
