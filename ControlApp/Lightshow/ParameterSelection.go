@@ -173,7 +173,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		}
 	}
 
-	// TODO: Convert mode, palette and hue shift parameter to mode struct and return
+	return createLightingInstruction(mode, palette, hueShift)
 }
 
 func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
@@ -183,4 +183,8 @@ func getLightingModesByMood(mood LightingMood) []BoxiBus.LightingModeId {
 	default:
 		return []BoxiBus.LightingModeId{BoxiBus.PaletteSwitch, BoxiBus.PaletteBrightnessFlash, BoxiBus.PaletteHueFlash}
 	}
+}
+
+func createLightingInstruction(mode BoxiBus.LightingModeId, palette []BoxiBus.Color, hueShift bool) LightingInstruction {
+
 }
