@@ -152,9 +152,6 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	randNbr := rand.Intn(len(possibleModes))
 	mode := possibleModes[randNbr]
 
-	randNbr = rand.Intn(context.Configuration.HueShiftChance)
-	hueShift := randNbr == 0
-
 	if possiblePalettes == nil {
 		possiblePalettes = context.manager.getPalettes().GetPalettesForMood(baseMood)
 	}
@@ -163,6 +160,13 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	}
 	randNbr = rand.Intn(len(possiblePalettes))
 	palette := possiblePalettes[randNbr].Colors
+
+	randNbr = rand.Intn(context.Configuration.HueShiftChance)
+	hueShift := 0
+
+	if randNbr == 0 {
+		hueShift = rand.Intn(len(palette))
+	}
 
 	// If first beat since a while, have a chance for strobe to flash bang you
 	if switchType == FirstBeat && context.Configuration.StrobeChance > 0 {
@@ -179,7 +183,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		applyOnNextBeat = true
 	}
 
-	messages := getLightingMessages(mode, palette, hueShift, applyOnNextBeat)
+	messages := getLightingMessages(context.Configuration, mode, palette, byte(hueShift), applyOnNextBeat)
 	character := getLightingModeCharacter(mode)
 	return LightingInstruction{messages, character}
 }
@@ -206,6 +210,23 @@ func getLightingMessages(config AutoModeConfiguration, mode BoxiBus.LightingMode
 		if err == nil {
 			return result
 		}
+	case BoxiBus.PaletteSwitch:
+		result, err := BoxiBus.CreateLightingPaletteSwitch(palette, hueShift, applyOnBeat)
+		if err == nil {
+			return result
+		}
+	case BoxiBus.PaletteBrightnessFlash:
+		result, err := BoxiBus.CreateLightingPaletteBrightnessFlash(palette, config.FlashFadeoutSpeed, config.FlashTargetBrightness, hueShift, applyOnBeat)
+		if err == nil {
+			return result
+		}
+	case BoxiBus.PaletteHueFlash:
+		result, err := BoxiBus.CreateLightingPaletteHueFlash(palette, config.FlashFadeoutSpeed, config.FlashTargetBrightness, config.FlashHueShift, applyOnBeat)
+		if err == nil {
+			return result
+		}
+	case BoxiBus.Strobe:
+		return BoxiBus.CreateLightingStrobe(palette[0], config.StrobeFrequency, config.StrobeRolloff, applyOnBeat)
 	}
 
 	return nil

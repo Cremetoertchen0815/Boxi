@@ -9,8 +9,13 @@ type AutoModeConfiguration struct {
 	StrobeChance            int
 	HueShiftChance          int
 	HueShiftMaxAmount       int
-	FadeToColorCycles       uint16 //How slow is the "FadeToColor" mode operating at
-	PaletteFadeCycles       uint16 //How slow is the "FadeToColor" mode operating at
+	FadeToColorCycles       uint16 //How slow is the “FadeToColor” mode operating at
+	PaletteFadeCycles       uint16 //How slow is the “FadeToColor” mode operating at
+	FlashFadeoutSpeed       uint16
+	StrobeFrequency         uint16
+	StrobeRolloff           byte
+	FlashTargetBrightness   byte
+	FlashHueShift           byte
 	MinTimeBetweenBeats     time.Duration
 	LightingCalmModeBoring  time.Duration                      //How long it takes until a calm animation is boring
 	AnimationCalmModeBoring time.Duration                      //How long it takes until a calm animation is boring
