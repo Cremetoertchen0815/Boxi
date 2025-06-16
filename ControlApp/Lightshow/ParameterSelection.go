@@ -136,10 +136,9 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		if switchType == InDeadTime {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.FadeToColor}
 			possiblePalettes = []Palette{
-				{[]BoxiBus.Color{{255, 0, 0, 0, 0, 255}}, nil},
-				{[]BoxiBus.Color{{0, 0, 255, 0, 0, 0}}, nil},
-				{[]BoxiBus.Color{{0, 0, 0, 0, 255, 0}}, nil},
-				{[]BoxiBus.Color{{0, 0, 0, 0, 0, 255}}, nil},
+				{"UV", []BoxiBus.Color{{255, 0, 0, 0, 0, 255}}, nil},
+				{"Blue", []BoxiBus.Color{{0, 0, 255, 0, 0, 0}}, nil},
+				{"Amber", []BoxiBus.Color{{0, 0, 0, 0, 255, 0}}, nil},
 			}
 		} else {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.PaletteFade}

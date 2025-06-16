@@ -86,17 +86,18 @@ func (context *AutoModeContext) calculateAutoMode() {
 
 				timingConstraint, ok := context.Configuration.LightingModeTiming[lighting.character]
 				if ok {
-					context.animationBeatsLeft = getNextBeatConstraint(timingConstraint)
+					context.lightingBeatsLeft = getNextBeatConstraint(timingConstraint)
 					context.lightingDeadTime = &timingConstraint.NoBeatDeadTime
 				}
 			}
 
-			return
+			continue
 		}
 
 		//Check beat dead time for animation
 		if context.animationDeadTime != nil && lastBeat.Add(*context.animationDeadTime).Before(time.Now()) {
 			context.animationDeadTime = nil
+			context.animationBeatsLeft = 0
 			animation := context.getNextAnimation(InDeadTime)
 			context.manager.applyAnimation(animation)
 
@@ -109,6 +110,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		//Check beat dead time for lighting
 		if context.lightingDeadTime != nil && lastBeat.Add(*context.lightingDeadTime).Before(time.Now()) {
 			context.lightingDeadTime = nil
+			context.lightingBeatsLeft = 0
 			lighting := context.getNextLighting(InDeadTime)
 			context.manager.applyLighting(lighting)
 			context.wasInCalmMode = lighting.character == Calm
@@ -132,7 +134,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		}
 
 		//Check if the calm lighting is boring
-		if context.lightingSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) {
+		if context.lightingSwitchToCalm != nil && context.lightingSwitchToCalm.Before(time.Now()) {
 			context.lightingSwitchToCalm = nil
 			lighting := context.getNextLighting(InCalmMode)
 			context.manager.applyLighting(lighting)

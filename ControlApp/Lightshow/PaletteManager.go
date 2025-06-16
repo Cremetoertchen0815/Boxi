@@ -11,12 +11,64 @@ type PaletteManager struct {
 }
 
 type Palette struct {
+	Name   string
 	Colors []BoxiBus.Color
 	Moods  []LightingMood
 }
 
 func LoadPalettes() *PaletteManager {
-	return &PaletteManager{}
+	return &PaletteManager{
+		palettes: []Palette{
+			{
+				Name: "Rainbow",
+				Colors: []BoxiBus.Color{
+					{255, 0, 0, 0, 0, 0},
+					{255, 255, 0, 0, 0, 0},
+					{0, 255, 0, 0, 0, 0},
+					{0, 255, 255, 0, 0, 0},
+					{0, 0, 255, 0, 0, 0},
+					{255, 0, 255, 0, 0, 0},
+				},
+				Moods: []LightingMood{Happy, Regular, Party},
+			},
+			{
+				Name: "Cyberpunk",
+				Colors: []BoxiBus.Color{
+					{0, 255, 153, 0, 0, 0},
+					{77, 156, 200, 24, 0, 0},
+					{0, 30, 255, 0, 0, 128},
+					{150, 0, 200, 0, 0, 128},
+					{128, 0, 128, 10, 0, 255},
+				},
+				Moods: []LightingMood{Moody, Regular},
+			},
+			{
+				Name: "Pleasant",
+				Colors: []BoxiBus.Color{
+					{108, 200, 25, 0, 0, 0},
+					{255, 255, 25, 0, 50, 0},
+					{255, 130, 50, 0, 255, 32},
+					{255, 64, 80, 0, 0, 32},
+					{100, 100, 255, 0, 0, 255},
+					{52, 128, 255, 40, 0, 64},
+				},
+				Moods: []LightingMood{Happy, Regular},
+			},
+			{
+				Name: "Retro",
+				Colors: []BoxiBus.Color{
+					{0, 0, 0, 255, 128, 0},
+					{180, 180, 0, 0, 255, 0},
+					{180, 20, 80, 0, 0, 128},
+					{20, 0, 64, 0, 255, 255},
+					{0, 255, 0, 0, 255, 0},
+					{255, 0, 0, 0, 0, 255},
+				},
+				Moods: []LightingMood{Regular, Party},
+			},
+		},
+		accessLock: &sync.Mutex{},
+	}
 }
 
 func (manager *PaletteManager) GetPalettesForMood(mood LightingMood) []Palette {
@@ -37,13 +89,14 @@ func (manager *PaletteManager) GetPalettesForMood(mood LightingMood) []Palette {
 
 func getDefaultPalettes() []Palette {
 	return []Palette{
-		{[]BoxiBus.Color{
-			{255, 0, 0, 0, 0, 0},
-			{255, 255, 0, 0, 0, 0},
-			{0, 255, 0, 0, 0, 0},
-			{0, 255, 255, 0, 0, 0},
-			{0, 0, 255, 0, 0, 0},
-			{255, 0, 255, 0, 0, 0},
-		}, []LightingMood{Moody, Happy, Regular, Party}},
+		{"Default Rainbow",
+			[]BoxiBus.Color{
+				{255, 0, 0, 0, 0, 0},
+				{255, 255, 0, 0, 0, 0},
+				{0, 255, 0, 0, 0, 0},
+				{0, 255, 255, 0, 0, 0},
+				{0, 0, 255, 0, 0, 0},
+				{255, 0, 255, 0, 0, 0},
+			}, []LightingMood{Moody, Happy, Regular, Party}},
 	}
 }

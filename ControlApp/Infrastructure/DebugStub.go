@@ -28,11 +28,11 @@ func (manager *DebugStub) SendAnimationInstruction(animation Display.AnimationId
 }
 
 func (manager *DebugStub) SendTextInstruction(text string, displays []Display.ServerDisplay) {
-	log.Printf("Animation instruction sent, text: %s, displays: %+v \n", text, displays)
+	log.Printf("Text instruction sent, text: %s, displays: %+v \n", text, displays)
 }
 
 func (manager *DebugStub) SendBrightnessChange(brightness *float64, blinkSpeed uint16) {
-	log.Printf("Animation instruction sent, brightness: %+v, speed: %d \n", brightness, blinkSpeed)
+	log.Printf("Brightness instruction sent, brightness: %+v, speed: %d \n", brightness, blinkSpeed)
 }
 
 func (manager *DebugStub) SendBeatToDisplay(force bool) {

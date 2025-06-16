@@ -39,7 +39,30 @@ const (
 )
 
 func loadConfiguration() AutoModeConfiguration {
-	return AutoModeConfiguration{}
+	return AutoModeConfiguration{
+		Mood:                    Regular,
+		StrobeChance:            5,
+		HueShiftChance:          3,
+		HueShiftMaxAmount:       3,
+		FadeToColorCycles:       50,
+		PaletteFadeCycles:       30,
+		StrobeFrequency:         15,
+		FlashTargetBrightness:   30,
+		FlashHueShift:           1,
+		MinTimeBetweenBeats:     300 * time.Millisecond,
+		LightingCalmModeBoring:  20 * time.Second,
+		AnimationCalmModeBoring: 30 * time.Second,
+		LightingModeTiming: map[ModeCharacter]TimingConstraint{
+			Calm:     {MinNumberOfBeats: 32, MaxNumberOfBeats: 128, NoBeatDeadTime: 4 * time.Second},
+			Rhythmic: {MinNumberOfBeats: 16, MaxNumberOfBeats: 64, NoBeatDeadTime: 3 * time.Second},
+			Frantic:  {MinNumberOfBeats: 1, MaxNumberOfBeats: 4, NoBeatDeadTime: 1 * time.Second},
+		},
+		AnimationModeTiming: map[ModeCharacter]TimingConstraint{
+			Calm:     {MinNumberOfBeats: 32, MaxNumberOfBeats: 64, NoBeatDeadTime: 6 * time.Second},
+			Rhythmic: {MinNumberOfBeats: 16, MaxNumberOfBeats: 48, NoBeatDeadTime: 2 * time.Second},
+			Frantic:  {MinNumberOfBeats: 8, MaxNumberOfBeats: 16, NoBeatDeadTime: 2 * time.Second},
+		},
+	}
 }
 
 // IsCalm returns whether the mood has exclusively calm character.

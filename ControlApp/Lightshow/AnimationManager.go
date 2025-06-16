@@ -21,7 +21,7 @@ type AnimationManager struct {
 
 func LoadAnimations() *AnimationManager {
 	uploadQueue := make(chan Display.AnimationId, 2)
-	return &AnimationManager{UploadQueue: uploadQueue}
+	return &AnimationManager{UploadQueue: uploadQueue, accessLock: &sync.Mutex{}}
 }
 
 func (manager *AnimationManager) ImportAnimation(animationPath string, mood LightingMood, splitAnimation bool) (Display.AnimationId, error) {
