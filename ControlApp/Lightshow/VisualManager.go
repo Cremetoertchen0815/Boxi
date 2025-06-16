@@ -123,7 +123,7 @@ func (manager VisualManager) SetTextsOverwrite(instructions *TextsInstruction) {
 	}
 }
 
-func (manager VisualManager) GetAllAnimations() []Display.AnimationId {
+func (manager VisualManager) getAllAnimations() []Display.AnimationId {
 	var ids []Display.AnimationId
 
 	for _, data := range manager.animations.animations {
@@ -131,6 +131,10 @@ func (manager VisualManager) GetAllAnimations() []Display.AnimationId {
 	}
 
 	return ids
+}
+
+func (manager VisualManager) ImportAnimation(path string, mood LightingMood, splitVideo bool) (Display.AnimationId, error) {
+	return manager.animations.ImportAnimation(path, mood, splitVideo)
 }
 
 func (manager VisualManager) watchForAnimationUploads() {

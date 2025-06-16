@@ -16,7 +16,7 @@ type Manager struct {
 }
 
 type AnimationProvider interface {
-	GetAllAnimations() []Display.AnimationId
+	getAllAnimations() []Display.AnimationId
 }
 
 func Initialize() (Manager, error) {
@@ -60,7 +60,7 @@ func (manager Manager) handleDisplayServerLogon(logonChannel <-chan byte) {
 		}
 
 		// Sync animations
-		for _, animationId := range manager.animationProvider.GetAllAnimations() {
+		for _, animationId := range manager.animationProvider.getAllAnimations() {
 			frames, err := GetAnimationFrames(uint32(animationId))
 			if err != nil {
 				continue

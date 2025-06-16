@@ -2,10 +2,9 @@ package Api
 
 import (
 	"ControlApp/Display"
-	"ControlApp/Infrastructure"
+	"ControlApp/Lightshow"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -45,6 +44,31 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 		http.Error(w, "Error retrieving the file", http.StatusInternalServerError)
 	}
 
+	var moodNr uint8
+	moodNrStr := r.FormValue("mood")
+	if moodNrStr != "" {
+		tempId, err := strconv.ParseInt(moodNrStr, 10, 8)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing mood.", http.StatusBadRequest)
+			return
+		}
+		moodNr = uint8(tempId)
+	}
+
+	isSplit := false
+	isSplitStr := r.FormValue("mood")
+	if isSplitStr != "" {
+		tempId, err := strconv.ParseInt(isSplitStr, 10, 8)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing mood.", http.StatusBadRequest)
+			return
+		}
+
+		if tempId != 0 {
+			isSplit = true
+		}
+	}
+
 	// Retrieve the file from form data
 	file, _, err := r.FormFile("animationFile")
 	if err != nil {
@@ -72,60 +96,9 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	}
 
 	//Convert animation
-	err = Infrastructure.ExtractFrames(animationId, dst.Name())
+	_, err = fixture.Visuals.ImportAnimation(dst.Name(), Lightshow.LightingMood(moodNr), isSplit)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Error converting animation. error %s", err), http.StatusInternalServerError)
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func (fixture Fixture) HandleDisplayUploadAnimationApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		w.WriteHeader(http.StatusNotImplemented)
-		return
-	}
-
-	//Get animation ID
-	var animationId uint32
-	animationIdStr := r.FormValue("id")
-	if animationIdStr != "" {
-		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
-		if err != nil || tempId < 0 {
-			http.Error(w, "Error parsing animation ID.", http.StatusBadRequest)
-			return
-		}
-		animationId = uint32(tempId)
-	}
-
-	//Get display byte
-	var displayNr byte
-	displayNrStr := r.FormValue("display")
-	if displayNrStr != "" {
-		tempId, err := strconv.ParseInt(displayNrStr, 10, 8)
-		if err != nil || animationId < 0 {
-			http.Error(w, "Error parsing display number.", http.StatusBadRequest)
-			return
-		}
-		displayNr = byte(tempId)
-	}
-
-	dirPath := fmt.Sprintf("blob/animations/%d", animationId)
-	if !exists(dirPath) {
-		http.Error(w, "Animation does not exist.", http.StatusBadRequest)
-	}
-
-	//Read frames
-	frames, err := Infrastructure.GetAnimationFrames(animationId)
-	if err != nil {
-		http.Error(w, "Error fetching animation.", http.StatusInternalServerError)
-	}
-
-	err = fixture.Hardware.DisplayServers.UploadAnimation(Display.AnimationId(animationId), frames, Display.ServerDisplay(displayNr))
-
-	//Encode data
-	if err != nil {
-		http.Error(w, "Error uploading animation.", http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Error importing animation. error %s", err), http.StatusInternalServerError)
 	}
 
 	w.WriteHeader(http.StatusOK)
