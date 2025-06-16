@@ -1,4 +1,3 @@
--Add alternative(endpoint) for triggering beat
 -Add default configurations, pallets and animations
 -Test visuals
 -Add endpoints for setting visual overrides
