@@ -1,5 +1,6 @@
--Add endpoints for setting visual overrides
+-Add alternative(endpoint) for triggering beat
 -Add default configurations, pallets and animations
 -Test visuals
+-Add endpoints for setting visual overrides
 -Implement configuration persistence
 -Implement user app

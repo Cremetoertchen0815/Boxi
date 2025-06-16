@@ -12,13 +12,14 @@ import (
 func main() {
 
 	//Initialize hardware
+	hardware := Infrastructure.DebugStub(0)
 	//hardware, err := Infrastructure.Initialize()
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
 
 	//Initialize lighting manager
-	Lightshow.CreateLightingManager(Infrastructure.DebugStub(0))
+	visuals := Lightshow.CreateVisualManager(hardware)
 
 	//Setup static file server
 	fileServer := http.FileServer(http.Dir("Frontend/static/"))
@@ -29,10 +30,9 @@ func main() {
 	http.HandleFunc("/", pages.HandleStartPage)
 
 	//Setup api
-	fixture := Api.Fixture{Hardware: hardware}
+	fixture := Api.Fixture{Hardware: hardware, Visuals: visuals}
 	http.HandleFunc("/api/display/connected", fixture.HandleDisplayConnectedApi)
 	http.HandleFunc("/api/display/import", fixture.HandleDisplayImportAnimationApi)
-	http.HandleFunc("/api/display/upload", fixture.HandleDisplayUploadAnimationApi)
 	http.HandleFunc("/api/display/show", fixture.HandleDisplayPlayAnimationApi)
 	http.HandleFunc("/api/display/text", fixture.HandleDisplayShowTextApi)
 	http.HandleFunc("/api/display/brightness", fixture.HandleDisplaySetBrightnessApi)

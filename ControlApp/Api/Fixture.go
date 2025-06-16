@@ -7,5 +7,5 @@ import (
 
 type Fixture struct {
 	Hardware Infrastructure.HardwareInterface
-	Visuals  Lightshow.VisualManager
+	Visuals  *Lightshow.VisualManager
 }

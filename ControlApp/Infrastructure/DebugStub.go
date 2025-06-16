@@ -31,3 +31,7 @@ func (manager DebugStub) SendBrightnessChange(brightness *float64, blinkSpeed ui
 func (manager DebugStub) SendBeatToDisplay(force bool) {
 	log.Printf("Beat sent, forced: %t \n", force)
 }
+
+func (manager DebugStub) UploadAnimation(id Display.AnimationId) {
+	log.Printf("Uploaded animation, id: %d \n", id)
+}

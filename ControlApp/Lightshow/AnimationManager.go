@@ -10,7 +10,7 @@ import (
 type Animation struct {
 	Id                 Display.AnimationId
 	Mood               LightingMood
-	SecondaryAnimation *Display.AnimationId
+	SecondaryAnimation Display.AnimationId
 }
 
 type AnimationManager struct {
@@ -36,7 +36,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, mood Ligh
 			return 0, err
 		}
 
-		animation := Animation{Display.AnimationId(animationId), mood, nil}
+		animation := Animation{Display.AnimationId(animationId), mood, Display.None}
 		manager.animations = append(manager.animations, animation)
 		manager.storeDatabase()
 		manager.UploadQueue <- animation.Id
@@ -51,7 +51,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, mood Ligh
 	}
 
 	rightAnimationId := Display.AnimationId(secondaryAnimationId)
-	animation := Animation{Display.AnimationId(animationId), mood, &rightAnimationId}
+	animation := Animation{Display.AnimationId(animationId), mood, rightAnimationId}
 	manager.animations = append(manager.animations, animation)
 	manager.storeDatabase()
 	manager.UploadQueue <- animation.Id

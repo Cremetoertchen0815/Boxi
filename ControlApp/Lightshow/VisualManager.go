@@ -18,7 +18,7 @@ type VisualManager struct {
 	accessLock         *sync.Mutex
 }
 
-func CreateLightingManager(hardwareManager Infrastructure.HardwareInterface) *VisualManager {
+func CreateVisualManager(hardwareManager Infrastructure.HardwareInterface) *VisualManager {
 	visual := VisualManager{hardwareManager: hardwareManager}
 	visual.animations = LoadAnimations()
 	visual.palettes = LoadPalettes()
