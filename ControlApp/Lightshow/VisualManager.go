@@ -11,14 +11,14 @@ type VisualManager struct {
 	autoContext        *AutoModeContext
 	animations         *AnimationManager
 	palettes           *PaletteManager
-	hardwareManager    Infrastructure.HardwareManager
+	hardwareManager    Infrastructure.HardwareInterface
 	lightingOverwrite  *LightingInstruction
 	animationOverwrite *AnimationsInstruction
 	textOverwrite      *TextsInstruction
 	accessLock         *sync.Mutex
 }
 
-func CreateLightingManager(hardwareManager Infrastructure.HardwareManager) *VisualManager {
+func CreateLightingManager(hardwareManager Infrastructure.HardwareInterface) *VisualManager {
 	visual := VisualManager{hardwareManager: hardwareManager}
 	visual.animations = LoadAnimations()
 	visual.palettes = LoadPalettes()

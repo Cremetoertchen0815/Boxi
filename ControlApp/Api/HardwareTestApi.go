@@ -22,7 +22,7 @@ func (fixture Fixture) HandleDisplayConnectedApi(w http.ResponseWriter, r *http.
 	}
 
 	indices := make([]int, 0)
-	for _, index := range fixture.Hardware.DisplayServers.GetConnectedDisplays() {
+	for _, index := range fixture.Hardware.GetConnectedDisplays() {
 		indices = append(indices, int(index))
 	}
 
@@ -183,7 +183,7 @@ func (fixture Fixture) HandleDisplayPlayAnimationApi(w http.ResponseWriter, r *h
 		http.Error(w, "Animation does not exist.", http.StatusBadRequest)
 	}
 
-	fixture.Hardware.DisplayServers.PlayAnimation(Display.AnimationId(animationId), Display.ServerDisplay(displayNr))
+	fixture.Hardware.SendAnimationInstruction(Display.AnimationId(animationId), []Display.ServerDisplay{Display.ServerDisplay(displayNr)})
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -209,7 +209,7 @@ func (fixture Fixture) HandleDisplayShowTextApi(w http.ResponseWriter, r *http.R
 		displayNr = byte(tempId)
 	}
 
-	fixture.Hardware.DisplayServers.DisplayText(displayText, Display.ServerDisplay(displayNr))
+	fixture.Hardware.SendTextInstruction(displayText, []Display.ServerDisplay{Display.ServerDisplay(displayNr)})
 
 	w.WriteHeader(http.StatusOK)
 }
@@ -244,7 +244,7 @@ func (fixture Fixture) HandleDisplaySetBrightnessApi(w http.ResponseWriter, r *h
 		decrementNr = uint16(nr)
 	}
 
-	fixture.Hardware.DisplayServers.SetBrightness(valueNr, decrementNr)
+	fixture.Hardware.SendBrightnessChange(&valueNr, decrementNr)
 
 	w.WriteHeader(http.StatusOK)
 }

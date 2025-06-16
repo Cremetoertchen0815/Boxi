@@ -7,8 +7,8 @@ import (
 )
 
 type HardwareManager struct {
-	DisplayServers  *Display.ServerManager
-	MicroController *BoxiBus.CommunicationHub
+	displayServers  *Display.ServerManager
+	microController *BoxiBus.CommunicationHub
 	brightness      float64
 	blinkSpeed      uint16
 }
@@ -28,8 +28,8 @@ func InitializeHardware() (HardwareManager, error) {
 	go handleDisplayServerLogon(displays.ServerConnected, connection)
 
 	return HardwareManager{
-		DisplayServers:  displays,
-		MicroController: nil,
+		displayServers:  displays,
+		microController: connection,
 	}, nil
 }
 
@@ -49,7 +49,7 @@ func handleDisplayServerLogon(logonChannel <-chan byte, boxiBus *BoxiBus.Communi
 }
 
 func (manager HardwareManager) SendLightingInstruction(block BoxiBus.MessageBlock) {
-	err := manager.MicroController.Send(block)
+	err := manager.microController.Send(block)
 	if err != nil {
 		log.Print(err)
 	}
@@ -61,7 +61,7 @@ func (manager HardwareManager) SendAnimationInstruction(animation Display.Animat
 		totalDisplay |= int(display)
 	}
 
-	manager.DisplayServers.PlayAnimation(animation, Display.ServerDisplay(totalDisplay))
+	manager.displayServers.PlayAnimation(animation, Display.ServerDisplay(totalDisplay))
 }
 
 func (manager HardwareManager) SendTextInstruction(text string, displays []Display.ServerDisplay) {
@@ -69,7 +69,7 @@ func (manager HardwareManager) SendTextInstruction(text string, displays []Displ
 	for display := range displays {
 		totalDisplay |= display
 	}
-	manager.DisplayServers.DisplayText(text, Display.ServerDisplay(totalDisplay))
+	manager.displayServers.DisplayText(text, Display.ServerDisplay(totalDisplay))
 }
 
 func (manager HardwareManager) SendBrightnessChange(brightness *float64, blinkSpeed uint16) {
@@ -89,5 +89,8 @@ func (manager HardwareManager) SendBeatToDisplay(force bool) {
 		return
 	}
 
-	manager.DisplayServers.SetBrightness(manager.brightness, manager.blinkSpeed)
+	manager.displayServers.SetBrightness(manager.brightness, manager.blinkSpeed)
+}
+func (manager HardwareManager) GetConnectedDisplays() []Display.ServerDisplay {
+	return manager.displayServers.GetConnectedDisplays()
 }
