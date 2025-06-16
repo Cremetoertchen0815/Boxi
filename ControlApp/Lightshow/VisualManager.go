@@ -81,6 +81,10 @@ func (manager VisualManager) triggerBeat() {
 	manager.hardwareManager.SendBeatToDisplay(false)
 }
 
+func (manager VisualManager) getBeatState() bool {
+	return manager.hardwareManager.GetBeatState()
+}
+
 func (manager VisualManager) getAnimations() *AnimationManager {
 	return manager.animations
 }

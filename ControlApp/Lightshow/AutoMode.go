@@ -1,7 +1,6 @@
 package Lightshow
 
 import (
-	"github.com/stianeikeland/go-rpio/v4"
 	"math/rand"
 	"time"
 )
@@ -10,6 +9,7 @@ type Manager interface {
 	applyLighting(instruction LightingInstruction)
 	applyAnimation(instruction AnimationsInstruction)
 	triggerBeat()
+	getBeatState() bool
 	getAnimations() *AnimationManager
 	getPalettes() *PaletteManager
 }
@@ -17,7 +17,6 @@ type Manager interface {
 type AutoModeContext struct {
 	Configuration         AutoModeConfiguration
 	manager               Manager
-	beatInputPin          rpio.Pin
 	lastBeat              *time.Time
 	lightingSwitchToCalm  *time.Time
 	animationSwitchToCalm *time.Time
@@ -28,14 +27,10 @@ type AutoModeContext struct {
 	wasInCalmMode         bool
 }
 
-const soundInputPin = 16
 const loopDelayMs = 5
 
 func CreateAutoMode(switcher Manager, configuration AutoModeConfiguration) *AutoModeContext {
-	pin := rpio.Pin(soundInputPin)
-	pin.Input()
-
-	result := &AutoModeContext{Configuration: configuration, manager: switcher, beatInputPin: pin}
+	result := &AutoModeContext{Configuration: configuration, manager: switcher}
 
 	go result.calculateAutoMode()
 	return result
@@ -47,10 +42,8 @@ func (context *AutoModeContext) calculateAutoMode() {
 		time.Sleep(loopDelayMs * time.Millisecond)
 
 		//Only count beat if we're not in an exclusively calm mood
-		pendingBeat := context.beatInputPin.Read() == rpio.High && context.Configuration.Mood.IsCalm()
+		pendingBeat := context.manager.getBeatState() && !context.Configuration.Mood.IsCalm()
 		now := time.Now()
-		context.lightingSwitchToCalm = nil
-		context.animationSwitchToCalm = nil
 
 		var lastBeat time.Time
 		if context.lastBeat == nil {
@@ -63,6 +56,8 @@ func (context *AutoModeContext) calculateAutoMode() {
 		if isBeat {
 			context.lastBeat = &now
 			context.manager.triggerBeat()
+			context.lightingSwitchToCalm = nil
+			context.animationSwitchToCalm = nil
 
 			// Count down the display beat timer and play new animation if limit was reached
 			context.animationBeatsLeft--

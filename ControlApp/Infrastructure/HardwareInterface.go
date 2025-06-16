@@ -7,6 +7,7 @@ import (
 
 type HardwareInterface interface {
 	GetConnectedDisplays() []Display.ServerDisplay
+	GetBeatState() bool
 	SendLightingInstruction(block BoxiBus.MessageBlock)
 	SendAnimationInstruction(animation Display.AnimationId, displays []Display.ServerDisplay)
 	SendTextInstruction(text string, displays []Display.ServerDisplay)

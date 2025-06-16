@@ -3,6 +3,7 @@ package Infrastructure
 import (
 	"ControlApp/BoxiBus"
 	"ControlApp/Display"
+	"github.com/stianeikeland/go-rpio/v4"
 	"log"
 	"time"
 )
@@ -13,13 +14,16 @@ type Manager struct {
 	brightness        float64
 	blinkSpeed        uint16
 	animationProvider AnimationProvider
+	beatInput         rpio.Pin
 }
+
+const soundInputPin = 16
 
 type AnimationProvider interface {
 	getAllAnimations() []Display.AnimationId
 }
 
-func Initialize() (Manager, error) {
+func Initialize() (*Manager, error) {
 	connection, err := BoxiBus.ConnectToArduino(19200)
 	if err != nil {
 		log.Fatal(err)
@@ -28,13 +32,17 @@ func Initialize() (Manager, error) {
 
 	displays, err := Display.ListenForServers(true)
 	if err != nil {
-		return Manager{}, err
+		return &Manager{}, err
 	}
 
-	manager := Manager{
+	pin := rpio.Pin(soundInputPin)
+	pin.Input()
+
+	manager := &Manager{
 		displayServers:    displays,
 		microController:   connection,
 		animationProvider: nil,
+		beatInput:         pin,
 	}
 
 	go manager.handleDisplayServerLogon(displays.ServerConnected)
@@ -114,6 +122,11 @@ func (manager Manager) SendBeatToDisplay(force bool) {
 
 	manager.displayServers.SetBrightness(manager.brightness, manager.blinkSpeed)
 }
+
+func (manager Manager) GetBeatState() bool {
+	return manager.beatInput.Read() == rpio.High
+}
+
 func (manager Manager) GetConnectedDisplays() []Display.ServerDisplay {
 	return manager.displayServers.GetConnectedDisplays()
 }
@@ -124,5 +137,7 @@ func (manager Manager) UploadAnimation(id Display.AnimationId) {
 		return
 	}
 
-	manager.displayServers.UploadAnimation(id, frames, Display.AllDisplays)
+	if manager.displayServers.UploadAnimation(id, frames, Display.AllDisplays) != nil {
+		log.Printf("Uploading imported animation %d to displays failed. \n", id)
+	}
 }
