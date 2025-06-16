@@ -5,6 +5,7 @@ import (
 	"ControlApp/Infrastructure"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -42,24 +43,6 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	err := r.ParseMultipartForm(10 << 24)
 	if err != nil {
 		http.Error(w, "Error retrieving the file", http.StatusInternalServerError)
-	}
-
-	//Get animation ID
-	var animationId uint32
-	animationIdStr := r.FormValue("id")
-	if animationIdStr != "" {
-		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
-		if err != nil || tempId < 0 {
-			http.Error(w, "Error parsing animation ID", http.StatusBadRequest)
-			return
-		}
-		animationId = uint32(tempId)
-	}
-
-	info, err := os.Stat(fmt.Sprintf("blob/animations/%d", animationId))
-	if err == nil && info.IsDir() {
-		http.Error(w, "Animation with ID already exists.", http.StatusBadRequest)
-		return
 	}
 
 	// Retrieve the file from form data

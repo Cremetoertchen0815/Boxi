@@ -23,6 +23,10 @@ func CreateLightingManager(hardwareManager Infrastructure.HardwareInterface) *Vi
 	visual.animations = LoadAnimations()
 	visual.palettes = LoadPalettes()
 	visual.autoContext = CreateAutoMode(visual, loadConfiguration())
+
+	// Sync animations when they get uploaded
+	go visual.watchForAnimationUploads()
+
 	return &visual
 }
 
@@ -116,5 +120,22 @@ func (manager VisualManager) SetTextsOverwrite(instructions *TextsInstruction) {
 		for _, text := range *instructions {
 			manager.hardwareManager.SendTextInstruction(text.text, text.displays)
 		}
+	}
+}
+
+func (manager VisualManager) GetAllAnimations() []Display.AnimationId {
+	var ids []Display.AnimationId
+
+	for _, data := range manager.animations.animations {
+		ids = append(ids, data.Id)
+	}
+
+	return ids
+}
+
+func (manager VisualManager) watchForAnimationUploads() {
+	for {
+		animationId := <-manager.animations.UploadQueue
+		manager.hardwareManager.UploadAnimation(animationId)
 	}
 }

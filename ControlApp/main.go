@@ -12,13 +12,13 @@ import (
 func main() {
 
 	//Initialize hardware
-	//hardware, err := Infrastructure.InitializeHardware()
+	//hardware, err := Infrastructure.Initialize()
 	//if err != nil {
 	//	log.Fatal(err)
 	//}
 
 	//Initialize lighting manager
-	Lightshow.CreateLightingManager(Infrastructure.DebugHardwareManager(0))
+	Lightshow.CreateLightingManager(Infrastructure.DebugStub(0))
 
 	//Setup static file server
 	fileServer := http.FileServer(http.Dir("Frontend/static/"))

@@ -12,4 +12,5 @@ type HardwareInterface interface {
 	SendTextInstruction(text string, displays []Display.ServerDisplay)
 	SendBrightnessChange(brightness *float64, blinkSpeed uint16)
 	SendBeatToDisplay(force bool)
+	UploadAnimation(id Display.AnimationId)
 }

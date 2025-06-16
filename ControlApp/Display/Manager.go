@@ -21,7 +21,7 @@ func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 		return nil, err
 	}
 
-	serverConnected := make(chan byte)
+	serverConnected := make(chan byte, 2)
 	manager := ServerManager{
 		make(map[byte]*Server),
 		&sync.Mutex{},
