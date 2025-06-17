@@ -69,6 +69,8 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 		}
 	}
 
+	nameStr := r.FormValue("name")
+
 	// Retrieve the file from form data
 	file, _, err := r.FormFile("animationFile")
 	if err != nil {
@@ -96,7 +98,7 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	}
 
 	//Convert animation
-	_, err = fixture.Visuals.ImportAnimation(dst.Name(), Lightshow.LightingMood(moodNr), isSplit)
+	_, err = fixture.Visuals.ImportAnimation(dst.Name(), nameStr, Lightshow.LightingMood(moodNr), isSplit)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error importing animation. error %s", err), http.StatusInternalServerError)
 	}

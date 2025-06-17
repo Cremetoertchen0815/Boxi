@@ -30,7 +30,14 @@ type AutoModeContext struct {
 const loopDelayMs = 5
 
 func CreateAutoMode(switcher Manager, configuration AutoModeConfiguration) *AutoModeContext {
-	result := &AutoModeContext{Configuration: configuration, manager: switcher}
+	lightingSwitchTime := time.Now().Add(configuration.LightingCalmModeBoring)
+	animationSwitchTime := time.Now().Add(configuration.AnimationCalmModeBoring)
+	result := &AutoModeContext{
+		Configuration:         configuration,
+		manager:               switcher,
+		lightingSwitchToCalm:  &lightingSwitchTime,
+		animationSwitchToCalm: &animationSwitchTime,
+	}
 
 	go result.calculateAutoMode()
 	return result
