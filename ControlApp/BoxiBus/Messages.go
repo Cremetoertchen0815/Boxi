@@ -5,12 +5,8 @@ import "errors"
 type DisplayStatusCode byte
 
 const (
-	Booting              DisplayStatusCode = 0x00
-	HostAwake            DisplayStatusCode = 0x01
-	HostNoActivity       DisplayStatusCode = 0x02
-	DisplayServerFailed  DisplayStatusCode = 0x03
-	HostConnectionFailed DisplayStatusCode = 0x04
-	Active               DisplayStatusCode = 0x05
+	HostAwake           DisplayStatusCode = 0x01
+	DisplayServerFailed DisplayStatusCode = 0x03
 )
 
 type LightingModeId byte

@@ -42,3 +42,7 @@ func (manager *DebugStub) SendBeatToDisplay(force bool) {
 func (manager *DebugStub) UploadAnimation(id Display.AnimationId) {
 	log.Printf("Uploaded animation, id: %d \n", id)
 }
+
+func (manager *DebugStub) UpdateStatusCode(statusCode BoxiBus.DisplayStatusCode, serverId byte) {
+	log.Printf("Updated status code, code: %d, serverId: %d \n", statusCode, serverId)
+}

@@ -32,6 +32,9 @@ func Initialize() (*Manager, error) {
 
 	displays, err := Display.ListenForServers(true)
 	if err != nil {
+		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.DisplayServerFailed, 1)
+		_ = connection.Send(message)
+
 		return &Manager{}, err
 	}
 
@@ -61,7 +64,7 @@ func (manager Manager) handleDisplayServerLogon(logonChannel <-chan byte) {
 		serverId := <-logonChannel
 
 		// Send status update to Arduino
-		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.Active, serverId)
+		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.HostAwake, serverId)
 		err := manager.microController.Send(message)
 		if err != nil {
 			log.Print(err)
@@ -140,4 +143,9 @@ func (manager Manager) UploadAnimation(id Display.AnimationId) {
 	if manager.displayServers.UploadAnimation(id, frames, Display.AllDisplays) != nil {
 		log.Printf("Uploading imported animation %d to displays failed. \n", id)
 	}
+}
+
+func (manager Manager) UpdateStatusCode(statusCode BoxiBus.DisplayStatusCode, serverId byte) {
+	message := BoxiBus.CreateDisplayStatusUpdate(statusCode, serverId)
+	_ = manager.microController.Send(message)
 }
