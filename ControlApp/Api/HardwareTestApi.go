@@ -56,7 +56,7 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	}
 
 	isSplit := false
-	isSplitStr := r.FormValue("mood")
+	isSplitStr := r.FormValue("split")
 	if isSplitStr != "" {
 		tempId, err := strconv.ParseInt(isSplitStr, 10, 8)
 		if err != nil || tempId < 0 {
