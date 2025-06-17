@@ -1,4 +1,3 @@
--Add default animations(doggo dancing, rotating fish, Foxi spawning, creme slushy, 3D saul head, nyan cat (two screens), caramell dansen, manuel neuer spinning, ape listening to music, relaxing patterns, cat bopping)
 -Test visuals
 -Add endpoints for setting visual overrides
 -Implement configuration persistence
