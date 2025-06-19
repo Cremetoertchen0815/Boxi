@@ -10,7 +10,7 @@ import (
 // ExtractFrames converts the specified source file into displayable frames.
 func ExtractFrames(animationId uint32, sourcePath string) error {
 	// Input and output file names
-	rootPath := fmt.Sprintf("blob/animations/%d/", animationId)
+	rootPath := fmt.Sprintf("animations/%d/", animationId)
 	_ = os.RemoveAll(rootPath)
 	err := os.MkdirAll(rootPath, 0o775)
 	if err != nil {
@@ -34,8 +34,8 @@ func ExtractFrames(animationId uint32, sourcePath string) error {
 // for left and right screens showing two halves of the same animation.
 func ExtractDoubleFrames(leftAnimationId uint32, rightAnimationId uint32, sourcePath string) error {
 	// Root paths
-	leftPath := fmt.Sprintf("blob/animations/%d/", leftAnimationId)
-	rightPath := fmt.Sprintf("blob/animations/%d/", rightAnimationId)
+	leftPath := fmt.Sprintf("animations/%d/", leftAnimationId)
+	rightPath := fmt.Sprintf("animations/%d/", rightAnimationId)
 
 	_ = os.RemoveAll(leftPath)
 	_ = os.RemoveAll(rightPath)
@@ -80,7 +80,7 @@ func ExtractDoubleFrames(leftAnimationId uint32, rightAnimationId uint32, source
 }
 
 func GetAnimationFrames(animationId uint32) ([]string, error) {
-	rootPath := fmt.Sprintf("blob/animations/%d", animationId)
+	rootPath := fmt.Sprintf("animations/%d", animationId)
 
 	files, err := os.ReadDir(rootPath)
 	if err != nil {
