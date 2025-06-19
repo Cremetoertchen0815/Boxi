@@ -136,7 +136,7 @@ func (fixture Fixture) HandleDisplayPlayAnimationApi(w http.ResponseWriter, r *h
 		displayNr = byte(tempId)
 	}
 
-	dirPath := fmt.Sprintf("blob/animations/%d", animationId)
+	dirPath := fmt.Sprintf("animations/%d", animationId)
 	if !exists(dirPath) {
 		http.Error(w, "Animation does not exist.", http.StatusBadRequest)
 	}

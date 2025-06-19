@@ -15,7 +15,7 @@ func main() {
 	// Initialize hardware
 	hardware, err := Infrastructure.Initialize()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error initializing hardware: %s", err)
 	}
 
 	// Initialize lighting manager

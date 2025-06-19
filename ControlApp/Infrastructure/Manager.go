@@ -3,8 +3,11 @@ package Infrastructure
 import (
 	"ControlApp/BoxiBus"
 	"ControlApp/Display"
-	"github.com/stianeikeland/go-rpio/v4"
+	"fmt"
 	"log"
+	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/host/v3"
+	"periph.io/x/host/v3/rpi"
 	"time"
 )
 
@@ -14,10 +17,8 @@ type Manager struct {
 	brightness        float64
 	blinkSpeed        uint16
 	animationProvider AnimationProvider
-	beatInput         rpio.Pin
+	beatInput         gpio.PinIO
 }
-
-const soundInputPin = 16
 
 type AnimationProvider interface {
 	getAllAnimations() []Display.AnimationId
@@ -30,7 +31,7 @@ func Initialize() (*Manager, error) {
 	}
 	defer connection.Close()
 
-	displays, err := Display.ListenForServers(false)
+	displays, err := Display.ListenForServers(true)
 	if err != nil {
 		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.DisplayServerFailed, 1)
 		_ = connection.Send(message)
@@ -38,8 +39,10 @@ func Initialize() (*Manager, error) {
 		return &Manager{}, err
 	}
 
-	pin := rpio.Pin(soundInputPin)
-	pin.Input()
+	pin, err := initBeatPin()
+	if err != nil {
+		return &Manager{}, fmt.Errorf("GPIOs could not be initialized: %s", err)
+	}
 
 	manager := &Manager{
 		displayServers:    displays,
@@ -51,6 +54,23 @@ func Initialize() (*Manager, error) {
 	go manager.handleDisplayServerLogon(displays.ServerConnected)
 
 	return manager, nil
+}
+
+func initBeatPin() (gpio.PinIO, error) {
+	// Initialize periph.io
+	if _, err := host.Init(); err != nil {
+		return nil, fmt.Errorf("failed to initialize periph: %s", err)
+	}
+
+	// Use rpi.P1_11 (GPIO56 on physical pin 19)
+	pin := rpi.P1_16
+
+	// Set as input
+	if err := pin.In(gpio.PullDown, gpio.NoEdge); err != nil {
+		return nil, fmt.Errorf("failed to set pin as input: %s", err)
+	}
+
+	return pin, nil
 }
 
 // handleDisplayServerLogon reports the logon of a display server to the µCs.
@@ -127,7 +147,7 @@ func (manager Manager) SendBeatToDisplay(force bool) {
 }
 
 func (manager Manager) GetBeatState() bool {
-	return manager.beatInput.Read() == rpio.High
+	return manager.beatInput.Read() == gpio.High
 }
 
 func (manager Manager) GetConnectedDisplays() []Display.ServerDisplay {

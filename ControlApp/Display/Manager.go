@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"net"
+	"os"
 	"os/exec"
 	"sync"
 )
@@ -31,6 +32,8 @@ func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 
 	if startLocalDisplayServer {
 		c := exec.Command("sudo", "python3", "Display/Server/display_server.py")
+		c.Stdout = os.Stdout
+		c.Stderr = os.Stderr
 		err := c.Start()
 		if err != nil {
 			return nil, err
