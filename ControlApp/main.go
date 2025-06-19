@@ -13,11 +13,10 @@ func main() {
 	log.Println("Starting application...")
 
 	// Initialize hardware
-	hardware := &Infrastructure.DebugStub{}
-	//hardware, err := Infrastructure.Initialize()
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
+	hardware, err := Infrastructure.Initialize()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// Initialize lighting manager
 	visuals := Lightshow.CreateVisualManager(hardware)
@@ -37,11 +36,8 @@ func main() {
 	http.HandleFunc("/api/display/show", fixture.HandleDisplayPlayAnimationApi)
 	http.HandleFunc("/api/display/text", fixture.HandleDisplayShowTextApi)
 	http.HandleFunc("/api/display/brightness", fixture.HandleDisplaySetBrightnessApi)
-	http.HandleFunc("/api/debug/beat", func(w http.ResponseWriter, r *http.Request) {
-		hardware.BeatTriggered = true
-	})
 
 	// Start server (listening on localhost prevents firewall popup on Windows)
 	log.Println("Listening started")
-	log.Fatalln(http.ListenAndServe("localhost:8080", nil))
+	log.Fatalln(http.ListenAndServe("192.168.4.1:8080", nil))
 }

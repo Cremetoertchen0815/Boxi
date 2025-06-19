@@ -30,7 +30,7 @@ func Initialize() (*Manager, error) {
 	}
 	defer connection.Close()
 
-	displays, err := Display.ListenForServers(true)
+	displays, err := Display.ListenForServers(false)
 	if err != nil {
 		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.DisplayServerFailed, 1)
 		_ = connection.Send(message)

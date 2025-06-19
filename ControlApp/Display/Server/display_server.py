@@ -247,8 +247,8 @@ disp2.begin()
 worker1 = DisplayWorker(disp1, "Display 1")
 worker2 = DisplayWorker(disp2, "Display 2")
 
-worker1.update_animation("testcard")
-worker2.update_animation("testcard")
+worker1.update_animation("0")
+worker2.update_animation("0")
 
 sleep(0.5)
 brightnessManager.set_brightness(1)
