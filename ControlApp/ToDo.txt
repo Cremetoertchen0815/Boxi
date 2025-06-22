@@ -1,3 +1,7 @@
+-Repair UART interface
+-Repair manual animation selection
+-Repair manual text display
+
 -Add endpoints for setting visual overrides
 -Add endpoints for managing pallets
 -Add endpoints for configuring auto mode

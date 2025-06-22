@@ -84,9 +84,8 @@ struct DataFieldSet {
   uint8_t GeneralPurpose;
 }; 
 
-const int STROBE_SPEED = 7;
 const float BYTE_TO_FLOAT = 1.0 / 255;
-const float FADE_COLOR_BRIGHTNESS = 0.3; //The brightness of the color LEDs in fade mode
+const float CALM_COLOR_BRIGHTNESS = 0.8; //The brightness of the color LEDs in non-pulsed modes(prevents overheating)
 const int BEAT_SHORTEST_SWITCH_TIME = 20; //The holding time between to music peaks to prevent too fast switching
 const int BEAT_MIN_DURATION = 1; //The number if cycles in a row that the beat line has to be pulled high to count as a beat
 const int POWER_THRESHOLD_OFF = 20;
@@ -362,7 +361,7 @@ bool checkForBeat() {
 
 //Reads the master brightness
 float getBrightness() {
-  int power = analogRead(BRIGHTNESS_PIN);
+  int power = 1023 - analogRead(BRIGHTNESS_PIN);
   if (power <= POWER_THRESHOLD_OFF) {
     return 0;
   } else if (power >= POWER_THRESHOLD_MAX) {
@@ -592,7 +591,7 @@ void setup() {
 
   //Send default colors
   createDefaultMode();
-  float brightness = getBrightness();
+  float brightness = CALM_COLOR_BRIGHTNESS * getBrightness();
   referenceColor.Boxi1 = {brightness, 0, 0, 0, 0, 0};
   referenceColor.Boxi2 = {brightness, 0, 0, 0, 0, 0};
   transmitColors(referenceColor);
@@ -623,6 +622,7 @@ void loop() {
   }
 
   DataFieldSet* fieldSet = activeField == 0 ? &fieldSetA : &fieldSetB;
+  float brightnessLimit = CALM_COLOR_BRIGHTNESS;
 
   switch(fieldSet->Mode) {
     case SET_COLOR:
@@ -639,18 +639,20 @@ void loop() {
       break;
     case PALLETTE_FLASH:
       lastOutputColor = handleModeE(fieldSet, onBeat);
+      brightnessLimit = 1;
       break;
     case BI_COLOR_FLASH:
       lastOutputColor = handleModeF(fieldSet, onBeat);
       break;
     case STROBE:
       lastOutputColor = handleModeG(fieldSet);
+      brightnessLimit = 1;
       break;
     default:
       lastOutputColor = {};
       break;
   }
 
-  DualColor outputColor = multiplyDualColor(lastOutputColor, getBrightness());
+  DualColor outputColor = multiplyDualColor(lastOutputColor, brightnessLimit * getBrightness());
   transmitColors(outputColor);
 }
