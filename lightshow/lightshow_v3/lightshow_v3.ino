@@ -105,7 +105,7 @@ bool updateReferenceColor = false;
 DataFieldSet fieldSetA;
 DataFieldSet fieldSetB;
 uint8_t activeField = 0;
-int lightApplyCountdown = -1;
+bool applyOnNextBeat = false;
 DisplayStatusCode dspStatusCode = BOOTING;
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
@@ -253,13 +253,13 @@ void applyLighting() {
   updateReferenceColor = true;
   referenceCounter = 0;
   referenceIndex = 0;
-  lightApplyCountdown = -1;
+  applyOnNextBeat = -1;
 }
 
 //Processes the incoming data from the RPI at the UART port
 void processUart() {
   //Make sure header is fine before handling data
-  if (Serial.available() < 4 || 
+  if (Serial.available() < 4 ||
       Serial.read() != 0x55 ||  
       Serial.read() != 0x77 ||  
       Serial.read() != 0x4f) return;
@@ -274,10 +274,10 @@ void processUart() {
     case LIGHTING_PALLETTE_SIZE:
     case LIGHTING_COLOR_SHIFT:
     case LIGHTING_GENERAL_PURPOSE:
+    case LIGHTING_APPLY:
       dataLen = 1;
       break;
     case DISPLAY_STATUS_CODE:
-    case LIGHTING_APPLY:
     case LIGHTING_SPEED:
       dataLen = 2;
       break;
@@ -297,9 +297,7 @@ void processUart() {
 
   //Read payload
   uint8_t receivedData[dataLen];
-  if (Serial.readBytes(receivedData, dataLen) != dataLen) {
-    return;
-  }
+  if (Serial.readBytes(receivedData, dataLen) != dataLen) return;
 
   //Do stuff with data
   DataFieldSet* fieldSet = activeField == 0 ? &fieldSetB : &fieldSetA;
@@ -309,7 +307,10 @@ void processUart() {
       handleDisplayStatusCode(receivedData[0], receivedData[1]);
       break;
     case LIGHTING_APPLY:
-      lightApplyCountdown = ((int)receivedData[0] << 8) + receivedData[1];
+      applyOnNextBeat = (bool)receivedData[0];
+      if (!applyOnNextBeat) {
+        applyLighting();
+      }
       break;
     case LIGHTING_MODE:
       fieldSet->Mode = receivedData[0];
@@ -612,7 +613,7 @@ void loop() {
   processUart();
   checkHostActivity();
 
-  if (lightApplyCountdown > -1 && (--lightApplyCountdown == -1 || onBeat)) {
+  if (applyOnNextBeat && onBeat) {
     applyLighting();
   }
 
