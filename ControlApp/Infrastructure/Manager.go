@@ -29,7 +29,6 @@ func Initialize() (*Manager, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer connection.Close()
 
 	displays, err := Display.ListenForServers(true)
 	if err != nil {
@@ -105,7 +104,7 @@ func (manager Manager) handleDisplayServerLogon(logonChannel <-chan byte) {
 func (manager Manager) SendLightingInstruction(block BoxiBus.MessageBlock) {
 	err := manager.microController.Send(block)
 	if err != nil {
-		log.Print(err)
+		log.Printf("Error sending lighting instruction: %s", err)
 	}
 }
 

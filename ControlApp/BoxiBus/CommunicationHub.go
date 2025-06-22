@@ -1,10 +1,8 @@
 package BoxiBus
 
 import (
-	"errors"
 	"fmt"
 	"go.bug.st/serial"
-	"log"
 	"sync"
 )
 
@@ -31,7 +29,6 @@ type BusMessage struct {
 type CommunicationHub struct {
 	lock       *sync.Mutex
 	connection serial.Port
-	connected  bool
 }
 
 func ConnectToArduino(baudRate int) (*CommunicationHub, error) {
@@ -53,15 +50,10 @@ func ConnectToArduino(baudRate int) (*CommunicationHub, error) {
 	return &CommunicationHub{
 		&sendMutex,
 		port,
-		true,
 	}, nil
 }
 
 func (hub *CommunicationHub) sendSingleMessage(message BusMessage) error {
-	if !hub.connected {
-		return errors.New("connection is closed")
-	}
-
 	payloadLen := len(message.payload)
 	if payloadLen > 6 {
 		return fmt.Errorf("the payload length cannot exceed 6 bytes, but payload is %d bytes", payloadLen)
@@ -88,12 +80,4 @@ func (hub *CommunicationHub) Send(block MessageBlock) error {
 	}
 
 	return nil
-}
-
-func (hub *CommunicationHub) Close() {
-	err := hub.connection.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-	hub.connected = false
 }
