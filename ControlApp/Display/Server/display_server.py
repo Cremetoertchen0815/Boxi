@@ -3,9 +3,7 @@ import time
 import threading
 import socket
 from time import sleep
-
-import pigpio
-import RPi.GPIO as GPIO
+from gpiozero import LED, PWMLED
 from PIL import Image, ImageDraw, ImageFont
 import st7735
 
@@ -19,9 +17,9 @@ FRAME_DELAY = 1.0 / FRAME_RATE
 WIDTH = 160
 HEIGHT = 128
 LINE_HEIGHT = 12
-GPIO_BACKLIGHT_DISABLE = 13
-GPIO_DISPLAY_ENABLE = 31
-GPIO_DISPLAY_RESET = 37
+GPIO_BACKLIGHT_DISABLE = "BOARD33"
+GPIO_DISPLAY_ENABLE = "BOARD31"
+GPIO_DISPLAY_RESET = "BOARD37"
 
 font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 font = ImageFont.truetype(font_path, 14)
@@ -175,7 +173,7 @@ class BrightnessManager:
         self._stop_event = threading.Event()
         self._lock = threading.Lock()
         self.brightness = 1.0  # Initial brightness value
-        self.PI = pigpio.pi()
+        self.PI = PWMLED(GPIO_BACKLIGHT_DISABLE, initial_value=1)
 
     def start_countdown(self, decrement, initial_value):
         if decrement <= 0 or initial_value > 1_000_000 or initial_value < 0:
@@ -193,7 +191,7 @@ class BrightnessManager:
 
             while self.brightness > 0 and not self._stop_event.is_set():
                 self.brightness = max(self.brightness - decrement, 0)
-                self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, int((1 - (self.brightness ** 3)) * 1_000_000))
+                self.PI.value = 1 - (self.brightness ** 3)
 
                 # Wait until the next interval
                 next_time += interval
@@ -219,19 +217,18 @@ class BrightnessManager:
                 self._stop_event.set()
                 self._thread.join()
             self.brightness = value
-            self.PI.hardware_PWM(GPIO_BACKLIGHT_DISABLE, 40000, int((1 - (self.brightness ** 3)) * 1_000_000))
+            self.PI.value = 1 - (self.brightness ** 3)
 
 print("Turn off display backlights...")
-GPIO.setmode(GPIO.BOARD)
-GPIO.setup(GPIO_DISPLAY_ENABLE, GPIO.OUT)
-GPIO.setup(GPIO_DISPLAY_RESET, GPIO.OUT)
+dspEnable = LED(GPIO_DISPLAY_ENABLE, active_high=False) # (active low)
+dspReset = LED(GPIO_DISPLAY_RESET, active_high=False) # (active low)
 
 brightnessManager = BrightnessManager()
 brightnessManager.set_brightness(0)
-GPIO.output(GPIO_DISPLAY_ENABLE, GPIO.LOW) # (active low)
-GPIO.output(GPIO_DISPLAY_RESET, GPIO.LOW) # (active low)
+dspEnable.on()
+dspReset.on()
 time.sleep(0.250)
-GPIO.output(GPIO_DISPLAY_RESET, GPIO.HIGH)
+dspReset.off()
 time.sleep(0.250)
 
 print("Establishing connection with displays...")

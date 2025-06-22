@@ -43,7 +43,7 @@ func ConnectToArduino(baudRate int) (*CommunicationHub, error) {
 		StopBits: serial.OneStopBit,
 	}
 
-	port, err := serial.Open("/dev/ttyS0", mode)
+	port, err := serial.Open("/dev/ttyAMA0", mode)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open UART: %w", err)
 	}
