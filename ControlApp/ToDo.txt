@@ -1,6 +1,7 @@
--Repair UART interface
 -Repair manual animation selection
 -Repair manual text display
+-Fix lightshow not making sense
+-Fix beat detection
 
 -Add endpoints for setting visual overrides
 -Add endpoints for managing pallets

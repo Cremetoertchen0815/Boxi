@@ -86,7 +86,7 @@ struct DataFieldSet {
 
 const float BYTE_TO_FLOAT = 1.0 / 255;
 const float CALM_COLOR_BRIGHTNESS = 0.8; //The brightness of the color LEDs in non-pulsed modes(prevents overheating)
-const int BEAT_SHORTEST_SWITCH_TIME = 20; //The holding time between to music peaks to prevent too fast switching
+const int BEAT_SHORTEST_SWITCH_TIME = 40; //The holding time between to music peaks to prevent too fast switching
 const int BEAT_MIN_DURATION = 1; //The number if cycles in a row that the beat line has to be pulled high to count as a beat
 const int POWER_THRESHOLD_OFF = 20;
 const int POWER_THRESHOLD_MAX = 1000;
@@ -253,7 +253,7 @@ void applyLighting() {
   updateReferenceColor = true;
   referenceCounter = 0;
   referenceIndex = 0;
-  applyOnNextBeat = -1;
+  applyOnNextBeat = false;
 }
 
 //Processes the incoming data from the RPI at the UART port
@@ -596,6 +596,9 @@ void setup() {
   referenceColor.Boxi1 = {brightness, 0, 0, 0, 0, 0};
   referenceColor.Boxi2 = {brightness, 0, 0, 0, 0, 0};
   transmitColors(referenceColor);
+
+  referenceColor.Boxi1 = {1, 0, 0, 0, 0, 0};
+  referenceColor.Boxi2 = {1, 0, 0, 0, 0, 0};
 
   // Initialize the screens
   tft.initR(INITR_BLACKTAB);

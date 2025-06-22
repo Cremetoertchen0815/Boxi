@@ -79,7 +79,7 @@ func CreateLightingPaletteSwitch(palette []Color, paletteShift byte, applyOnBeat
 	}
 
 	shiftMessage := BusMessage{LightingColorShift, []byte{paletteShift}}
-	modeMessage := BusMessage{LightingMode, []byte{byte(PaletteFade)}}
+	modeMessage := BusMessage{LightingMode, []byte{byte(PaletteSwitch)}}
 	applyMessage := BusMessage{LightingApply, convertBool(applyOnBeat)}
 	return append(paletteMessages, shiftMessage, modeMessage, applyMessage), nil
 }
@@ -99,18 +99,17 @@ func CreateLightingPaletteBrightnessFlash(palette []Color, fadeOutSpeed uint16, 
 	return append(paletteMessages, speedMessage, gpMessage, shiftMessage, modeMessage, applyMessage), nil
 }
 
-func CreateLightingPaletteHueFlash(palette []Color, fadeOutSpeed uint16, targetBrightness byte, paletteShift byte, applyOnBeat bool) (MessageBlock, error) {
+func CreateLightingPaletteHueFlash(palette []Color, fadeOutSpeed uint16, paletteShift byte, applyOnBeat bool) (MessageBlock, error) {
 	paletteMessages, err := convertPalette(palette)
 	if err != nil {
 		return nil, err
 	}
 
 	speedMessage := BusMessage{LightingSpeed, convertShort(fadeOutSpeed)}
-	gpMessage := BusMessage{LightingGeneralPurpose, []byte{targetBrightness}}
 	shiftMessage := BusMessage{LightingColorShift, []byte{paletteShift}}
 	modeMessage := BusMessage{LightingMode, []byte{byte(PaletteHueFlash)}}
 	applyMessage := BusMessage{LightingApply, convertBool(applyOnBeat)}
-	return append(paletteMessages, speedMessage, gpMessage, shiftMessage, modeMessage, applyMessage), nil
+	return append(paletteMessages, speedMessage, shiftMessage, modeMessage, applyMessage), nil
 }
 
 func CreateLightingStrobe(color Color, frequency uint16, rolloff byte, applyOnBeat bool) MessageBlock {

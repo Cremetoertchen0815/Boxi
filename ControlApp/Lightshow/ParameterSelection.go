@@ -220,7 +220,7 @@ func getLightingMessages(config AutoModeConfiguration, mode BoxiBus.LightingMode
 			return result
 		}
 	case BoxiBus.PaletteHueFlash:
-		result, err := BoxiBus.CreateLightingPaletteHueFlash(palette, config.FlashFadeoutSpeed, config.FlashTargetBrightness, config.FlashHueShift, applyOnBeat)
+		result, err := BoxiBus.CreateLightingPaletteHueFlash(palette, config.FlashFadeoutSpeed, config.FlashHueShift, applyOnBeat)
 		if err == nil {
 			return result
 		}
