@@ -362,7 +362,6 @@ bool checkForBeat() {
 
 //Reads the master brightness
 float getBrightness() {
-  return 1.0;
   int power = analogRead(BRIGHTNESS_PIN);
   if (power <= POWER_THRESHOLD_OFF) {
     return 0;
