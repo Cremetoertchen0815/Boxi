@@ -57,20 +57,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 
 		//If picked animation is played across two screens, do that
 		if firstAnimation.SecondaryAnimation != Display.None {
-			var secondAnimation Animation
-			foundSecondAnimation := false
-
-			for _, a := range animationManager.animations {
-				if a.Id == firstAnimation.SecondaryAnimation {
-					secondAnimation = a
-					foundSecondAnimation = true
-					break
-				}
-			}
-
-			if foundSecondAnimation {
-				return firstAnimation.Id, secondAnimation.Id
-			}
+			return firstAnimation.SecondaryAnimation, firstAnimation.Id
 		}
 
 		if mirrorAcrossScreens != 0 {

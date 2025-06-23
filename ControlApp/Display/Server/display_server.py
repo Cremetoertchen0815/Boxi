@@ -241,8 +241,8 @@ print("Establishing connection with displays...")
 os.nice(-20)  # Requires appropriate privileges (root for -20)
 
 # Setup displays
-disp1 = st7735.ST7735(port=0, cs=st7735.BG_SPI_CS_BACK, dc="GPIO24", rotation=90, invert=False, spi_speed_hz=25000000, bgr = False)
-disp2 = st7735.ST7735(port=1, cs=st7735.BG_SPI_CS_BACK, dc="GPIO12", rotation=90, invert=False, spi_speed_hz=25000000, bgr = False)
+disp1 = st7735.ST7735(port=0, cs=st7735.BG_SPI_CS_BACK, dc="GPIO24", rotation=90, invert=False, spi_speed_hz=30000000, bgr = False)
+disp2 = st7735.ST7735(port=1, cs=st7735.BG_SPI_CS_BACK, dc="GPIO12", rotation=90, invert=False, spi_speed_hz=30000000, bgr = False)
 disp1.begin()
 disp2.begin()
 
