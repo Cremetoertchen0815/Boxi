@@ -23,7 +23,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 	baseMood := context.Configuration.Mood
 
 	//When in a calmer section of a beat mode, randomly pick between moody and happy
-	if (baseMood == Regular || baseMood == Party) && switchType != OnBeat {
+	if (baseMood == Regular || baseMood == Party) && (switchType == InDeadTime || switchType == InCalmMode) {
 		randNbr := rand.Intn(2)
 		if randNbr == 0 {
 			baseMood = Moody
@@ -123,7 +123,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	var possibleModes []BoxiBus.LightingModeId
 	var possiblePalettes []Palette
 
-	if (baseMood == Regular || baseMood == Party) && switchType != OnBeat {
+	if (baseMood == Regular || baseMood == Party) && (switchType == InDeadTime || switchType == InCalmMode) {
 		//When in a calmer section of a beat mode, randomly pick between moody and happy
 		randNbr := rand.Intn(2)
 		if randNbr == 0 {
@@ -133,7 +133,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		}
 
 		// Also only allow the transition Beat -> FadeToColor -> PaletteFade
-		if switchType == InDeadTime {
+		if switchType == InCalmMode {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.FadeToColor}
 			possiblePalettes = []Palette{
 				{"UV", []BoxiBus.Color{{255, 0, 0, 0, 0, 255}}, nil},
@@ -167,19 +167,20 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		hueShift = rand.Intn(len(palette))
 	}
 
+	// Figure out whether the mode should be applied on the next beat
+	applyOnNextBeat := false
+	if switchType == OnBeat || switchType == FirstBeat {
+		applyOnNextBeat = true
+	}
+
 	// If first beat since a while, have a chance for strobe to flash bang you
 	if switchType == FirstBeat && context.Configuration.StrobeChance > 0 {
 		randNbr = rand.Intn(context.Configuration.StrobeChance)
 		if randNbr == 0 {
 			mode = BoxiBus.Strobe
 			palette = []BoxiBus.Color{{0, 0, 0, 255, 0, 0}}
+			applyOnNextBeat = false
 		}
-	}
-
-	// Figure out whether the mode should be applied on the next beat
-	applyOnNextBeat := false
-	if switchType == OnBeat {
-		applyOnNextBeat = true
 	}
 
 	messages := getLightingMessages(context.Configuration, mode, palette, byte(hueShift), applyOnNextBeat)
