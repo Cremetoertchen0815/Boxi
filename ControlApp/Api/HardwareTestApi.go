@@ -116,9 +116,9 @@ func (fixture Fixture) HandleDisplayPlayAnimationApi(w http.ResponseWriter, r *h
 	var animationId uint32
 	animationIdStr := r.FormValue("id")
 	if animationIdStr != "" {
-		tempId, err := strconv.ParseInt(animationIdStr, 10, 32)
+		tempId, err := strconv.ParseInt(animationIdStr, 10, 33)
 		if err != nil || tempId < 0 {
-			http.Error(w, "Error parsing animation ID.", http.StatusBadRequest)
+			http.Error(w, fmt.Sprintf("Error parsing animation ID. %s", err), http.StatusBadRequest)
 			return
 		}
 		animationId = uint32(tempId)
@@ -129,7 +129,7 @@ func (fixture Fixture) HandleDisplayPlayAnimationApi(w http.ResponseWriter, r *h
 	displayNrStr := r.FormValue("display")
 	if displayNrStr != "" {
 		tempId, err := strconv.ParseInt(displayNrStr, 10, 8)
-		if err != nil || animationId < 0 {
+		if err != nil || tempId < 0 {
 			http.Error(w, "Error parsing display number.", http.StatusBadRequest)
 			return
 		}

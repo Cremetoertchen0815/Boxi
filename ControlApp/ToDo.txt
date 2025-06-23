@@ -1,5 +1,3 @@
--Repair manual animation selection
--Repair manual text display
 -Fix beat detection
 
 -Fix backlight PWM colliding with screen logic (add filter???)

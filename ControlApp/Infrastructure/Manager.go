@@ -120,8 +120,8 @@ func (manager *Manager) SendAnimationInstruction(animation Display.AnimationId, 
 
 func (manager *Manager) SendTextInstruction(text string, displays []Display.ServerDisplay) {
 	totalDisplay := 0
-	for display := range displays {
-		totalDisplay |= display
+	for _, display := range displays {
+		totalDisplay |= int(display)
 	}
 	manager.displayServers.DisplayText(text, Display.ServerDisplay(totalDisplay))
 }
