@@ -3,7 +3,7 @@ import time
 import threading
 import socket
 from time import sleep
-from gpiozero import LED, PWMLED
+import lgpio
 from PIL import Image, ImageDraw, ImageFont
 import st7735
 
@@ -17,12 +17,14 @@ FRAME_DELAY = 1.0 / FRAME_RATE
 WIDTH = 160
 HEIGHT = 128
 LINE_HEIGHT = 12
-GPIO_BACKLIGHT_DISABLE = "BOARD33"
-GPIO_DISPLAY_ENABLE = "BOARD31"
-GPIO_DISPLAY_RESET = "BOARD37"
+GPIO_BACKLIGHT_DISABLE = 13
+GPIO_DISPLAY_ENABLE = 6
+GPIO_DISPLAY_RESET = 26
+PWM_FREQ = 100
 
 font_path = "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
 font = ImageFont.truetype(font_path, 14)
+h = lgpio.gpiochip_open(0)
 
 def wrap_text(text_to_display, font_used, max_width):
     lines = []
@@ -170,36 +172,28 @@ class DisplayWorker:
 class BrightnessManager:
     def __init__(self):
         self._thread = None
-        self._stop_event = threading.Event()
         self._lock = threading.Lock()
         self.brightness = 1.0  # Initial brightness value
-        self.PI = PWMLED(GPIO_BACKLIGHT_DISABLE, initial_value=1)
+        lgpio.gpio_claim_output(h, GPIO_BACKLIGHT_DISABLE, 1)
 
-    def start_countdown(self, decrement, initial_value):
-        if decrement <= 0 or initial_value > 1_000_000 or initial_value < 0:
-            raise ValueError("Decrement must be a positive number")
-
-        if initial_value == 0:
-            self.set_brightness(0)
-            return
-
+    def _start_new_fade_thread(self, decrement, initial_value):
+        stop_event = threading.Event()
 
         def run():
             self.brightness = initial_value
             interval = 0.002  # 2 ms
             next_time = time.perf_counter()
 
-            while self.brightness > 0 and not self._stop_event.is_set():
-                self.brightness = max(self.brightness - decrement, 0)
-                self.PI.value = 1 - (self.brightness ** 3)
+            while self.brightness > 0 and not stop_event.is_set():
+                self.brightness = max(0.0, self.brightness - decrement)
+                duty_cycle = int((1 - self.brightness ** 3) * 100)
+                lgpio.tx_pwm(h, GPIO_BACKLIGHT_DISABLE, PWM_FREQ, duty_cycle)
 
-                # Wait until the next interval
                 next_time += interval
                 sleep_duration = next_time - time.perf_counter()
                 if sleep_duration > 0:
                     time.sleep(sleep_duration)
                 else:
-                    # If we're running late, skip sleeping
                     next_time = time.perf_counter()
 
         with self._lock:
@@ -207,36 +201,48 @@ class BrightnessManager:
                 self._stop_event.set()
                 self._thread.join()
 
-            self._stop_event.clear()
+            self._stop_event = stop_event
             self._thread = threading.Thread(target=run, daemon=True)
             self._thread.start()
+
+    def start_countdown(self, decrement, initial_value):
+        if initial_value == 0 or decrement <= 0:
+            self.set_brightness(initial_value)
+            return
+
+        if initial_value > 1_000_000 or initial_value < 0:
+            raise ValueError("Decrement must be a positive number")
+
+        self._start_new_fade_thread(decrement, initial_value)
 
     def set_brightness(self, value):
         with self._lock:
             if self._thread and self._thread.is_alive():
                 self._stop_event.set()
                 self._thread.join()
-            self.brightness = value
-            self.PI.value = 1 - (self.brightness ** 3)
+
+            self.brightness = max(0.0, min(1.0, value))
+            duty_cycle = int((1 - self.brightness ** 3) * 100)
+            lgpio.tx_pwm(h, GPIO_BACKLIGHT_DISABLE, PWM_FREQ, duty_cycle)
 
 print("Turn off display backlights...")
-dspEnable = LED(GPIO_DISPLAY_ENABLE, active_high=False) # (active low)
-dspReset = LED(GPIO_DISPLAY_RESET, active_high=False) # (active low)
+lgpio.gpio_claim_output(h, GPIO_DISPLAY_ENABLE, 1)  # Start low
+lgpio.gpio_claim_output(h, GPIO_DISPLAY_RESET, 1)  # Start low
 
 brightnessManager = BrightnessManager()
 brightnessManager.set_brightness(0)
-dspEnable.on()
-dspReset.on()
+lgpio.gpio_write(h, GPIO_DISPLAY_ENABLE, 0)
+lgpio.gpio_write(h, GPIO_DISPLAY_RESET, 0)
 time.sleep(0.250)
-dspReset.off()
+lgpio.gpio_write(h, GPIO_DISPLAY_RESET, 1)
 time.sleep(0.250)
 
 print("Establishing connection with displays...")
 os.nice(-20)  # Requires appropriate privileges (root for -20)
 
 # Setup displays
-disp1 = st7735.ST7735(port=0, cs=st7735.BG_SPI_CS_BACK, dc="GPIO24", rotation=90, invert=False, spi_speed_hz=30000000)
-disp2 = st7735.ST7735(port=1, cs=st7735.BG_SPI_CS_BACK, dc="GPIO12", rotation=90, invert=False, spi_speed_hz=30000000)
+disp1 = st7735.ST7735(port=0, cs=st7735.BG_SPI_CS_BACK, dc="GPIO24", rotation=90, invert=False, spi_speed_hz=25000000, bgr = False)
+disp2 = st7735.ST7735(port=1, cs=st7735.BG_SPI_CS_BACK, dc="GPIO12", rotation=90, invert=False, spi_speed_hz=25000000, bgr = False)
 disp1.begin()
 disp2.begin()
 
@@ -247,7 +253,7 @@ worker2 = DisplayWorker(disp2, "Display 2")
 worker1.update_animation("0")
 worker2.update_animation("0")
 
-sleep(0.5)
+sleep(0.25)
 brightnessManager.set_brightness(1)
 print("Displays connected!")
 
@@ -339,9 +345,10 @@ while True:
             case 0x05: #DisplayBrightness
                 try:
                     brightness = parameter / float(0xFFFF)
-                    decrementNumber = int.from_bytes([payload[0], payload[1]], byteorder='big', signed=False) / float(0xFFFF)
+                    rawDecrement = int.from_bytes([payload[0], payload[1]], byteorder='big', signed=False)
+                    decrementNumber = rawDecrement / float(0xFFFF)
 
-                    if decrementNumber > 0:
+                    if rawDecrement > 0:
                         brightnessManager.start_countdown(decrementNumber, brightness)
                     else:
                         brightnessManager.set_brightness(brightness)

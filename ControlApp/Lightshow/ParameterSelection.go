@@ -16,7 +16,7 @@ const (
 )
 
 const (
-	defaultBlinkSpeed = 20
+	defaultBlinkSpeed = 600
 )
 
 func (context *AutoModeContext) getNextAnimation(switchType switchType) AnimationsInstruction {

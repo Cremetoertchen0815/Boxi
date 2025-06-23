@@ -22,7 +22,7 @@ func CreateVisualManager(hardwareManager Infrastructure.HardwareInterface) *Visu
 	visual := VisualManager{hardwareManager: hardwareManager, accessLock: &sync.Mutex{}}
 	visual.animations = LoadAnimations()
 	visual.palettes = LoadPalettes()
-	visual.autoContext = CreateAutoMode(visual, loadConfiguration())
+	visual.autoContext = CreateAutoMode(&visual, loadConfiguration())
 
 	// Sync animations when they get uploaded
 	go visual.watchForAnimationUploads()
@@ -52,7 +52,7 @@ type textInstruction struct {
 }
 type TextsInstruction []textInstruction
 
-func (manager VisualManager) applyLighting(instruction LightingInstruction) {
+func (manager *VisualManager) applyLighting(instruction LightingInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
@@ -63,7 +63,7 @@ func (manager VisualManager) applyLighting(instruction LightingInstruction) {
 	manager.hardwareManager.SendLightingInstruction(instruction.MessageBlock)
 }
 
-func (manager VisualManager) applyAnimation(instruction AnimationsInstruction) {
+func (manager *VisualManager) applyAnimation(instruction AnimationsInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
@@ -74,26 +74,27 @@ func (manager VisualManager) applyAnimation(instruction AnimationsInstruction) {
 	for _, animation := range instruction.animations {
 		manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
 	}
+
 	manager.hardwareManager.SendBrightnessChange(nil, instruction.blinkSpeed)
 }
 
-func (manager VisualManager) triggerBeat() {
+func (manager *VisualManager) triggerBeat() {
 	manager.hardwareManager.SendBeatToDisplay(false)
 }
 
-func (manager VisualManager) getBeatState() bool {
+func (manager *VisualManager) getBeatState() bool {
 	return manager.hardwareManager.GetBeatState()
 }
 
-func (manager VisualManager) getAnimations() *AnimationManager {
+func (manager *VisualManager) getAnimations() *AnimationManager {
 	return manager.animations
 }
 
-func (manager VisualManager) getPalettes() *PaletteManager {
+func (manager *VisualManager) getPalettes() *PaletteManager {
 	return manager.palettes
 }
 
-func (manager VisualManager) SetLightingOverwrite(instruction *LightingInstruction) {
+func (manager *VisualManager) SetLightingOverwrite(instruction *LightingInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
@@ -103,7 +104,7 @@ func (manager VisualManager) SetLightingOverwrite(instruction *LightingInstructi
 	}
 }
 
-func (manager VisualManager) SetAnimationsOverwrite(instructions *AnimationsInstruction) {
+func (manager *VisualManager) SetAnimationsOverwrite(instructions *AnimationsInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
@@ -115,7 +116,7 @@ func (manager VisualManager) SetAnimationsOverwrite(instructions *AnimationsInst
 	}
 }
 
-func (manager VisualManager) SetTextsOverwrite(instructions *TextsInstruction) {
+func (manager *VisualManager) SetTextsOverwrite(instructions *TextsInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
@@ -127,7 +128,7 @@ func (manager VisualManager) SetTextsOverwrite(instructions *TextsInstruction) {
 	}
 }
 
-func (manager VisualManager) getAllAnimations() []Display.AnimationId {
+func (manager *VisualManager) getAllAnimations() []Display.AnimationId {
 	var ids []Display.AnimationId
 
 	for _, data := range manager.animations.animations {
@@ -137,11 +138,11 @@ func (manager VisualManager) getAllAnimations() []Display.AnimationId {
 	return ids
 }
 
-func (manager VisualManager) ImportAnimation(path string, name string, mood LightingMood, splitVideo bool) (Display.AnimationId, error) {
+func (manager *VisualManager) ImportAnimation(path string, name string, mood LightingMood, splitVideo bool) (Display.AnimationId, error) {
 	return manager.animations.ImportAnimation(path, name, mood, splitVideo)
 }
 
-func (manager VisualManager) watchForAnimationUploads() {
+func (manager *VisualManager) watchForAnimationUploads() {
 	for {
 		animationId := <-manager.animations.UploadQueue
 		manager.hardwareManager.UploadAnimation(animationId)

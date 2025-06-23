@@ -48,6 +48,7 @@ func Initialize() (*Manager, error) {
 		microController:   connection,
 		animationProvider: nil,
 		beatInput:         pin,
+		brightness:        1,
 	}
 
 	go manager.handleDisplayServerLogon(displays.ServerConnected)
@@ -73,7 +74,7 @@ func initBeatPin() (gpio.PinIO, error) {
 }
 
 // handleDisplayServerLogon reports the logon of a display server to the µCs.
-func (manager Manager) handleDisplayServerLogon(logonChannel <-chan byte) {
+func (manager *Manager) handleDisplayServerLogon(logonChannel <-chan byte) {
 	for {
 		if manager.animationProvider == nil {
 			time.Sleep(time.Second)
@@ -101,14 +102,14 @@ func (manager Manager) handleDisplayServerLogon(logonChannel <-chan byte) {
 	}
 }
 
-func (manager Manager) SendLightingInstruction(block BoxiBus.MessageBlock) {
+func (manager *Manager) SendLightingInstruction(block BoxiBus.MessageBlock) {
 	err := manager.microController.Send(block)
 	if err != nil {
 		log.Printf("Error sending lighting instruction: %s", err)
 	}
 }
 
-func (manager Manager) SendAnimationInstruction(animation Display.AnimationId, displays []Display.ServerDisplay) {
+func (manager *Manager) SendAnimationInstruction(animation Display.AnimationId, displays []Display.ServerDisplay) {
 	totalDisplay := 0
 	for _, display := range displays {
 		totalDisplay |= int(display)
@@ -117,7 +118,7 @@ func (manager Manager) SendAnimationInstruction(animation Display.AnimationId, d
 	manager.displayServers.PlayAnimation(animation, Display.ServerDisplay(totalDisplay))
 }
 
-func (manager Manager) SendTextInstruction(text string, displays []Display.ServerDisplay) {
+func (manager *Manager) SendTextInstruction(text string, displays []Display.ServerDisplay) {
 	totalDisplay := 0
 	for display := range displays {
 		totalDisplay |= display
@@ -125,35 +126,36 @@ func (manager Manager) SendTextInstruction(text string, displays []Display.Serve
 	manager.displayServers.DisplayText(text, Display.ServerDisplay(totalDisplay))
 }
 
-func (manager Manager) SendBrightnessChange(brightness *float64, blinkSpeed uint16) {
+func (manager *Manager) SendBrightnessChange(brightness *float64, blinkSpeed uint16) {
+	oldSpeed := manager.blinkSpeed
+	oldBrightness := manager.brightness
+
 	if brightness != nil {
 		manager.brightness = *brightness
 	}
 
-	oldVal := manager.blinkSpeed
 	manager.blinkSpeed = blinkSpeed
-	if blinkSpeed != oldVal {
+	if manager.blinkSpeed != oldSpeed || manager.brightness-oldBrightness > 0.001 {
 		manager.SendBeatToDisplay(true)
 	}
 }
 
-func (manager Manager) SendBeatToDisplay(force bool) {
+func (manager *Manager) SendBeatToDisplay(force bool) {
 	if !force && manager.blinkSpeed == 0 {
 		return
 	}
-
 	manager.displayServers.SetBrightness(manager.brightness, manager.blinkSpeed)
 }
 
-func (manager Manager) GetBeatState() bool {
+func (manager *Manager) GetBeatState() bool {
 	return manager.beatInput.Read() == gpio.High
 }
 
-func (manager Manager) GetConnectedDisplays() []Display.ServerDisplay {
+func (manager *Manager) GetConnectedDisplays() []Display.ServerDisplay {
 	return manager.displayServers.GetConnectedDisplays()
 }
 
-func (manager Manager) UploadAnimation(id Display.AnimationId) {
+func (manager *Manager) UploadAnimation(id Display.AnimationId) {
 	frames, err := GetAnimationFrames(uint32(id))
 	if err != nil {
 		return
@@ -164,7 +166,7 @@ func (manager Manager) UploadAnimation(id Display.AnimationId) {
 	}
 }
 
-func (manager Manager) UpdateStatusCode(statusCode BoxiBus.DisplayStatusCode, serverId byte) {
+func (manager *Manager) UpdateStatusCode(statusCode BoxiBus.DisplayStatusCode, serverId byte) {
 	message := BoxiBus.CreateDisplayStatusUpdate(statusCode, serverId)
 	_ = manager.microController.Send(message)
 }

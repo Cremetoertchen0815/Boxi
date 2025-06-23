@@ -1,6 +1,6 @@
+-Fix dual screen animations not working
 -Repair manual animation selection
 -Repair manual text display
--Fix lightshow not making sense
 -Fix beat detection
 
 -Add endpoints for setting visual overrides

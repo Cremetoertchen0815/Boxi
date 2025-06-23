@@ -152,6 +152,10 @@ func (context *AutoModeContext) calculateAutoMode() {
 				context.lightingSwitchToCalm = &timeWhenBoring
 			}
 		}
+
+		if isBeat {
+			context.wasInCalmMode = false
+		}
 	}
 }
 

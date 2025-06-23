@@ -40,8 +40,8 @@ const (
 
 func loadConfiguration() AutoModeConfiguration {
 	return AutoModeConfiguration{
-		Mood:                    Regular,
-		StrobeChance:            5,
+		Mood:                    Party,
+		StrobeChance:            4,
 		HueShiftChance:          3,
 		HueShiftMaxAmount:       3,
 		FadeToColorCycles:       700,
