@@ -90,11 +90,11 @@ func (manager *VisualManager) getBeatState() bool {
 	return manager.hardwareManager.GetBeatState()
 }
 
-func (manager *VisualManager) getAnimations() *AnimationManager {
+func (manager *VisualManager) GetAnimations() *AnimationManager {
 	return manager.animations
 }
 
-func (manager *VisualManager) getPalettes() *PaletteManager {
+func (manager *VisualManager) GetPalettes() *PaletteManager {
 	return manager.palettes
 }
 

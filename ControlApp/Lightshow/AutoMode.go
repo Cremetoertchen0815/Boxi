@@ -10,8 +10,8 @@ type Manager interface {
 	applyAnimation(instruction AnimationsInstruction)
 	triggerBeat()
 	getBeatState() bool
-	getAnimations() *AnimationManager
-	getPalettes() *PaletteManager
+	GetAnimations() *AnimationManager
+	GetPalettes() *PaletteManager
 }
 
 type AutoModeContext struct {

@@ -11,6 +11,7 @@ type PaletteManager struct {
 }
 
 type Palette struct {
+	Id     uint32
 	Name   string
 	Colors []BoxiBus.Color
 	Moods  []LightingMood
@@ -20,6 +21,7 @@ func LoadPalettes() *PaletteManager {
 	return &PaletteManager{
 		palettes: []Palette{
 			{
+				Id:   0,
 				Name: "Rainbow",
 				Colors: []BoxiBus.Color{
 					{255, 0, 0, 0, 0, 0},
@@ -32,6 +34,7 @@ func LoadPalettes() *PaletteManager {
 				Moods: []LightingMood{Happy, Regular, Party},
 			},
 			{
+				Id:   1,
 				Name: "Cyberpunk",
 				Colors: []BoxiBus.Color{
 					{0, 255, 153, 0, 0, 0},
@@ -43,6 +46,7 @@ func LoadPalettes() *PaletteManager {
 				Moods: []LightingMood{Moody, Regular},
 			},
 			{
+				Id:   2,
 				Name: "Pleasant",
 				Colors: []BoxiBus.Color{
 					{108, 200, 25, 0, 0, 0},
@@ -55,6 +59,7 @@ func LoadPalettes() *PaletteManager {
 				Moods: []LightingMood{Happy, Regular},
 			},
 			{
+				Id:   3,
 				Name: "Retro",
 				Colors: []BoxiBus.Color{
 					{0, 0, 0, 255, 128, 0},
@@ -87,9 +92,19 @@ func (manager *PaletteManager) GetPalettesForMood(mood LightingMood) []Palette {
 	return result
 }
 
+func (manager *PaletteManager) GetById(id uint32) (bool, Palette) {
+	for _, palette := range manager.palettes {
+		if palette.Id == id {
+			return true, palette
+		}
+	}
+
+	return false, Palette{}
+}
+
 func getDefaultPalettes() []Palette {
 	return []Palette{
-		{"Default Rainbow",
+		{0, "Default Rainbow",
 			[]BoxiBus.Color{
 				{255, 0, 0, 0, 0, 0},
 				{255, 255, 0, 0, 0, 0},
