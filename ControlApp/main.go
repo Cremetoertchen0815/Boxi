@@ -31,6 +31,19 @@ func main() {
 
 	// Setup api
 	fixture := Api.Fixture{Hardware: hardware, Visuals: visuals}
+
+	//Handle lighting override endpoints
+	http.HandleFunc("/api/lighting-mode/auto", fixture.HandleSetLightingOverrideAutoApi)
+	http.HandleFunc("/api/lighting-mode/off", fixture.HandleSetLightingOverrideOffApi)
+	http.HandleFunc("/api/lighting-mode/static", fixture.HandleSetLightingOverrideSetColorApi)
+	http.HandleFunc("/api/lighting-mode/fade-to-static", fixture.HandleSetLightingOverrideFadeToColorApi)
+	http.HandleFunc("/api/lighting-mode/palette-fade", fixture.HandleSetLightingOverridePaletteFadeApi)
+	http.HandleFunc("/api/lighting-mode/palette-switch", fixture.HandleSetLightingOverridePaletteSwitchApi)
+	http.HandleFunc("/api/lighting-mode/brightness-flash", fixture.HandleSetLightingOverridePaletteBrightnessFlashApi)
+	http.HandleFunc("/api/lighting-mode/hue-flash", fixture.HandleSetLightingOverridePaletteHueFlashApi)
+	http.HandleFunc("/api/lighting-mode/strobe", fixture.HandleSetLightingOverrideStrobeApi)
+
+	//Handle debug endpoints
 	http.HandleFunc("/api/animations/import", fixture.HandleDisplayImportAnimationApi)
 	http.HandleFunc("/api/display/connected", fixture.HandleDisplayConnectedApi)
 	http.HandleFunc("/api/display/show", fixture.HandleDisplayPlayAnimationApi)
