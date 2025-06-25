@@ -1,6 +1,4 @@
 Fix now:
--Fix bad volume pot (way too sensitive)
--Fix DMX
 -Fix beat detection
 
 Software issues:

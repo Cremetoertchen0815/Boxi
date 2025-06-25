@@ -8,14 +8,16 @@ import (
 )
 
 type VisualManager struct {
-	autoContext        *AutoModeContext
-	animations         *AnimationManager
-	palettes           *PaletteManager
-	hardwareManager    Infrastructure.HardwareInterface
-	lightingOverwrite  *LightingInstruction
-	animationOverwrite *AnimationsInstruction
-	textOverwrite      *TextsInstruction
-	accessLock         *sync.Mutex
+	autoContext                   *AutoModeContext
+	animations                    *AnimationManager
+	palettes                      *PaletteManager
+	hardwareManager               Infrastructure.HardwareInterface
+	lightingIsOverwritten         bool
+	animationIsOverwritten        bool
+	lightingCurrentAutoSelection  LightingInstruction
+	animationCurrentAutoSelection AnimationsInstruction
+	textOverwrite                 *TextsInstruction
+	accessLock                    *sync.Mutex
 }
 
 func CreateVisualManager(hardwareManager Infrastructure.HardwareInterface) *VisualManager {
@@ -56,7 +58,8 @@ func (manager *VisualManager) applyLighting(instruction LightingInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
-	if manager.lightingOverwrite != nil {
+	manager.lightingCurrentAutoSelection = instruction
+	if manager.animationIsOverwritten {
 		return
 	}
 
@@ -67,7 +70,8 @@ func (manager *VisualManager) applyAnimation(instruction AnimationsInstruction) 
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
-	if manager.animationOverwrite != nil {
+	manager.animationCurrentAutoSelection = instruction
+	if manager.animationIsOverwritten {
 		return
 	}
 
@@ -98,8 +102,10 @@ func (manager *VisualManager) SetLightingOverwrite(instruction *LightingInstruct
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
-	manager.lightingOverwrite = instruction
-	if instruction != nil {
+	manager.lightingIsOverwritten = instruction != nil
+	if instruction == nil {
+		manager.hardwareManager.SendLightingInstruction(manager.lightingCurrentAutoSelection.MessageBlock)
+	} else {
 		manager.hardwareManager.SendLightingInstruction(instruction.MessageBlock)
 	}
 }
@@ -108,8 +114,12 @@ func (manager *VisualManager) SetAnimationsOverwrite(instructions *AnimationsIns
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
-	manager.animationOverwrite = instructions
-	if instructions != nil {
+	manager.animationIsOverwritten = instructions != nil
+	if instructions == nil {
+		for _, animation := range manager.animationCurrentAutoSelection.animations {
+			manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
+		}
+	} else {
 		for _, animation := range instructions.animations {
 			manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
 		}
