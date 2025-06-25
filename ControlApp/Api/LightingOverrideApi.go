@@ -36,9 +36,20 @@ type lightingInstructionPaletteSwitch struct {
 
 type lightingInstructionPaletteBrightnessFlash struct {
 	PaletteId        uint32 `json:"paletteId"`
-	TargetBrightness byte   `json:"targetBrightness"`
+	TargetBrightness int    `json:"targetBrightness"`
 	DurationMs       int    `json:"duration"`
 	PaletteShift     int    `json:"paletteShift"`
+}
+
+type lightingInstructionPaletteHueFlash struct {
+	PaletteId    uint32 `json:"paletteId"`
+	DurationMs   int    `json:"duration"`
+	PaletteShift int    `json:"paletteShift"`
+}
+
+type lightingInstructionStrobe struct {
+	ColorDeviceA color `json:"colorA"`
+	FrequencyHz  int   `json:"duration"`
 }
 
 func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r *http.Request) {
@@ -285,7 +296,7 @@ func (fixture Fixture) HandleSetLightingOverridePaletteBrightnessFlashApi(w http
 		return
 	}
 
-	block, err := BoxiBus.CreateLightingPaletteBrightnessFlash(palette.Colors, uint16(fadeOutCycles), byte(data.PaletteShift), false)
+	block, err := BoxiBus.CreateLightingPaletteBrightnessFlash(palette.Colors, uint16(fadeOutCycles), byte(data.TargetBrightness), byte(data.PaletteShift), false)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Instruction couldn't be created. %s", err), http.StatusInternalServerError)
 		return
@@ -298,13 +309,13 @@ func (fixture Fixture) HandleSetLightingOverridePaletteBrightnessFlashApi(w http
 	fixture.Visuals.SetLightingOverwrite(&instruction)
 }
 
-func (fixture Fixture) HandleSetLightingOverridePaletteBrightnessFlashApi(w http.ResponseWriter, r *http.Request) {
+func (fixture Fixture) HandleSetLightingOverridePaletteHueFlashApi(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
 
-	var data lightingInstructionPaletteFade
+	var data lightingInstructionPaletteHueFlash
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -337,6 +348,47 @@ func (fixture Fixture) HandleSetLightingOverridePaletteBrightnessFlashApi(w http
 
 	instruction := Lightshow.LightingInstruction{
 		MessageBlock: block,
+	}
+
+	fixture.Visuals.SetLightingOverwrite(&instruction)
+}
+
+func (fixture Fixture) HandleSetLightingOverrideStrobeApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	var data lightingInstructionStrobe
+
+	err := json.NewDecoder(r.Body).Decode(&data)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Invalid parameters. %s", err), http.StatusBadRequest)
+		return
+	}
+
+	frequency := int((1 / float64(data.FrequencyHz)) * fadeDurationMsToCycles)
+	if frequency <= 0 || frequency > 0xFFFF {
+		http.Error(w, "Fade out duration outside of range.", http.StatusBadRequest)
+		return
+	}
+
+	if !isColorValid(data.ColorDeviceA) {
+		http.Error(w, "Color A is invalid.", http.StatusBadRequest)
+		return
+	}
+
+	color := BoxiBus.Color{
+		Red:         byte(data.ColorDeviceA.R),
+		Green:       byte(data.ColorDeviceA.G),
+		Blue:        byte(data.ColorDeviceA.B),
+		White:       byte(data.ColorDeviceA.W),
+		Amber:       byte(data.ColorDeviceA.A),
+		UltraViolet: byte(data.ColorDeviceA.UV),
+	}
+
+	instruction := Lightshow.LightingInstruction{
+		MessageBlock: BoxiBus.CreateLightingStrobe(color, uint16(frequency), 0, false),
 	}
 
 	fixture.Visuals.SetLightingOverwrite(&instruction)
