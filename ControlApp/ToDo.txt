@@ -2,7 +2,6 @@ Fix now:
 -Fix beat detection
 
 Software issues:
--Add endpoints for setting visual overrides
 -Add endpoints for managing pallets
 -Add endpoints for managing animations
 -Add endpoints for configuring auto mode

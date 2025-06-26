@@ -48,13 +48,6 @@ func main() {
 	http.HandleFunc("/api/screen/text/override", fixture.HandleSetScreenOverrideTextSetApi)
 	http.HandleFunc("/api/screen/brightness/level", fixture.HandleSetScreenOverrideBrightnessLevelApi)
 
-	//Handle debug endpoints
-	http.HandleFunc("/api/animations/import", fixture.HandleDisplayImportAnimationApi)
-	http.HandleFunc("/api/display/connected", fixture.HandleDisplayConnectedApi)
-	http.HandleFunc("/api/display/show", fixture.HandleDisplayPlayAnimationApi)
-	http.HandleFunc("/api/display/text", fixture.HandleDisplayShowTextApi)
-	http.HandleFunc("/api/display/brightness", fixture.HandleDisplaySetBrightnessApi)
-
 	// Start server (listening on localhost prevents firewall popup on Windows)
 	log.Println("Listening started")
 	log.Fatalln(http.ListenAndServe("192.168.4.1:8080", nil))

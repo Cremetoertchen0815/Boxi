@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type screenOverrideAnimationProperties struct {
@@ -112,4 +113,15 @@ func (fixture Fixture) HandleSetScreenOverrideBrightnessLevelApi(w http.Response
 		return
 	}
 
+	var tempId float64
+	moodNrStr := r.FormValue("value")
+	if moodNrStr != "" {
+		tempId, err := strconv.ParseFloat(moodNrStr, 64)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing mood.", http.StatusBadRequest)
+			return
+		}
+	}
+
+	fixture.Visuals.SetBrightness(tempId)
 }
