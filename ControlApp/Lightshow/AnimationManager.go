@@ -64,6 +64,16 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 	return animation.Id, nil
 }
 
+func (manager *AnimationManager) GetById(id Display.AnimationId) (bool, Animation) {
+	for _, animation := range manager.animations {
+		if animation.Id == id {
+			return true, animation
+		}
+	}
+
+	return false, Animation{}
+}
+
 func (manager *AnimationManager) storeDatabase() {
 	// TODO: store the data in the database
 }

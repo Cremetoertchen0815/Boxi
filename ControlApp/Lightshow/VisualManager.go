@@ -16,7 +16,7 @@ type VisualManager struct {
 	animationIsOverwritten        bool
 	lightingCurrentAutoSelection  LightingInstruction
 	animationCurrentAutoSelection AnimationsInstruction
-	textOverwrite                 *TextsInstruction
+	textValues                    TextsInstruction
 	accessLock                    *sync.Mutex
 }
 
@@ -37,22 +37,22 @@ type LightingInstruction struct {
 	character ModeCharacter
 }
 
-type animationInstruction struct {
-	animation Display.AnimationId
-	displays  []Display.ServerDisplay
+type AnimationInstruction struct {
+	Animation Display.AnimationId
+	Displays  []Display.ServerDisplay
 }
 
 type AnimationsInstruction struct {
-	animations []animationInstruction
-	character  ModeCharacter
-	blinkSpeed uint16
+	Animations []AnimationInstruction
+	Character  ModeCharacter
+	BlinkSpeed uint16
 }
 
-type textInstruction struct {
-	text     string
-	displays []Display.ServerDisplay
+type TextInstruction struct {
+	Text     string
+	Displays []Display.ServerDisplay
 }
-type TextsInstruction []textInstruction
+type TextsInstruction []TextInstruction
 
 func (manager *VisualManager) applyLighting(instruction LightingInstruction) {
 	manager.accessLock.Lock()
@@ -75,11 +75,11 @@ func (manager *VisualManager) applyAnimation(instruction AnimationsInstruction) 
 		return
 	}
 
-	for _, animation := range instruction.animations {
-		manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
+	for _, animation := range instruction.Animations {
+		manager.hardwareManager.SendAnimationInstruction(animation.Animation, animation.Displays)
 	}
 
-	manager.hardwareManager.SendBrightnessChange(nil, instruction.blinkSpeed)
+	manager.hardwareManager.SendBrightnessChange(nil, instruction.BlinkSpeed)
 }
 
 func (manager *VisualManager) triggerBeat() {
@@ -116,26 +116,39 @@ func (manager *VisualManager) SetAnimationsOverwrite(instructions *AnimationsIns
 
 	manager.animationIsOverwritten = instructions != nil
 	if instructions == nil {
-		for _, animation := range manager.animationCurrentAutoSelection.animations {
-			manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
+		for _, animation := range manager.animationCurrentAutoSelection.Animations {
+			manager.hardwareManager.SendAnimationInstruction(animation.Animation, animation.Displays)
 		}
 	} else {
-		for _, animation := range instructions.animations {
-			manager.hardwareManager.SendAnimationInstruction(animation.animation, animation.displays)
+		for _, animation := range instructions.Animations {
+			manager.hardwareManager.SendAnimationInstruction(animation.Animation, animation.Displays)
 		}
 	}
 }
 
-func (manager *VisualManager) SetTextsOverwrite(instructions *TextsInstruction) {
+func (manager *VisualManager) SetTexts(instructions TextsInstruction) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
-	manager.textOverwrite = instructions
-	if instructions != nil {
-		for _, text := range *instructions {
-			manager.hardwareManager.SendTextInstruction(text.text, text.displays)
+	valueSent := make(map[Display.ServerDisplay]bool)
+	manager.textValues = instructions
+	for _, text := range instructions {
+		manager.hardwareManager.SendTextInstruction(text.text, text.displays)
+
+		for _, display := range text.displays {
+			valueSent[display] = true
 		}
 	}
+
+	var displaysToClear []Display.ServerDisplay
+	for _, display := range manager.hardwareManager.GetConnectedDisplays() {
+		success, result := valueSent[display]
+		if !success || !result {
+			displaysToClear = append(displaysToClear, display)
+		}
+	}
+
+	manager.hardwareManager.SendTextInstruction(" ", displaysToClear)
 }
 
 func (manager *VisualManager) getAllAnimations() []Display.AnimationId {

@@ -44,12 +44,9 @@ func main() {
 	http.HandleFunc("/api/lighting/strobe", fixture.HandleSetLightingOverrideStrobeApi)
 
 	//Handle screen override endpoints
-	http.HandleFunc("/api/screen/animation/enable-override", fixture.HandleSetScreenOverrideAnimationEnableApi)
 	http.HandleFunc("/api/screen/animation/override", fixture.HandleSetScreenOverrideAnimationSetApi)
-	http.HandleFunc("/api/screen/text/enable-override", fixture.HandleSetScreenOverrideTextEnableApi)
 	http.HandleFunc("/api/screen/text/override", fixture.HandleSetScreenOverrideTextSetApi)
 	http.HandleFunc("/api/screen/brightness/level", fixture.HandleSetScreenOverrideBrightnessLevelApi)
-	http.HandleFunc("/api/screen/brightness/pulse", fixture.HandleSetScreenOverrideBrightnessPulseApi)
 
 	//Handle debug endpoints
 	http.HandleFunc("/api/animations/import", fixture.HandleDisplayImportAnimationApi)
