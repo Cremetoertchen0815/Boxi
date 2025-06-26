@@ -133,9 +133,9 @@ func (manager *VisualManager) SetTexts(instructions TextsInstruction) {
 	valueSent := make(map[Display.ServerDisplay]bool)
 	manager.textValues = instructions
 	for _, text := range instructions {
-		manager.hardwareManager.SendTextInstruction(text.text, text.displays)
+		manager.hardwareManager.SendTextInstruction(text.Text, text.Displays)
 
-		for _, display := range text.displays {
+		for _, display := range text.Displays {
 			valueSent[display] = true
 		}
 	}
