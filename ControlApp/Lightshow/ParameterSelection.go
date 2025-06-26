@@ -32,7 +32,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 		}
 	}
 
-	animationManager := context.manager.getAnimations()
+	animationManager := context.manager.GetAnimations()
 	animationManager.accessLock.Lock()
 	defer animationManager.accessLock.Unlock()
 
@@ -45,7 +45,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 	}
 
 	if len(validIndices) < 1 {
-		return AnimationsInstruction{character: Unknown}
+		return AnimationsInstruction{Character: Unknown}
 	}
 
 	var dsp1A, dsp1B, dsp2A, dsp2B Display.AnimationId
@@ -97,9 +97,9 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 	screensPerAnimation[dsp2A] |= Display.Boxi2D1
 	screensPerAnimation[dsp2B] |= Display.Boxi2D2
 
-	instructions := make([]animationInstruction, 0)
+	instructions := make([]AnimationInstruction, 0)
 	for animationId, display := range screensPerAnimation {
-		instructions = append(instructions, animationInstruction{animationId, []Display.ServerDisplay{display}})
+		instructions = append(instructions, AnimationInstruction{animationId, []Display.ServerDisplay{display}})
 	}
 
 	return AnimationsInstruction{instructions, character, blinkSpeed}
@@ -123,9 +123,9 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		if switchType == InCalmMode {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.FadeToColor}
 			possiblePalettes = []Palette{
-				{"UV", []BoxiBus.Color{{255, 0, 0, 0, 0, 255}}, nil},
-				{"Blue", []BoxiBus.Color{{0, 0, 255, 0, 0, 0}}, nil},
-				{"Amber", []BoxiBus.Color{{0, 0, 0, 0, 255, 0}}, nil},
+				{0, "UV", []BoxiBus.Color{{255, 0, 0, 0, 0, 255}}, nil},
+				{1, "Blue", []BoxiBus.Color{{0, 0, 255, 0, 0, 0}}, nil},
+				{2, "Amber", []BoxiBus.Color{{0, 0, 0, 0, 255, 0}}, nil},
 			}
 		} else {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.PaletteFade}
@@ -139,7 +139,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	mode := possibleModes[randNbr]
 
 	if possiblePalettes == nil {
-		possiblePalettes = context.manager.getPalettes().GetPalettesForMood(baseMood)
+		possiblePalettes = context.manager.GetPalettes().GetPalettesForMood(baseMood)
 	}
 	if possiblePalettes == nil || len(possiblePalettes) == 0 {
 		possiblePalettes = getDefaultPalettes()

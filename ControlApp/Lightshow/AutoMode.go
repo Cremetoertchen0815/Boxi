@@ -72,7 +72,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 				animation := context.getNextAnimation(OnBeat)
 				context.manager.applyAnimation(animation)
 
-				timingConstraint, ok := context.Configuration.AnimationModeTiming[animation.character]
+				timingConstraint, ok := context.Configuration.AnimationModeTiming[animation.Character]
 				if ok {
 					context.animationBeatsLeft = getNextBeatConstraint(timingConstraint)
 					context.animationDeadTime = &timingConstraint.NoBeatDeadTime
@@ -108,7 +108,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 			animation := context.getNextAnimation(InDeadTime)
 			context.manager.applyAnimation(animation)
 
-			if animation.character == Calm {
+			if animation.Character == Calm {
 				timeWhenBoring := time.Now().Add(context.Configuration.AnimationCalmModeBoring)
 				context.animationSwitchToCalm = &timeWhenBoring
 			}
@@ -134,7 +134,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 			animation := context.getNextAnimation(InCalmMode)
 			context.manager.applyAnimation(animation)
 
-			if animation.character == Calm {
+			if animation.Character == Calm {
 				timeWhenBoring := time.Now().Add(context.Configuration.AnimationCalmModeBoring)
 				context.animationSwitchToCalm = &timeWhenBoring
 			}
