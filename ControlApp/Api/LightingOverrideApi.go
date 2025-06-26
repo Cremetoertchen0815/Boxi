@@ -53,7 +53,7 @@ type lightingInstructionStrobe struct {
 }
 
 func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -62,7 +62,7 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 }
 
 func (fixture Fixture) HandleSetLightingOverrideOffApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -75,7 +75,7 @@ func (fixture Fixture) HandleSetLightingOverrideOffApi(w http.ResponseWriter, r 
 }
 
 func (fixture Fixture) HandleSetLightingOverrideSetColorApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -124,7 +124,7 @@ func (fixture Fixture) HandleSetLightingOverrideSetColorApi(w http.ResponseWrite
 }
 
 func (fixture Fixture) HandleSetLightingOverrideFadeToColorApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -179,7 +179,7 @@ func (fixture Fixture) HandleSetLightingOverrideFadeToColorApi(w http.ResponseWr
 }
 
 func (fixture Fixture) HandleSetLightingOverridePaletteFadeApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -223,7 +223,7 @@ func (fixture Fixture) HandleSetLightingOverridePaletteFadeApi(w http.ResponseWr
 }
 
 func (fixture Fixture) HandleSetLightingOverridePaletteSwitchApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -261,7 +261,7 @@ func (fixture Fixture) HandleSetLightingOverridePaletteSwitchApi(w http.Response
 }
 
 func (fixture Fixture) HandleSetLightingOverridePaletteBrightnessFlashApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -310,7 +310,7 @@ func (fixture Fixture) HandleSetLightingOverridePaletteBrightnessFlashApi(w http
 }
 
 func (fixture Fixture) HandleSetLightingOverridePaletteHueFlashApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
@@ -354,7 +354,7 @@ func (fixture Fixture) HandleSetLightingOverridePaletteHueFlashApi(w http.Respon
 }
 
 func (fixture Fixture) HandleSetLightingOverrideStrobeApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
+	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
 		return
 	}
