@@ -33,15 +33,23 @@ func main() {
 	fixture := Api.Fixture{Hardware: hardware, Visuals: visuals}
 
 	//Handle lighting override endpoints
-	http.HandleFunc("/api/lighting-mode/auto", fixture.HandleSetLightingOverrideAutoApi)
-	http.HandleFunc("/api/lighting-mode/off", fixture.HandleSetLightingOverrideOffApi)
-	http.HandleFunc("/api/lighting-mode/static", fixture.HandleSetLightingOverrideSetColorApi)
-	http.HandleFunc("/api/lighting-mode/fade-to-static", fixture.HandleSetLightingOverrideFadeToColorApi)
-	http.HandleFunc("/api/lighting-mode/palette-fade", fixture.HandleSetLightingOverridePaletteFadeApi)
-	http.HandleFunc("/api/lighting-mode/palette-switch", fixture.HandleSetLightingOverridePaletteSwitchApi)
-	http.HandleFunc("/api/lighting-mode/brightness-flash", fixture.HandleSetLightingOverridePaletteBrightnessFlashApi)
-	http.HandleFunc("/api/lighting-mode/hue-flash", fixture.HandleSetLightingOverridePaletteHueFlashApi)
-	http.HandleFunc("/api/lighting-mode/strobe", fixture.HandleSetLightingOverrideStrobeApi)
+	http.HandleFunc("/api/lighting/auto", fixture.HandleSetLightingOverrideAutoApi)
+	http.HandleFunc("/api/lighting/off", fixture.HandleSetLightingOverrideOffApi)
+	http.HandleFunc("/api/lighting/static", fixture.HandleSetLightingOverrideSetColorApi)
+	http.HandleFunc("/api/lighting/fade-to-static", fixture.HandleSetLightingOverrideFadeToColorApi)
+	http.HandleFunc("/api/lighting/palette-fade", fixture.HandleSetLightingOverridePaletteFadeApi)
+	http.HandleFunc("/api/lighting/palette-switch", fixture.HandleSetLightingOverridePaletteSwitchApi)
+	http.HandleFunc("/api/lighting/brightness-flash", fixture.HandleSetLightingOverridePaletteBrightnessFlashApi)
+	http.HandleFunc("/api/lighting/hue-flash", fixture.HandleSetLightingOverridePaletteHueFlashApi)
+	http.HandleFunc("/api/lighting/strobe", fixture.HandleSetLightingOverrideStrobeApi)
+
+	//Handle screen override endpoints
+	http.HandleFunc("/api/screen/animation/enable-override", fixture.HandleSetScreenOverrideAnimationEnableApi)
+	http.HandleFunc("/api/screen/animation/override", fixture.HandleSetScreenOverrideAnimationSetApi)
+	http.HandleFunc("/api/screen/text/enable-override", fixture.HandleSetScreenOverrideTextEnableApi)
+	http.HandleFunc("/api/screen/text/override", fixture.HandleSetScreenOverrideTextSetApi)
+	http.HandleFunc("/api/screen/brightness/level", fixture.HandleSetScreenOverrideBrightnessLevelApi)
+	http.HandleFunc("/api/screen/brightness/pulse", fixture.HandleSetScreenOverrideBrightnessPulseApi)
 
 	//Handle debug endpoints
 	http.HandleFunc("/api/animations/import", fixture.HandleDisplayImportAnimationApi)
