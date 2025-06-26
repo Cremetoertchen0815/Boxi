@@ -97,7 +97,7 @@ int beatCheck = 0;
 int beatPassed = -1;
 int timeSinceLastBeat = 0;
 int referenceIndex = 0;
-int referenceCounter = 0;
+uint16_t referenceCounter = 0;
 uint16_t hostConnectionCounter = HOST_CONNECTION_TIMEOUT;
 DualColor referenceColor;
 DualColor lastOutputColor;
@@ -387,7 +387,7 @@ DualColor handleModeB(DataFieldSet* settings) {
   float fadeProgress = clampFloat(referenceCounter / (float)settings->Speed);
   ret.Boxi1 = lerpColor(referenceColor.Boxi1, settings->Pallette[0], fadeProgress);
   ret.Boxi2 = lerpColor(referenceColor.Boxi2, settings->Pallette[1], fadeProgress);
-  referenceCounter++;
+  referenceCounter = min(referenceCounter+1, 0xFFFF);
   return ret;
 }
 
@@ -435,7 +435,7 @@ DualColor handleModeE(DataFieldSet* settings, bool onBeat) {
   float flashBrightness = clampFloat(exp(referenceCounter * settings->Speed * -0.01) * 5 + settings->GeneralPurpose / 255.0);
   ret.Boxi1 = convertColor(settings->Pallette[referenceIndex]);
   ret.Boxi2 = convertColor(settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize]);
-  referenceCounter++;
+  referenceCounter = min(referenceCounter+1, 0xFFFF);
   return multiplyDualColor(ret, flashBrightness);
 }
 
@@ -453,7 +453,7 @@ DualColor handleModeF(DataFieldSet* settings, bool onBeat) {
 
   float flashValue = clampFloat(exp(referenceCounter * settings->Speed * -0.01) * 5);
   FloatColor resultColor = lerpColor(startColor, endColor, flashValue);
-  referenceCounter++;
+  referenceCounter = min(referenceCounter+1, 0xFFFF);
   ret.Boxi1 = resultColor;
   ret.Boxi2 = resultColor;
   return ret;
