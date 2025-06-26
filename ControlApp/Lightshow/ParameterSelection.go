@@ -156,7 +156,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 
 	// Figure out whether the mode should be applied on the next beat
 	applyOnNextBeat := false
-	if switchType == OnBeat || switchType == FirstBeat {
+	if switchType == OnBeat {
 		applyOnNextBeat = true
 	}
 

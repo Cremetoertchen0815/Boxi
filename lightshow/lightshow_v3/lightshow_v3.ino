@@ -107,6 +107,7 @@ DataFieldSet fieldSetB;
 uint8_t activeField = 0;
 bool applyOnNextBeat = false;
 DisplayStatusCode dspStatusCode = BOOTING;
+bool updatedMode = false;
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -254,6 +255,7 @@ void applyLighting() {
   referenceCounter = 0;
   referenceIndex = 0;
   applyOnNextBeat = false;
+  updatedMode = true;
 }
 
 //Processes the incoming data from the RPI at the UART port
@@ -625,6 +627,12 @@ void loop() {
     updateReferenceColor = false;
   }
 
+  if (updatedMode) {
+    beatPassed = 0;
+    timeSinceLastBeat = 0;
+    onBeat = true;
+  }
+
   DataFieldSet* fieldSet = activeField == 0 ? &fieldSetA : &fieldSetB;
   float brightnessLimit = CALM_COLOR_BRIGHTNESS;
 
@@ -659,4 +667,5 @@ void loop() {
 
   DualColor outputColor = multiplyDualColor(lastOutputColor, brightnessLimit * getBrightness());
   transmitColors(outputColor);
+  updatedMode = false;
 }
