@@ -50,7 +50,7 @@ func loadConfiguration() AutoModeConfiguration {
 		FlashFadeoutSpeed:       28,
 		FlashTargetBrightness:   20,
 		FlashHueShift:           1,
-		MinTimeBetweenBeats:     300 * time.Millisecond,
+		MinTimeBetweenBeats:     360 * time.Millisecond,
 		LightingCalmModeBoring:  30 * time.Second,
 		AnimationCalmModeBoring: 40 * time.Second,
 		LightingModeTiming: map[ModeCharacter]TimingConstraint{
