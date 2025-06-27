@@ -1,4 +1,5 @@
 Software steps:
+-Add NFSW selection for animations
 -Add endpoints for managing pallets
 -Add endpoints for managing animations
 -Add endpoints for configuring auto mode
