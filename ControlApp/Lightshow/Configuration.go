@@ -47,7 +47,7 @@ func loadConfiguration() AutoModeConfiguration {
 		FadeToColorCycles:       700,
 		PaletteFadeCycles:       500,
 		StrobeFrequency:         2,
-		FlashFadeoutSpeed:       28,
+		FlashFadeoutSpeed:       25,
 		FlashTargetBrightness:   20,
 		FlashHueShift:           1,
 		MinTimeBetweenBeats:     360 * time.Millisecond,
