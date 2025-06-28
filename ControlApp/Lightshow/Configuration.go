@@ -6,6 +6,7 @@ import (
 
 type AutoModeConfiguration struct {
 	Mood                    LightingMood
+	AllowNsfw               bool
 	StrobeChance            int
 	HueShiftChance          int
 	HueShiftMaxAmount       int
@@ -41,6 +42,7 @@ const (
 func loadConfiguration() AutoModeConfiguration {
 	return AutoModeConfiguration{
 		Mood:                    Party,
+		AllowNsfw:               true,
 		StrobeChance:            4,
 		HueShiftChance:          3,
 		HueShiftMaxAmount:       3,

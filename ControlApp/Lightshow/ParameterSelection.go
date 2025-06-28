@@ -39,6 +39,10 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 	//Find valid animations to switch to
 	validIndices := make([]int, 0)
 	for index, animation := range animationManager.animations {
+		if animation.IsNsfw && !context.Configuration.AllowNsfw {
+			continue
+		}
+
 		if animation.Mood == baseMood || animation.Mood == Regular && baseMood == Party {
 			validIndices = append(validIndices, index)
 		}
