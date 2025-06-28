@@ -1,0 +1,15 @@
+[Unit]
+Description=The ControlApp service for Boxi
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=2
+User=pi
+WorkingDirectory=/home/pi/app
+ExecStart=/home/pi/app/ControlApp
+
+[Install]
+WantedBy=multi-user.target
