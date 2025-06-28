@@ -90,7 +90,7 @@ const int BEAT_SHORTEST_SWITCH_TIME = 50; //The holding time between to music pe
 const int BEAT_MIN_DURATION = 1; //The number if cycles in a row that the beat line has to be pulled high to count as a beat
 const int POWER_THRESHOLD_OFF = 20;
 const int POWER_THRESHOLD_MAX = 1000;
-const uint16_t HOST_CONNECTION_TIMEOUT = 1000;
+const uint16_t HOST_CONNECTION_TIMEOUT = 2500;
 
 //Variables
 int beatCheck = 0;
