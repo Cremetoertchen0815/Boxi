@@ -170,8 +170,8 @@ func (manager *VisualManager) getAllAnimations() []Display.AnimationId {
 	return ids
 }
 
-func (manager *VisualManager) ImportAnimation(path string, name string, mood LightingMood, splitVideo bool) (Display.AnimationId, error) {
-	return manager.animations.ImportAnimation(path, name, mood, splitVideo)
+func (manager *VisualManager) ImportAnimation(path string, name string, mood LightingMood, splitVideo bool, isNsfw bool) (Display.AnimationId, error) {
+	return manager.animations.ImportAnimation(path, name, mood, splitVideo, isNsfw)
 }
 
 func (manager *VisualManager) watchForAnimationUploads() {

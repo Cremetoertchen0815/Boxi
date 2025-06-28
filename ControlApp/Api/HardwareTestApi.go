@@ -69,6 +69,20 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 		}
 	}
 
+	isNsfw := false
+	isNsfwStr := r.FormValue("nsfw")
+	if isNsfwStr != "" {
+		tempId, err := strconv.ParseInt(isNsfwStr, 10, 8)
+		if err != nil || tempId < 0 {
+			http.Error(w, "Error parsing nsfw.", http.StatusBadRequest)
+			return
+		}
+
+		if tempId != 0 {
+			isNsfw = true
+		}
+	}
+
 	nameStr := r.FormValue("name")
 
 	// Retrieve the file from form data
@@ -98,7 +112,7 @@ func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r 
 	}
 
 	//Convert animation
-	_, err = fixture.Visuals.ImportAnimation(dst.Name(), nameStr, Lightshow.LightingMood(moodNr), isSplit)
+	_, err = fixture.Visuals.ImportAnimation(dst.Name(), nameStr, Lightshow.LightingMood(moodNr), isSplit, isNsfw)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error importing animation. error %s", err), http.StatusInternalServerError)
 	}
