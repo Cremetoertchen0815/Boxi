@@ -47,6 +47,7 @@ func main() {
 	http.HandleFunc("/api/screen/animation/override", fixture.HandleSetScreenOverrideAnimationSetApi)
 	http.HandleFunc("/api/screen/text/override", fixture.HandleSetScreenOverrideTextSetApi)
 	http.HandleFunc("/api/screen/brightness/level", fixture.HandleSetScreenOverrideBrightnessLevelApi)
+	http.HandleFunc("/api/screen/connected", fixture.HandleScreensConnectedApi)
 
 	//Handle other endpoints
 	http.HandleFunc("/api/ping", func(writer http.ResponseWriter, request *http.Request) {})

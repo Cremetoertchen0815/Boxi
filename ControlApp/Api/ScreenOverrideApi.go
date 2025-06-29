@@ -29,6 +29,27 @@ type screenTextInstance struct {
 	Text          string `json:"text"`
 }
 
+type fetchResult struct {
+	ConnectedDisplays []int
+}
+
+func (fixture Fixture) HandleScreensConnectedApi(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	indices := make([]int, 0)
+	for _, index := range fixture.Hardware.GetConnectedDisplays() {
+		indices = append(indices, int(index))
+	}
+
+	//Encode data
+	if err := json.NewEncoder(w).Encode(fetchResult{indices}); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)

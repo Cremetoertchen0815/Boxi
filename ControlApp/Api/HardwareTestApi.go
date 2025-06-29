@@ -3,34 +3,12 @@ package Api
 import (
 	"ControlApp/Display"
 	"ControlApp/Lightshow"
-	"encoding/json"
 	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"strconv"
 )
-
-type fetchResult struct {
-	ConnectedDisplays []int
-}
-
-func (fixture Fixture) HandleDisplayConnectedApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "GET" {
-		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
-		return
-	}
-
-	indices := make([]int, 0)
-	for _, index := range fixture.Hardware.GetConnectedDisplays() {
-		indices = append(indices, int(index))
-	}
-
-	//Encode data
-	if err := json.NewEncoder(w).Encode(fetchResult{indices}); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-}
 
 func (fixture Fixture) HandleDisplayImportAnimationApi(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
