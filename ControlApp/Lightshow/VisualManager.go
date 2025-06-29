@@ -60,7 +60,7 @@ func (manager *VisualManager) applyLighting(instruction LightingInstruction) {
 	defer manager.accessLock.Unlock()
 
 	manager.lightingCurrentAutoSelection = instruction
-	if manager.animationIsOverwritten {
+	if manager.lightingIsOverwritten {
 		return
 	}
 
