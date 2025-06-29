@@ -1,14 +1,11 @@
 Software steps:
--Write script for Boxi 2 that starts/restarts it when connection lost/gained
--Setup Boxi 2 installation
 -Test display endpoints
--Add more animations
 -Add endpoints for managing pallets
 -Add endpoints for managing animations
+-Add more animations
 -Add endpoints for configuring auto mode
 -Implement configuration persistence
 -Implement user app
 
 Hardware issues:
 -Fix backlight PWM colliding with screen logic (add filter???)
--Fix audio noise issues
