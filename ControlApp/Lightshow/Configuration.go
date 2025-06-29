@@ -13,6 +13,7 @@ type AutoModeConfiguration struct {
 	FadeToColorCycles       uint16 //How slow is the “FadeToColor” mode operating at
 	PaletteFadeCycles       uint16 //How slow is the “FadeToColor” mode operating at
 	FlashFadeoutSpeed       uint16
+	HueFlashFadeoutSpeed    uint16
 	StrobeFrequency         uint16
 	StrobeRolloff           byte
 	FlashTargetBrightness   byte
@@ -50,6 +51,7 @@ func loadConfiguration() AutoModeConfiguration {
 		PaletteFadeCycles:       500,
 		StrobeFrequency:         2,
 		FlashFadeoutSpeed:       25,
+		HueFlashFadeoutSpeed:    12,
 		FlashTargetBrightness:   20,
 		FlashHueShift:           1,
 		MinTimeBetweenBeats:     360 * time.Millisecond,

@@ -437,7 +437,9 @@ DualColor handleModeE(DataFieldSet* settings, bool onBeat) {
   float flashBrightness = clampFloat(exp(referenceCounter * settings->Speed * -0.01) * 5 + settings->GeneralPurpose / 255.0);
   ret.Boxi1 = convertColor(settings->Pallette[referenceIndex]);
   ret.Boxi2 = convertColor(settings->Pallette[(referenceIndex + settings->ColorShift) % settings->PalletteSize]);
-  referenceCounter = min(referenceCounter+1, 0xFFFF);
+  if (referenceCounter < 0xFFFF) {
+    referenceCounter++;
+  }
   return multiplyDualColor(ret, flashBrightness);
 }
 
@@ -455,7 +457,9 @@ DualColor handleModeF(DataFieldSet* settings, bool onBeat) {
 
   float flashValue = clampFloat(exp(referenceCounter * settings->Speed * -0.01) * 5);
   FloatColor resultColor = lerpColor(startColor, endColor, flashValue);
-  referenceCounter = min(referenceCounter+1, 0xFFFF);
+  if (referenceCounter < 0xFFFF) {
+    referenceCounter++;
+  }
   ret.Boxi1 = resultColor;
   ret.Boxi2 = resultColor;
   return ret;
