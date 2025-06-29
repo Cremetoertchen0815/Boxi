@@ -7,7 +7,6 @@ ExecStart=/home/pi/run_display_server.sh
 WorkingDirectory=/home/pi
 Restart=always
 RestartSec=5
-User=pi
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
