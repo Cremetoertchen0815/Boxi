@@ -48,6 +48,9 @@ func main() {
 	http.HandleFunc("/api/screen/text/override", fixture.HandleSetScreenOverrideTextSetApi)
 	http.HandleFunc("/api/screen/brightness/level", fixture.HandleSetScreenOverrideBrightnessLevelApi)
 
+	//Handle other endpoints
+	http.HandleFunc("/api/ping", func(writer http.ResponseWriter, request *http.Request) {})
+
 	// Start server (listening on localhost prevents firewall popup on Windows)
 	log.Println("Listening started")
 	log.Fatalln(http.ListenAndServe("192.168.4.1:8080", nil))

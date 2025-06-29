@@ -1,0 +1,14 @@
+[Unit]
+Description=Check the if the control app instance is available and run display server
+After=network.target
+
+[Service]
+ExecStart=/home/pi/run_display_server.sh
+WorkingDirectory=/home/pi
+Restart=always
+RestartSec=5
+User=pi
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
