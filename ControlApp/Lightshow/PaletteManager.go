@@ -6,7 +6,7 @@ import (
 )
 
 type PaletteManager struct {
-	palettes   []Palette
+	palettes   map[uint32]Palette
 	accessLock *sync.Mutex
 }
 
@@ -18,65 +18,76 @@ type Palette struct {
 }
 
 func LoadPalettes() *PaletteManager {
-	return &PaletteManager{
-		palettes: []Palette{
-			{
-				Id:   0,
-				Name: "Rainbow",
-				Colors: []BoxiBus.Color{
-					{255, 0, 0, 0, 0, 0},
-					{255, 255, 0, 0, 0, 0},
-					{0, 255, 0, 0, 0, 0},
-					{0, 255, 255, 0, 0, 0},
-					{0, 0, 255, 0, 0, 0},
-					{255, 0, 255, 0, 0, 0},
-				},
-				Moods: []LightingMood{Happy, Regular, Party},
+	rawPalettes := []Palette{
+		{
+			Id:   0,
+			Name: "Rainbow",
+			Colors: []BoxiBus.Color{
+				{255, 0, 0, 0, 0, 0},
+				{255, 255, 0, 0, 0, 0},
+				{0, 255, 0, 0, 0, 0},
+				{0, 255, 255, 0, 0, 0},
+				{0, 0, 255, 0, 0, 0},
+				{255, 0, 255, 0, 0, 0},
 			},
-			{
-				Id:   1,
-				Name: "Cyberpunk",
-				Colors: []BoxiBus.Color{
-					{0, 255, 153, 0, 0, 0},
-					{77, 156, 200, 24, 0, 0},
-					{0, 30, 255, 0, 0, 128},
-					{150, 0, 200, 0, 0, 128},
-					{128, 0, 128, 10, 0, 255},
-				},
-				Moods: []LightingMood{Moody, Regular},
-			},
-			{
-				Id:   2,
-				Name: "Pleasant",
-				Colors: []BoxiBus.Color{
-					{108, 200, 25, 0, 0, 0},
-					{255, 255, 25, 0, 50, 0},
-					{255, 130, 50, 0, 255, 32},
-					{255, 64, 80, 0, 0, 32},
-					{100, 100, 255, 0, 0, 255},
-					{52, 128, 255, 40, 0, 64},
-				},
-				Moods: []LightingMood{Happy, Regular},
-			},
-			{
-				Id:   3,
-				Name: "Retro",
-				Colors: []BoxiBus.Color{
-					{0, 0, 0, 255, 128, 0},
-					{180, 180, 0, 0, 255, 0},
-					{180, 20, 80, 0, 0, 128},
-					{20, 0, 64, 0, 255, 255},
-					{0, 255, 0, 0, 255, 0},
-					{255, 0, 0, 0, 0, 255},
-				},
-				Moods: []LightingMood{Regular, Party},
-			},
+			Moods: []LightingMood{Happy, Regular, Party},
 		},
+		{
+			Id:   1,
+			Name: "Cyberpunk",
+			Colors: []BoxiBus.Color{
+				{0, 255, 153, 0, 0, 0},
+				{77, 156, 200, 24, 0, 0},
+				{0, 30, 255, 0, 0, 128},
+				{150, 0, 200, 0, 0, 128},
+				{128, 0, 128, 10, 0, 255},
+			},
+			Moods: []LightingMood{Moody, Regular},
+		},
+		{
+			Id:   2,
+			Name: "Pleasant",
+			Colors: []BoxiBus.Color{
+				{108, 200, 25, 0, 0, 0},
+				{255, 255, 25, 0, 50, 0},
+				{255, 130, 50, 0, 255, 32},
+				{255, 64, 80, 0, 0, 32},
+				{100, 100, 255, 0, 0, 255},
+				{52, 128, 255, 40, 0, 64},
+			},
+			Moods: []LightingMood{Happy, Regular},
+		},
+		{
+			Id:   3,
+			Name: "Retro",
+			Colors: []BoxiBus.Color{
+				{0, 0, 0, 255, 128, 0},
+				{180, 180, 0, 0, 255, 0},
+				{180, 20, 80, 0, 0, 128},
+				{20, 0, 64, 0, 255, 255},
+				{0, 255, 0, 0, 255, 0},
+				{255, 0, 0, 0, 0, 255},
+			},
+			Moods: []LightingMood{Regular, Party},
+		},
+	}
+
+	paletteMap := make(map[uint32]Palette)
+
+	for _, palette := range rawPalettes {
+		paletteMap[palette.Id] = palette
+	}
+
+	return &PaletteManager{
+		palettes:   paletteMap,
 		accessLock: &sync.Mutex{},
 	}
 }
 
 func (manager *PaletteManager) GetPalettesForMood(mood LightingMood) []Palette {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
 	var result []Palette
 	for _, palette := range manager.palettes {
 		for _, paletteMode := range palette.Moods {
@@ -93,6 +104,9 @@ func (manager *PaletteManager) GetPalettesForMood(mood LightingMood) []Palette {
 }
 
 func (manager *PaletteManager) GetById(id uint32) (bool, Palette) {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
 	for _, palette := range manager.palettes {
 		if palette.Id == id {
 			return true, palette
@@ -100,6 +114,31 @@ func (manager *PaletteManager) GetById(id uint32) (bool, Palette) {
 	}
 
 	return false, Palette{}
+}
+
+func (manager *PaletteManager) GetAll() []Palette {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
+	var palettes []Palette
+	for _, palette := range manager.palettes {
+		palettes = append(palettes, palette)
+	}
+	return palettes
+}
+
+func (manager *PaletteManager) SetPalette(palette Palette) {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
+	manager.palettes[palette.Id] = palette
+}
+
+func (manager *PaletteManager) RemovePalette(paletteId uint32) {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
+	delete(manager.palettes, paletteId)
 }
 
 func getDefaultPalettes() []Palette {

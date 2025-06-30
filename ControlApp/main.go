@@ -44,10 +44,14 @@ func main() {
 	http.HandleFunc("/api/lighting/strobe", fixture.HandleSetLightingOverrideStrobeApi)
 
 	//Handle screen override endpoints
-	http.HandleFunc("/api/screen/animation/override", fixture.HandleSetScreenOverrideAnimationSetApi)
-	http.HandleFunc("/api/screen/text/override", fixture.HandleSetScreenOverrideTextSetApi)
-	http.HandleFunc("/api/screen/brightness/level", fixture.HandleSetScreenOverrideBrightnessLevelApi)
+	http.HandleFunc("/api/screen/animation", fixture.HandleSetScreenOverrideAnimationSetApi)
+	http.HandleFunc("/api/screen/text", fixture.HandleSetScreenOverrideTextSetApi)
+	http.HandleFunc("/api/screen/brightness", fixture.HandleSetScreenOverrideBrightnessLevelApi)
 	http.HandleFunc("/api/screen/connected", fixture.HandleScreensConnectedApi)
+
+	//Handle palette endpoints
+	http.HandleFunc("/api/palettes", fixture.HandlePaletteGetAllApi)
+	http.HandleFunc("/api/palette", fixture.HandleSinglePaletteApi)
 
 	//Handle other endpoints
 	http.HandleFunc("/api/ping", func(writer http.ResponseWriter, request *http.Request) {})
