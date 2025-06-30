@@ -37,6 +37,10 @@ type paletteCreate struct {
 	Moods []int  `json:"moods"`
 }
 
+type paletteCreated struct {
+	Id uint32 `json:"id"`
+}
+
 func (fixture Fixture) HandlePaletteGetAllApi(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
@@ -71,7 +75,7 @@ func (fixture Fixture) HandleSinglePaletteApi(w http.ResponseWriter, r *http.Req
 
 func (fixture Fixture) handlePaletteGetApi(w http.ResponseWriter, r *http.Request) {
 	var id uint32
-	idStr := r.FormValue("mood")
+	idStr := r.FormValue("id")
 	if idStr != "" {
 		tempId, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil || tempId < 0 {
@@ -138,6 +142,13 @@ func (fixture Fixture) handlePaletteCreateApi(w http.ResponseWriter, r *http.Req
 
 	palette := Lightshow.Palette{Id: id, Name: data.Name, Moods: moods, Colors: []BoxiBus.Color{{}}}
 	fixture.Visuals.GetPalettes().SetPalette(palette)
+
+	returnData := paletteCreated{id}
+
+	//Encode data
+	if err := json.NewEncoder(w).Encode(returnData); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 func (fixture Fixture) handlePaletteUpdateApi(w http.ResponseWriter, r *http.Request) {
@@ -186,7 +197,7 @@ func (fixture Fixture) handlePaletteUpdateApi(w http.ResponseWriter, r *http.Req
 
 func (fixture Fixture) handlePaletteDeleteApi(w http.ResponseWriter, r *http.Request) {
 	var id uint32
-	idStr := r.FormValue("mood")
+	idStr := r.FormValue("id")
 	if idStr != "" {
 		tempId, err := strconv.ParseInt(idStr, 10, 32)
 		if err != nil || tempId < 0 {
