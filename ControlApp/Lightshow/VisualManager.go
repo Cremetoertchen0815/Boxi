@@ -13,7 +13,7 @@ type VisualManager struct {
 	palettes                      *PaletteManager
 	hardwareManager               Infrastructure.HardwareInterface
 	lightingIsOverwritten         bool
-	animationIsOverwritten        bool
+	animationOverwrite            *AnimationsInstruction
 	brightnessValue               uint8
 	lightingCurrentAutoSelection  LightingInstruction
 	animationCurrentAutoSelection AnimationsInstruction
@@ -72,15 +72,55 @@ func (manager *VisualManager) applyAnimation(instruction AnimationsInstruction) 
 	defer manager.accessLock.Unlock()
 
 	manager.animationCurrentAutoSelection = instruction
-	if manager.animationIsOverwritten {
-		return
+
+	// Collect overwritten displays
+	var displaysToExclude []int
+	if manager.animationOverwrite != nil {
+		for _, animation := range manager.animationOverwrite.Animations {
+			for _, display := range animation.Displays {
+				for i := 1; i < 5; i++ {
+					if int(display)&i != 0 {
+						displaysToExclude = append(displaysToExclude, i)
+					}
+				}
+			}
+		}
 	}
 
 	for _, animation := range instruction.Animations {
-		manager.hardwareManager.SendAnimationInstruction(animation.Animation, animation.Displays)
+
+		displays := make(map[int]bool)
+
+		// Add displays to view with
+		for _, display := range animation.Displays {
+			for i := 1; i < 5; i++ {
+				if int(display)&i != 0 {
+					displays[i] = true
+				}
+			}
+		}
+
+		//Remove overridden display
+		for _, display := range displaysToExclude {
+			displays[display] = false
+		}
+
+		var displaySlice []Display.ServerDisplay
+		for id, isIt := range displays {
+			if !isIt {
+				continue
+			}
+
+			displaySlice = append(displaySlice, Display.ServerDisplay(id))
+		}
+
+		manager.hardwareManager.SendAnimationInstruction(animation.Animation, displaySlice)
+
 	}
 
-	manager.hardwareManager.SendBrightnessChange(nil, instruction.BlinkSpeed)
+	if manager.animationOverwrite == nil {
+		manager.hardwareManager.SendBrightnessChange(nil, instruction.BlinkSpeed)
+	}
 }
 
 func (manager *VisualManager) triggerBeat() {
@@ -115,15 +155,17 @@ func (manager *VisualManager) SetAnimationsOverwrite(instructions *AnimationsIns
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
-	manager.animationIsOverwritten = instructions != nil
+	manager.animationOverwrite = instructions
 	if instructions == nil {
 		for _, animation := range manager.animationCurrentAutoSelection.Animations {
 			manager.hardwareManager.SendAnimationInstruction(animation.Animation, animation.Displays)
 		}
+		manager.hardwareManager.SendBrightnessChange(nil, manager.animationCurrentAutoSelection.BlinkSpeed)
 	} else {
 		for _, animation := range instructions.Animations {
 			manager.hardwareManager.SendAnimationInstruction(animation.Animation, animation.Displays)
 		}
+		manager.hardwareManager.SendBrightnessChange(nil, instructions.BlinkSpeed)
 	}
 }
 
