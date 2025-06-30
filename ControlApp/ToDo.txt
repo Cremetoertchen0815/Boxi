@@ -1,5 +1,4 @@
 Software steps:
--Test display endpoints
 -Add endpoints for managing pallets
 -Add endpoints for managing animations
 -Add more animations

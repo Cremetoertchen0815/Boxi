@@ -5,6 +5,7 @@ import (
 	"ControlApp/Display"
 	"fmt"
 	"log"
+	"math"
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/host/v3"
 	"periph.io/x/host/v3/rpi"
@@ -135,7 +136,7 @@ func (manager *Manager) SendBrightnessChange(brightness *float64, blinkSpeed uin
 	}
 
 	manager.blinkSpeed = blinkSpeed
-	if manager.blinkSpeed != oldSpeed || manager.brightness-oldBrightness > 0.001 {
+	if manager.blinkSpeed != oldSpeed || math.Abs(manager.brightness-oldBrightness) > 0.001 {
 		manager.SendBeatToDisplay(true)
 	}
 }

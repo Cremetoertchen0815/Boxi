@@ -46,7 +46,7 @@ func ListenForServers(startLocalDisplayServer bool) (*ServerManager, error) {
 func (manager *ServerManager) GetConnectedDisplays() []ServerDisplay {
 	keys := make([]ServerDisplay, 0, len(manager.connections))
 	for _, s := range manager.connections {
-		keys = append(keys, ServerDisplay(s.identifier*2), ServerDisplay(s.identifier*2+1))
+		keys = append(keys, ServerDisplay(s.identifier*2+1), ServerDisplay(s.identifier*2+2))
 	}
 	return keys
 }
