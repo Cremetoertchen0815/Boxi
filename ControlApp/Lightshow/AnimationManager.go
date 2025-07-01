@@ -16,7 +16,7 @@ type Animation struct {
 }
 
 type AnimationManager struct {
-	animations  []Animation
+	animations  map[Display.AnimationId]Animation
 	accessLock  *sync.Mutex
 	UploadQueue chan Display.AnimationId
 }
@@ -43,7 +43,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 		}
 
 		animation := Animation{Display.AnimationId(animationId), name, mood, nsfw, Display.None}
-		manager.animations = append(manager.animations, animation)
+		manager.animations[animation.Id] = animation
 		manager.storeDatabase()
 		manager.UploadQueue <- animation.Id
 		return animation.Id, nil
@@ -58,7 +58,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 
 	rightAnimationId := Display.AnimationId(secondaryAnimationId)
 	animation := Animation{Display.AnimationId(animationId), name, mood, nsfw, rightAnimationId}
-	manager.animations = append(manager.animations, animation)
+	manager.animations[animation.Id] = animation
 	manager.storeDatabase()
 	manager.UploadQueue <- animation.Id
 	manager.UploadQueue <- rightAnimationId
@@ -66,21 +66,37 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 }
 
 func (manager *AnimationManager) GetById(id Display.AnimationId) (bool, Animation) {
-	for _, animation := range manager.animations {
-		if animation.Id == id {
-			return true, animation
-		}
-	}
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
 
-	return false, Animation{}
+	item, success := manager.animations[id]
+	return success, item
+}
+
+func (manager *AnimationManager) GetAll() []Animation {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
+	var animations []Animation
+	for _, animation := range manager.animations {
+		animations = append(animations, animation)
+	}
+	return animations
+}
+
+func (manager *AnimationManager) RemoveAnimation(animationId Display.AnimationId) {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
+	delete(manager.animations, animationId)
 }
 
 func (manager *AnimationManager) storeDatabase() {
 	// TODO: store the data in the database
 }
 
-func getDefaultAnimations() []Animation {
-	return []Animation{
+func getDefaultAnimations() map[Display.AnimationId]Animation {
+	rawAnimations := []Animation{
 		{Display.AnimationId(446948159), "Nerd Pacman", Regular, false, Display.None},
 		{Display.AnimationId(649833014), "Gottloser Creme", Happy, false, Display.None},
 		{Display.AnimationId(678928891), "DVD Logo", Happy, false, Display.None},
@@ -103,4 +119,12 @@ func getDefaultAnimations() []Animation {
 		{Display.AnimationId(3424648902), "Spinning Neuer", Regular, false, Display.None},
 		{Display.AnimationId(3703776356), "Another doggo dancing", Regular, false, Display.None},
 	}
+
+	animationMap := make(map[Display.AnimationId]Animation)
+
+	for _, animation := range rawAnimations {
+		animationMap[animation.Id] = animation
+	}
+
+	return animationMap
 }

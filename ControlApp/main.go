@@ -53,6 +53,10 @@ func main() {
 	http.HandleFunc("/api/palettes", fixture.HandlePaletteGetAllApi)
 	http.HandleFunc("/api/palette", fixture.HandleSinglePaletteApi)
 
+	//Handle animation endpoints
+	http.HandleFunc("/api/animations", fixture.HandleAnimationsGetAllApi)
+	http.HandleFunc("/api/animation", fixture.HandleSingleAnimationApi)
+
 	//Handle other endpoints
 	http.HandleFunc("/api/ping", func(writer http.ResponseWriter, request *http.Request) {})
 
