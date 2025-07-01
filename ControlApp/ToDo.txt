@@ -1,5 +1,4 @@
 Software steps:
--Add endpoints for managing animations
 -Add more animations
 -Add endpoints for configuring auto mode
 -Implement configuration persistence
