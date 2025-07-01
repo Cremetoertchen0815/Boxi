@@ -3,7 +3,9 @@ package Lightshow
 import (
 	"ControlApp/Display"
 	"ControlApp/Infrastructure"
+	"fmt"
 	"math/rand"
+	"os"
 	"sync"
 )
 
@@ -46,6 +48,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 		manager.animations[animation.Id] = animation
 		manager.storeDatabase()
 		manager.UploadQueue <- animation.Id
+		storeThumbnail(uint32(animation.Id))
 		return animation.Id, nil
 	}
 
@@ -62,7 +65,25 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 	manager.storeDatabase()
 	manager.UploadQueue <- animation.Id
 	manager.UploadQueue <- rightAnimationId
+	storeThumbnail(uint32(animation.Id))
 	return animation.Id, nil
+}
+
+func storeThumbnail(id uint32) {
+	sourcePath := fmt.Sprintf("animations/%d/0001.png", id)
+	destinationPath := fmt.Sprintf("Frontend/static/thumbs/%d.png", id)
+
+	//Make sure source does exist
+	if _, err := os.Stat(sourcePath); err != nil {
+		return
+	}
+
+	//Make sure destination doesn't exist
+	if _, err := os.Stat(destinationPath); err == nil {
+		return
+	}
+
+	_ = os.Link(sourcePath, destinationPath)
 }
 
 func (manager *AnimationManager) GetById(id Display.AnimationId) (bool, Animation) {
@@ -124,6 +145,7 @@ func getDefaultAnimations() map[Display.AnimationId]Animation {
 
 	for _, animation := range rawAnimations {
 		animationMap[animation.Id] = animation
+		storeThumbnail(uint32(animation.Id))
 	}
 
 	return animationMap

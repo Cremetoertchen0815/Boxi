@@ -37,18 +37,18 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 	defer animationManager.accessLock.Unlock()
 
 	//Find valid animations to switch to
-	validIndices := make([]int, 0)
-	for index, animation := range animationManager.animations {
+	validIds := make([]Display.AnimationId, 0)
+	for id, animation := range animationManager.animations {
 		if animation.IsNsfw && !context.Configuration.AllowNsfw {
 			continue
 		}
 
 		if animation.Mood == baseMood || animation.Mood == Regular && baseMood == Party {
-			validIndices = append(validIndices, index)
+			validIds = append(validIds, id)
 		}
 	}
 
-	if len(validIndices) < 1 {
+	if len(validIds) < 1 {
 		return AnimationsInstruction{Character: Unknown}
 	}
 
@@ -56,8 +56,8 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 
 	mirrorAcrossScreens := rand.Intn(2)
 	generateBoxiScreens := func() (Display.AnimationId, Display.AnimationId) {
-		randomIndex := rand.Intn(len(validIndices))
-		firstAnimation := animationManager.animations[validIndices[randomIndex]]
+		randomIndex := rand.Intn(len(validIds))
+		firstAnimation := animationManager.animations[validIds[randomIndex]]
 
 		//If picked animation is played across two screens, do that
 		if firstAnimation.SecondaryAnimation != Display.None {
@@ -68,8 +68,8 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 			return firstAnimation.Id, firstAnimation.Id
 		}
 
-		randomIndex = rand.Intn(len(validIndices))
-		secondAnimation := animationManager.animations[validIndices[randomIndex]]
+		randomIndex = rand.Intn(len(validIds))
+		secondAnimation := animationManager.animations[validIds[randomIndex]]
 		return firstAnimation.Id, secondAnimation.Id
 	}
 
