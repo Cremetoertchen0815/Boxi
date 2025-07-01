@@ -216,6 +216,14 @@ func (manager *VisualManager) ImportAnimation(path string, name string, mood Lig
 	return manager.animations.ImportAnimation(path, name, mood, splitVideo, isNsfw)
 }
 
+func (manager *VisualManager) GetConfiguration() *AutoModeConfiguration {
+	return &manager.autoContext.Configuration
+}
+
+func (manager *VisualManager) MarkLightshowAsDirty() {
+	manager.autoContext.isDirty = true
+}
+
 func (manager *VisualManager) watchForAnimationUploads() {
 	for {
 		animationId := <-manager.animations.UploadQueue

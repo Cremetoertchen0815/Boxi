@@ -7,6 +7,7 @@ import (
 	"ControlApp/Lightshow"
 	"log"
 	"net/http"
+	"time"
 )
 
 func main() {
@@ -59,6 +60,12 @@ func main() {
 
 	//Handle other endpoints
 	http.HandleFunc("/api/ping", func(writer http.ResponseWriter, request *http.Request) {})
+
+	//Mark lightshow dirty after time delay
+	go func(manager *Lightshow.VisualManager) {
+		time.Sleep(time.Second * 5)
+		manager.MarkLightshowAsDirty()
+	}(visuals)
 
 	// Start server (listening on localhost prevents firewall popup on Windows)
 	log.Println("Listening started")

@@ -25,6 +25,7 @@ type AutoModeContext struct {
 	lightingBeatsLeft     int
 	animationBeatsLeft    int
 	wasInCalmMode         bool
+	isDirty               bool
 }
 
 const loopDelayMs = 5
@@ -156,6 +157,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		if isBeat {
 			context.wasInCalmMode = false
 		}
+		context.isDirty = false
 	}
 }
 

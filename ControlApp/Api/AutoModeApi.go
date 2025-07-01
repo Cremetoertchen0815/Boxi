@@ -45,4 +45,5 @@ func (fixture Fixture) HandleChangeAutoModeApi(w http.ResponseWriter, r *http.Re
 		return
 	}
 
+	fixture.Visuals.MarkLightshowAsDirty()
 }
