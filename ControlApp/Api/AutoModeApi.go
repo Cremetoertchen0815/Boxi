@@ -1,77 +1,43 @@
 package Api
 
 import (
-	"ControlApp/BoxiBus"
-	"ControlApp/Lightshow"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
+	"time"
 )
 
-func (fixture Fixture) HandleAutoModeSettingsApi(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		fixture.handlePaletteGetApi(w, r)
-	} else if r.Method == "POST" {
-		fixture.handlePaletteCreateApi(w, r)
-	} else if r.Method == "PUT" {
-		fixture.handlePaletteUpdateApi(w, r)
-	} else if r.Method == "DELETE" {
-		fixture.handlePaletteDeleteApi(w, r)
-	} else {
-
-	}
+type autoModeConfig struct {
+	Mood                       int              `json:"mood"`
+	AllowNsfw                  bool             `json:"nsfw"`
+	StrobeChance               int              `json:"strobeChance"`
+	HueShiftChance             int              `json:"hueShiftChance"`
+	FadeToColorCycles          uint16           `json:"fadeToColorCycles"`
+	PaletteFadeCycles          uint16           `json:"paletteFadeCycles"`
+	FlashFadeoutSpeed          uint16           `json:"brightnessFlashFadeSpeed"`
+	HueFlashFadeoutSpeed       uint16           `json:"hueFlashFadeSpeed"`
+	StrobeFrequency            uint16           `json:"strobeFrequency"`
+	FlashTargetBrightness      byte             `json:"brightnessFlashBrightness"`
+	FlashHueShift              byte             `json:"hueFlashShift"`
+	MinTimeBetweenBeatsSec     float64          `json:"minTimeBetweenBeats"`
+	LightingCalmModeBoringSec  float64          `json:"timeBeforeLightingBoring"`  //How long it takes until calm lighting is boring
+	AnimationCalmModeBoringSec float64          `json:"timeBeforeAnimationBoring"` //How long it takes until a calm animation is boring
+	CalmLightingTiming         timingConstraint `json:"timingCalmLighting"`        //The timing constraints for calm lighting
+	RhythmicLightingTiming     timingConstraint `json:"timingRhythmicLighting"`    //The timing constraints for rhythmic lighting
+	FranticLightingTiming      timingConstraint `json:"timingFranticLighting"`     //The timing constraints for frantic lighting
+	CalmAnimationsTiming       timingConstraint `json:"timingCalmAnimations"`      //The timing constraints for calm animations
+	RhythmicAnimationsTiming   timingConstraint `json:"timingRhythmicAnimations"`  //The timing constraints for rhythmic animations
+	FranticAnimationsTiming    timingConstraint `json:"timingFranticAnimations"`   //The timing constraints for calm animations
 }
 
-func (fixture Fixture) handlePaletteGetApi(w http.ResponseWriter, r *http.Request) {
-	var id uint32
-	idStr := r.FormValue("id")
-	if idStr != "" {
-		tempId, err := strconv.ParseInt(idStr, 10, 32)
-		if err != nil || tempId < 0 {
-			http.Error(w, "Error parsing ID.", http.StatusBadRequest)
-			return
-		}
-		id = uint32(tempId)
-	} else {
-		http.Error(w, "ID not specified.", http.StatusBadRequest)
-		return
-	}
-
-	exists, entity := fixture.Visuals.GetPalettes().GetById(id)
-
-	if !exists {
-		http.Error(w, "Palette does not exist.", http.StatusBadRequest)
-		return
-	}
-
-	header := paletteHeader{entity.Id, entity.Name}
-	var colors []color
-	var moods []int
-
-	for _, col := range entity.Colors {
-		colors = append(colors, color{int(col.Red), int(col.Green), int(col.Blue), int(col.White), int(col.Amber), int(col.UltraViolet)})
-	}
-
-	for _, mood := range entity.Moods {
-		moods = append(moods, int(mood))
-	}
-
-	palette := paletteType{header, moods, colors}
-
-	//Encode data
-	if err := json.NewEncoder(w).Encode(palette); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+type timingConstraint struct {
+	MinNumberOfBeats int           //The least number of beats before switching to the next mode.
+	MaxNumberOfBeats int           //The most number of beats before switching to the next mode.
+	NoBeatDeadTime   time.Duration //The duration since the last beat when forcibly switching to a calm mode.
 }
 
-func (fixture Fixture) handlePaletteCreateApi(w http.ResponseWriter, r *http.Request) {
-	id := rand.Uint32()
-	for exists, _ := fixture.Visuals.GetPalettes().GetById(id); exists; {
-		id = rand.Uint32()
-	}
-
-	var data paletteCreate
+func (fixture Fixture) HandleChangeAutoModeApi(w http.ResponseWriter, r *http.Request) {
+	var data autoModeConfig
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -79,24 +45,4 @@ func (fixture Fixture) handlePaletteCreateApi(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var moods []Lightshow.LightingMood
-
-	for _, mood := range data.Moods {
-		if mood < 0 || mood > 3 {
-			http.Error(w, fmt.Sprintf("Illegal mood value '%d'.", mood), http.StatusBadRequest)
-			return
-		}
-
-		moods = append(moods, Lightshow.LightingMood(mood))
-	}
-
-	palette := Lightshow.Palette{Id: id, Name: data.Name, Moods: moods, Colors: []BoxiBus.Color{{}}}
-	fixture.Visuals.GetPalettes().SetPalette(palette)
-
-	returnData := paletteCreated{id}
-
-	//Encode data
-	if err := json.NewEncoder(w).Encode(returnData); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-	}
 }
