@@ -43,15 +43,14 @@ const (
 	Party
 )
 
-const configPath = "/Configuration/auto_mode.json"
+const configPath = "Configuration/auto_mode.json"
 
 func loadConfiguration() AutoModeConfiguration {
 	configFile, err := os.Open(configPath)
 
 	var config AutoModeConfiguration
 	if err != nil {
-		config = getDefaultConfiguration()
-		storeConfiguration(&config)
+		log.Fatalf("Config file for auto mode could not be accessed! %s", err)
 	}
 
 	defer func(configFile *os.File) {
@@ -62,20 +61,17 @@ func loadConfiguration() AutoModeConfiguration {
 
 	err = jsonParser.Decode(&config)
 	if err != nil {
-		_ = configFile.Close()
-		_ = os.Remove(configPath)
-		config = getDefaultConfiguration()
-		storeConfiguration(&config)
+		log.Fatalf("Invalid JSON format of auto mode config file! %s", err)
 	}
 
 	return config
 }
 
 func storeConfiguration(config *AutoModeConfiguration) {
-	configFile, err := os.OpenFile(configPath, os.O_CREATE, os.ModePerm)
+	configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Config file for auto mode could not be opened for writing! %s", err)
 	}
 
 	defer func(configFile *os.File) {
@@ -85,37 +81,7 @@ func storeConfiguration(config *AutoModeConfiguration) {
 	jsonParser := json.NewEncoder(configFile)
 	err = jsonParser.Encode(config)
 	if err != nil {
-		log.Print(err)
-	}
-}
-
-func getDefaultConfiguration() AutoModeConfiguration {
-	return AutoModeConfiguration{
-		Mood:                    Party,
-		AllowNsfw:               true,
-		StrobeChance:            4,
-		HueShiftChance:          3,
-		HueShiftMaxAmount:       3,
-		FadeToColorCycles:       700,
-		PaletteFadeCycles:       500,
-		StrobeFrequency:         2,
-		FlashFadeoutSpeed:       30,
-		HueFlashFadeoutSpeed:    15,
-		FlashTargetBrightness:   20,
-		FlashHueShift:           1,
-		MinTimeBetweenBeats:     360 * time.Millisecond,
-		LightingCalmModeBoring:  30 * time.Second,
-		AnimationCalmModeBoring: 40 * time.Second,
-		LightingModeTiming: map[ModeCharacter]TimingConstraint{
-			Calm:     {MinNumberOfBeats: 32, MaxNumberOfBeats: 128, NoBeatDeadTime: 5 * time.Second},
-			Rhythmic: {MinNumberOfBeats: 16, MaxNumberOfBeats: 64, NoBeatDeadTime: 3 * time.Second},
-			Frantic:  {MinNumberOfBeats: 1, MaxNumberOfBeats: 4, NoBeatDeadTime: 1 * time.Second},
-		},
-		AnimationModeTiming: map[ModeCharacter]TimingConstraint{
-			Calm:     {MinNumberOfBeats: 32, MaxNumberOfBeats: 64, NoBeatDeadTime: 8 * time.Second},
-			Rhythmic: {MinNumberOfBeats: 16, MaxNumberOfBeats: 48, NoBeatDeadTime: 2 * time.Second},
-			Frantic:  {MinNumberOfBeats: 8, MaxNumberOfBeats: 16, NoBeatDeadTime: 2 * time.Second},
-		},
+		log.Fatalf("Configuration for auto mode could be JSON encoded! %s", err)
 	}
 }
 
