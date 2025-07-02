@@ -61,7 +61,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		}
 
 		isBeat := pendingBeat && (context.lastBeat == nil || now.After(context.lastBeat.Add(context.Configuration.MinTimeBetweenBeats)))
-		if isBeat {
+		if isBeat || (!context.wasInCalmMode && context.isDirty) {
 			context.lastBeat = &now
 			context.manager.triggerBeat()
 			context.lightingSwitchToCalm = nil
@@ -130,7 +130,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		}
 
 		//Check if the calm animation is boring
-		if context.animationSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) {
+		if context.animationSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) || (context.wasInCalmMode && context.isDirty) {
 			context.animationSwitchToCalm = nil
 			animation := context.getNextAnimation(InCalmMode)
 			context.manager.applyAnimation(animation)
@@ -142,7 +142,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		}
 
 		//Check if the calm lighting is boring
-		if context.lightingSwitchToCalm != nil && context.lightingSwitchToCalm.Before(time.Now()) {
+		if context.lightingSwitchToCalm != nil && context.lightingSwitchToCalm.Before(time.Now()) || (context.wasInCalmMode && context.isDirty) {
 			context.lightingSwitchToCalm = nil
 			lighting := context.getNextLighting(InCalmMode)
 			context.manager.applyLighting(lighting)
