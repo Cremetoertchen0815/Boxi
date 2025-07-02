@@ -2,6 +2,9 @@ package Lightshow
 
 import (
 	"ControlApp/BoxiBus"
+	"encoding/json"
+	"log"
+	"os"
 	"sync"
 )
 
@@ -17,70 +20,48 @@ type Palette struct {
 	Moods  []LightingMood
 }
 
+const palettesConfigPath = "Configuration/palettes.json"
+
 func LoadPalettes() *PaletteManager {
-	rawPalettes := []Palette{
-		{
-			Id:   0,
-			Name: "Rainbow",
-			Colors: []BoxiBus.Color{
-				{255, 0, 0, 0, 0, 0},
-				{255, 255, 0, 0, 0, 0},
-				{0, 255, 0, 0, 0, 0},
-				{0, 255, 255, 0, 0, 0},
-				{0, 0, 255, 0, 0, 0},
-				{255, 0, 255, 0, 0, 0},
-			},
-			Moods: []LightingMood{Happy, Regular, Party},
-		},
-		{
-			Id:   1,
-			Name: "Cyberpunk",
-			Colors: []BoxiBus.Color{
-				{0, 255, 153, 0, 0, 0},
-				{77, 156, 200, 24, 0, 0},
-				{0, 30, 255, 0, 0, 128},
-				{150, 0, 200, 0, 0, 128},
-				{128, 0, 128, 10, 0, 255},
-			},
-			Moods: []LightingMood{Moody, Regular},
-		},
-		{
-			Id:   2,
-			Name: "Pleasant",
-			Colors: []BoxiBus.Color{
-				{108, 200, 25, 0, 0, 0},
-				{255, 255, 25, 0, 50, 0},
-				{255, 130, 50, 0, 255, 32},
-				{255, 64, 80, 0, 0, 32},
-				{100, 100, 255, 0, 0, 255},
-				{52, 128, 255, 40, 0, 64},
-			},
-			Moods: []LightingMood{Happy, Regular},
-		},
-		{
-			Id:   3,
-			Name: "Retro",
-			Colors: []BoxiBus.Color{
-				{0, 0, 0, 255, 128, 0},
-				{180, 180, 0, 0, 255, 0},
-				{180, 20, 80, 0, 0, 128},
-				{20, 0, 64, 0, 255, 255},
-				{0, 255, 0, 0, 255, 0},
-				{255, 0, 0, 0, 0, 255},
-			},
-			Moods: []LightingMood{Regular, Party},
-		},
+	configFile, err := os.Open(palettesConfigPath)
+
+	var config map[uint32]Palette
+	if err != nil {
+		log.Fatalf("Config file for palettes could not be accessed! %s", err)
 	}
 
-	paletteMap := make(map[uint32]Palette)
+	defer func(configFile *os.File) {
+		_ = configFile.Close()
+	}(configFile)
 
-	for _, palette := range rawPalettes {
-		paletteMap[palette.Id] = palette
+	jsonParser := json.NewDecoder(configFile)
+
+	err = jsonParser.Decode(&config)
+	if err != nil {
+		log.Fatalf("Invalid JSON format of palettes config file! %s", err)
 	}
 
 	return &PaletteManager{
-		palettes:   paletteMap,
+		palettes:   config,
 		accessLock: &sync.Mutex{},
+	}
+}
+
+func (manager *PaletteManager) storeConfiguration() {
+	configFile, err := os.OpenFile(palettesConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+
+	if err != nil {
+		log.Fatalf("Config file for palettes could not be opened for writing! %s", err)
+	}
+
+	defer func(configFile *os.File) {
+		_ = configFile.Close()
+	}(configFile)
+
+	jsonParser := json.NewEncoder(configFile)
+	err = jsonParser.Encode(manager.palettes)
+	if err != nil {
+		log.Fatalf("Configuration for palettes could be JSON encoded! %s", err)
 	}
 }
 
@@ -132,6 +113,7 @@ func (manager *PaletteManager) SetPalette(palette Palette) {
 	defer manager.accessLock.Unlock()
 
 	manager.palettes[palette.Id] = palette
+	manager.storeConfiguration()
 }
 
 func (manager *PaletteManager) RemovePalette(paletteId uint32) {
@@ -139,6 +121,7 @@ func (manager *PaletteManager) RemovePalette(paletteId uint32) {
 	defer manager.accessLock.Unlock()
 
 	delete(manager.palettes, paletteId)
+	manager.storeConfiguration()
 }
 
 func getDefaultPalettes() []Palette {

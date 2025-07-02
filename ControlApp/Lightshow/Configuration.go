@@ -34,7 +34,7 @@ type TimingConstraint struct {
 	NoBeatDeadTime   time.Duration //The duration since the last beat when forcibly switching to a calm mode.
 }
 
-type LightingMood uint8
+type LightingMood uint16
 
 const (
 	Happy LightingMood = iota
@@ -43,10 +43,10 @@ const (
 	Party
 )
 
-const configPath = "Configuration/auto_mode.json"
+const autoModeConfigPath = "Configuration/auto_mode.json"
 
 func loadConfiguration() AutoModeConfiguration {
-	configFile, err := os.Open(configPath)
+	configFile, err := os.Open(autoModeConfigPath)
 
 	var config AutoModeConfiguration
 	if err != nil {
@@ -68,7 +68,7 @@ func loadConfiguration() AutoModeConfiguration {
 }
 
 func storeConfiguration(config *AutoModeConfiguration) {
-	configFile, err := os.OpenFile(configPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+	configFile, err := os.OpenFile(autoModeConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 
 	if err != nil {
 		log.Fatalf("Config file for auto mode could not be opened for writing! %s", err)
