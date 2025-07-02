@@ -220,6 +220,11 @@ func (manager *VisualManager) GetConfiguration() *AutoModeConfiguration {
 	return &manager.autoContext.Configuration
 }
 
+func (manager *VisualManager) StoreConfiguration(markAsDirty bool) {
+	storeConfiguration(manager.GetConfiguration())
+	manager.autoContext.isDirty = markAsDirty
+}
+
 func (manager *VisualManager) MarkLightshowAsDirty() {
 	manager.autoContext.isDirty = true
 }

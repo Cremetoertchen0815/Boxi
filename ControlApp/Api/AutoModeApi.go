@@ -55,7 +55,7 @@ func (fixture Fixture) HandleChangeAutoModeMoodApi(w http.ResponseWriter, r *htt
 	}
 	configuration := fixture.Visuals.GetConfiguration()
 	configuration.Mood = Lightshow.LightingMood(valueNr)
-	fixture.Visuals.MarkLightshowAsDirty()
+	fixture.Visuals.StoreConfiguration(true)
 }
 
 func (fixture Fixture) HandleChangeAutoModeNsfwApi(w http.ResponseWriter, r *http.Request) {
@@ -69,7 +69,7 @@ func (fixture Fixture) HandleChangeAutoModeNsfwApi(w http.ResponseWriter, r *htt
 	value := r.FormValue("value") == "true" || r.FormValue("value") == "1"
 	configuration := fixture.Visuals.GetConfiguration()
 	configuration.AllowNsfw = value
-	fixture.Visuals.MarkLightshowAsDirty()
+	fixture.Visuals.StoreConfiguration(true)
 }
 
 func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *http.Request) {
@@ -100,6 +100,7 @@ func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *h
 	configuration.AnimationModeTiming[Lightshow.Calm] = getConstraint(data.CalmAnimationsTiming)
 	configuration.AnimationModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicAnimationsTiming)
 	configuration.AnimationModeTiming[Lightshow.Frantic] = getConstraint(data.FranticAnimationsTiming)
+	fixture.Visuals.StoreConfiguration(false)
 }
 
 func getConstraint(constraint timingConstraint) Lightshow.TimingConstraint {

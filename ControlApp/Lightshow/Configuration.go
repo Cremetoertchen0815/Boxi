@@ -1,6 +1,9 @@
 package Lightshow
 
 import (
+	"encoding/json"
+	"log"
+	"os"
 	"time"
 )
 
@@ -40,7 +43,53 @@ const (
 	Party
 )
 
+const configPath = "/Configuration/auto_mode.json"
+
 func loadConfiguration() AutoModeConfiguration {
+	configFile, err := os.Open(configPath)
+
+	var config AutoModeConfiguration
+	if err != nil {
+		config = getDefaultConfiguration()
+		storeConfiguration(&config)
+	}
+
+	defer func(configFile *os.File) {
+		_ = configFile.Close()
+	}(configFile)
+
+	jsonParser := json.NewDecoder(configFile)
+
+	err = jsonParser.Decode(&config)
+	if err != nil {
+		_ = configFile.Close()
+		_ = os.Remove(configPath)
+		config = getDefaultConfiguration()
+		storeConfiguration(&config)
+	}
+
+	return config
+}
+
+func storeConfiguration(config *AutoModeConfiguration) {
+	configFile, err := os.OpenFile(configPath, os.O_CREATE, os.ModePerm)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer func(configFile *os.File) {
+		_ = configFile.Close()
+	}(configFile)
+
+	jsonParser := json.NewEncoder(configFile)
+	err = jsonParser.Encode(config)
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func getDefaultConfiguration() AutoModeConfiguration {
 	return AutoModeConfiguration{
 		Mood:                    Party,
 		AllowNsfw:               true,
