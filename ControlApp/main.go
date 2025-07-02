@@ -58,6 +58,11 @@ func main() {
 	http.HandleFunc("/api/animations", fixture.HandleAnimationsGetAllApi)
 	http.HandleFunc("/api/animation", fixture.HandleSingleAnimationApi)
 
+	//Handle auto mode config endpoints
+	http.HandleFunc("/api/config/mood", fixture.HandleChangeAutoModeMoodApi)
+	http.HandleFunc("/api/config/nsfw", fixture.HandleChangeAutoModeNsfwApi)
+	http.HandleFunc("/api/config/advanced", fixture.HandleChangeAutoModeConfigApi)
+
 	//Handle other endpoints
 	http.HandleFunc("/api/ping", func(writer http.ResponseWriter, request *http.Request) {})
 

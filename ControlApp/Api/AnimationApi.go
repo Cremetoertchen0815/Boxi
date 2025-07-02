@@ -196,3 +196,21 @@ func (fixture Fixture) handleAnimationDeleteApi(w http.ResponseWriter, r *http.R
 
 	fixture.Visuals.GetAnimations().RemoveAnimation(id)
 }
+
+func createTempFile() (*os.File, error) {
+	// Create an uploads directory if it doesn’t exist
+	if _, err := os.Stat("blob/temp"); os.IsNotExist(err) {
+		err := os.MkdirAll("blob/temp", 0o775)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// Build the file path and create it
+	dst, err := os.CreateTemp("blob/temp", "animation_*")
+	if err != nil {
+		return nil, err
+	}
+
+	return dst, nil
+}
