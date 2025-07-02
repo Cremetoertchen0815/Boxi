@@ -3,7 +3,9 @@ package Lightshow
 import (
 	"ControlApp/Display"
 	"ControlApp/Infrastructure"
+	"encoding/json"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"sync"
@@ -23,12 +25,50 @@ type AnimationManager struct {
 	UploadQueue chan Display.AnimationId
 }
 
+const animationsConfigPath = "Configuration/animations.json"
+
 func LoadAnimations() *AnimationManager {
+	configFile, err := os.Open(animationsConfigPath)
+
+	var config map[Display.AnimationId]Animation
+	if err != nil {
+		log.Fatalf("Config file for animations could not be accessed! %s", err)
+	}
+
+	defer func(configFile *os.File) {
+		_ = configFile.Close()
+	}(configFile)
+
+	jsonParser := json.NewDecoder(configFile)
+
+	err = jsonParser.Decode(&config)
+	if err != nil {
+		log.Fatalf("Invalid JSON format of animations config file! %s", err)
+	}
+
 	uploadQueue := make(chan Display.AnimationId, 2)
 	return &AnimationManager{
-		animations:  getDefaultAnimations(),
+		animations:  config,
 		UploadQueue: uploadQueue,
 		accessLock:  &sync.Mutex{},
+	}
+}
+
+func (manager *AnimationManager) storeConfiguration() {
+	configFile, err := os.OpenFile(animationsConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
+
+	if err != nil {
+		log.Fatalf("Config file for animations could not be opened for writing! %s", err)
+	}
+
+	defer func(configFile *os.File) {
+		_ = configFile.Close()
+	}(configFile)
+
+	jsonParser := json.NewEncoder(configFile)
+	err = jsonParser.Encode(manager.animations)
+	if err != nil {
+		log.Fatalf("Configuration for animations could be JSON encoded! %s", err)
 	}
 }
 
@@ -46,7 +86,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 
 		animation := Animation{Display.AnimationId(animationId), name, mood, nsfw, Display.None}
 		manager.animations[animation.Id] = animation
-		manager.storeDatabase()
+		manager.storeConfiguration()
 		manager.UploadQueue <- animation.Id
 		storeThumbnail(uint32(animation.Id))
 		return animation.Id, nil
@@ -62,7 +102,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 	rightAnimationId := Display.AnimationId(secondaryAnimationId)
 	animation := Animation{Display.AnimationId(animationId), name, mood, nsfw, rightAnimationId}
 	manager.animations[animation.Id] = animation
-	manager.storeDatabase()
+	manager.storeConfiguration()
 	manager.UploadQueue <- animation.Id
 	manager.UploadQueue <- rightAnimationId
 	storeThumbnail(uint32(animation.Id))
@@ -110,43 +150,5 @@ func (manager *AnimationManager) RemoveAnimation(animationId Display.AnimationId
 	defer manager.accessLock.Unlock()
 
 	delete(manager.animations, animationId)
-}
-
-func (manager *AnimationManager) storeDatabase() {
-	// TODO: store the data in the database
-}
-
-func getDefaultAnimations() map[Display.AnimationId]Animation {
-	rawAnimations := []Animation{
-		{Display.AnimationId(446948159), "Nerd Pacman", Regular, false, Display.None},
-		{Display.AnimationId(649833014), "Gottloser Creme", Happy, false, Display.None},
-		{Display.AnimationId(678928891), "DVD Logo", Happy, false, Display.None},
-		{Display.AnimationId(724152790), "Foxi Jumpscare", Regular, false, Display.None},
-		{Display.AnimationId(746302169), "Vaporwave Autobahn", Moody, false, Display.None},
-		{Display.AnimationId(899960868), "Saul 3D", Regular, false, Display.None},
-		{Display.AnimationId(1204539747), "Nyan Cat", Regular, false, Display.AnimationId(2454484289)},
-		{Display.AnimationId(1345034356), "Ash Pat", Happy, false, Display.None},
-		{Display.AnimationId(1884833779), "Gopnik", Party, false, Display.None},
-		{Display.AnimationId(1899868680), "Cat Bounce", Regular, false, Display.None},
-		{Display.AnimationId(1965415769), "Kermit Suizid", Happy, false, Display.None},
-		{Display.AnimationId(2243405019), "Aksel.", Happy, false, Display.None},
-		{Display.AnimationId(2456904767), "Burning Piano man", Moody, false, Display.None},
-		{Display.AnimationId(2500737094), "Doggo dance", Party, false, Display.None},
-		{Display.AnimationId(2574938612), "Pedro", Party, false, Display.None},
-		{Display.AnimationId(2759311642), "Caramelldansen", Party, false, Display.None},
-		{Display.AnimationId(2899126749), "Monke", Moody, false, Display.None},
-		{Display.AnimationId(2939821731), "Ribbons", Moody, false, Display.None},
-		{Display.AnimationId(3343111115), "Spinning Fish", Regular, false, Display.None},
-		{Display.AnimationId(3424648902), "Spinning Neuer", Regular, false, Display.None},
-		{Display.AnimationId(3703776356), "Another doggo dancing", Regular, false, Display.None},
-	}
-
-	animationMap := make(map[Display.AnimationId]Animation)
-
-	for _, animation := range rawAnimations {
-		animationMap[animation.Id] = animation
-		storeThumbnail(uint32(animation.Id))
-	}
-
-	return animationMap
+	manager.storeConfiguration()
 }
