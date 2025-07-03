@@ -48,6 +48,8 @@ func LoadPalettes() *PaletteManager {
 }
 
 func (manager *PaletteManager) storeConfiguration() {
+	_ = os.Remove(palettesConfigPath)
+
 	configFile, err := os.OpenFile(palettesConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 
 	if err != nil {

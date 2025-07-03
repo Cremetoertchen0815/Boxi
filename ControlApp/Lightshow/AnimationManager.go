@@ -55,6 +55,8 @@ func LoadAnimations() *AnimationManager {
 }
 
 func (manager *AnimationManager) storeConfiguration() {
+	_ = os.Remove(animationsConfigPath)
+
 	configFile, err := os.OpenFile(animationsConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 
 	if err != nil {

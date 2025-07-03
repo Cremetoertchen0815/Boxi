@@ -68,6 +68,8 @@ func loadConfiguration() AutoModeConfiguration {
 }
 
 func storeConfiguration(config *AutoModeConfiguration) {
+	_ = os.Remove(autoModeConfigPath)
+
 	configFile, err := os.OpenFile(autoModeConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 
 	if err != nil {
