@@ -54,7 +54,7 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 
 	var dsp1A, dsp1B, dsp2A, dsp2B Display.AnimationId
 
-	mirrorAcrossScreens := rand.Intn(2)
+	mirrorAcrossScreens := rand.Intn(3)
 	generateBoxiScreens := func() (Display.AnimationId, Display.AnimationId) {
 		randomIndex := rand.Intn(len(validIds))
 		firstAnimation := animationManager.animations[validIds[randomIndex]]
@@ -83,15 +83,17 @@ func (context *AutoModeContext) getNextAnimation(switchType switchType) Animatio
 		dsp2A, dsp2B = generateBoxiScreens()
 	}
 
-	doDaBounce := rand.Intn(7)
+	doDaBounce := rand.Intn(10)
 	var blinkSpeed uint16
 	if doDaBounce == 6 && baseMood == Party {
 		blinkSpeed = defaultBlinkSpeed
 	}
 
 	character := Calm
-	if baseMood == Regular || baseMood == Party {
+	if baseMood == Regular {
 		character = Rhythmic
+	} else if baseMood == Party {
+		character = Frantic
 	}
 
 	//Find grouped animations
@@ -127,7 +129,7 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 		if switchType == InCalmMode {
 			possibleModes = []BoxiBus.LightingModeId{BoxiBus.FadeToColor}
 			possiblePalettes = []Palette{
-				{0, "UV", []BoxiBus.Color{{255, 0, 0, 0, 0, 255}}, nil},
+				{0, "UV", []BoxiBus.Color{{0, 0, 10, 0, 0, 255}}, nil},
 				{1, "Blue", []BoxiBus.Color{{0, 0, 255, 0, 0, 0}}, nil},
 				{2, "Amber", []BoxiBus.Color{{0, 0, 0, 0, 255, 0}}, nil},
 			}
@@ -165,8 +167,12 @@ func (context *AutoModeContext) getNextLighting(switchType switchType) LightingI
 	}
 
 	// If first beat since a while, have a chance for strobe to flash bang you
-	if switchType == FirstBeat && context.Configuration.StrobeChance > 0 {
-		randNbr = rand.Intn(context.Configuration.StrobeChance)
+	if (switchType == FirstBeat || switchType == OnBeat) && context.Configuration.StrobeChance > 0 && baseMood == Party {
+		chance := context.Configuration.StrobeChance
+		if switchType == OnBeat {
+			chance *= 2
+		}
+		randNbr = rand.Intn(chance)
 		if randNbr == 0 {
 			mode = BoxiBus.Strobe
 			palette = []BoxiBus.Color{{0, 0, 0, 255, 0, 0}}

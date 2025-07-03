@@ -78,9 +78,10 @@ func (manager *VisualManager) applyAnimation(instruction AnimationsInstruction) 
 	if manager.animationOverwrite != nil {
 		for _, animation := range manager.animationOverwrite.Animations {
 			for _, display := range animation.Displays {
-				for i := 1; i < 5; i++ {
-					if int(display)&i != 0 {
-						displaysToExclude = append(displaysToExclude, i)
+				for i := 0; i < 4; i++ {
+					mask := 1 << i
+					if int(display)&mask != 0 {
+						displaysToExclude = append(displaysToExclude, mask)
 					}
 				}
 			}
@@ -93,9 +94,10 @@ func (manager *VisualManager) applyAnimation(instruction AnimationsInstruction) 
 
 		// Add displays to view with
 		for _, display := range animation.Displays {
-			for i := 1; i < 5; i++ {
-				if int(display)&i != 0 {
-					displays[i] = true
+			for i := 0; i < 4; i++ {
+				mask := 1 << i
+				if int(display)&mask != 0 {
+					displays[mask] = true
 				}
 			}
 		}

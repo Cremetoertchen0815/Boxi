@@ -99,6 +99,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 				}
 			}
 
+			context.wasInCalmMode = false
 			context.isDirty = false
 			continue
 		}
@@ -155,9 +156,6 @@ func (context *AutoModeContext) calculateAutoMode() {
 			}
 		}
 
-		if isBeat {
-			context.wasInCalmMode = false
-		}
 		context.isDirty = false
 	}
 }
