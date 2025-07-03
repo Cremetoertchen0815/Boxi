@@ -1,3 +1,5 @@
-ControlApp/Frontend/static/thumbs/*
-ControlApp/animations/*
+/ControlApp/Frontend/static/thumbs/*
+/ControlApp/animations
 ControlApp/animations
+/ControlApp/animations/*
+ControlApp/animations/*
