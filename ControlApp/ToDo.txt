@@ -1,6 +1,4 @@
 Software steps:
--Add more animations
--Implement configuration persistence
 -Implement user app
 
 Hardware issues:

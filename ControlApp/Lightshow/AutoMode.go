@@ -99,6 +99,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 				}
 			}
 
+			context.isDirty = false
 			continue
 		}
 
