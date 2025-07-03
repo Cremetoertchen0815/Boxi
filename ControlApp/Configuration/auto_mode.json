@@ -1,1 +1,52 @@
-{"Mood":2,"AllowNsfw":false,"StrobeChance":4,"HueShiftChance":3,"HueShiftMaxAmount":3,"FadeToColorCycles":700,"PaletteFadeCycles":500,"FlashFadeoutSpeed":30,"HueFlashFadeoutSpeed":15,"StrobeFrequency":2,"StrobeRolloff":0,"FlashTargetBrightness":20,"FlashHueShift":1,"MinTimeBetweenBeats":360000000,"LightingCalmModeBoring":30000000000,"AnimationCalmModeBoring":40000000000,"LightingModeTiming":{"0":{"MinNumberOfBeats":32,"MaxNumberOfBeats":128,"NoBeatDeadTime":5000000000},"1":{"MinNumberOfBeats":16,"MaxNumberOfBeats":64,"NoBeatDeadTime":3000000000},"2":{"MinNumberOfBeats":1,"MaxNumberOfBeats":4,"NoBeatDeadTime":1000000000}},"AnimationModeTiming":{"0":{"MinNumberOfBeats":32,"MaxNumberOfBeats":64,"NoBeatDeadTime":8000000000},"1":{"MinNumberOfBeats":16,"MaxNumberOfBeats":48,"NoBeatDeadTime":2000000000},"2":{"MinNumberOfBeats":8,"MaxNumberOfBeats":16,"NoBeatDeadTime":2000000000}}}
+{
+    "Mood": 2,
+    "AllowNsfw": false,
+    "StrobeChance": 3,
+    "HueShiftChance": 3,
+    "HueShiftMaxAmount": 3,
+    "FadeToColorCycles": 700,
+    "PaletteFadeCycles": 500,
+    "FlashFadeoutSpeed": 30,
+    "HueFlashFadeoutSpeed": 15,
+    "StrobeFrequency": 2,
+    "StrobeRolloff": 0,
+    "FlashTargetBrightness": 20,
+    "FlashHueShift": 1,
+    "MinTimeBetweenBeats": 360000000,
+    "LightingCalmModeBoring": 30000000000,
+    "AnimationCalmModeBoring": 16000000000,
+    "LightingModeTiming": {
+        "0": {
+            "MinNumberOfBeats": 16,
+            "MaxNumberOfBeats": 48,
+            "NoBeatDeadTime": 5000000000
+        },
+        "1": {
+            "MinNumberOfBeats": 16,
+            "MaxNumberOfBeats": 48,
+            "NoBeatDeadTime": 3000000000
+        },
+        "2": {
+            "MinNumberOfBeats": 1,
+            "MaxNumberOfBeats": 4,
+            "NoBeatDeadTime": 1000000000
+        }
+    },
+    "AnimationModeTiming": {
+        "0": {
+            "MinNumberOfBeats": 32,
+            "MaxNumberOfBeats": 64,
+            "NoBeatDeadTime": 8000000000
+        },
+        "1": {
+            "MinNumberOfBeats": 12,
+            "MaxNumberOfBeats": 32,
+            "NoBeatDeadTime": 4000000000
+        },
+        "2": {
+            "MinNumberOfBeats": 8,
+            "MaxNumberOfBeats": 32,
+            "NoBeatDeadTime": 4000000000
+        }
+    }
+}
