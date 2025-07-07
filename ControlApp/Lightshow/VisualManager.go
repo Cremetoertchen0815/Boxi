@@ -22,7 +22,7 @@ type VisualManager struct {
 }
 
 func CreateVisualManager(hardwareManager Infrastructure.HardwareInterface) *VisualManager {
-	visual := VisualManager{hardwareManager: hardwareManager, accessLock: &sync.Mutex{}, brightnessValue: 0xFF}
+	visual := VisualManager{hardwareManager: hardwareManager, accessLock: &sync.Mutex{}, brightnessValue: 1}
 	visual.animations = LoadAnimations()
 	visual.palettes = LoadPalettes()
 	visual.autoContext = CreateAutoMode(&visual, loadConfiguration())
