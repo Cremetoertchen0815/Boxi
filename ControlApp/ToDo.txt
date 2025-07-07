@@ -1,5 +1,10 @@
 Software steps:
--Implement user app
+-Add QR code as right default boot screen
+-Add API triggers for the start page
+-Implement the "Manual Lighting" page
+-Implement the "Animations" page
+-Implement the "Palettes" page
+-Implement the "Auto Mode Settings" page
 
 Hardware issues:
 -Fix backlight PWM colliding with screen logic (add filter???)
