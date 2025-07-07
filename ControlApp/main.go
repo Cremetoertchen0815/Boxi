@@ -20,7 +20,7 @@ func main() {
 	visuals := Lightshow.CreateVisualManager(hardware)
 
 	// Setup static file server
-	fileServer := http.FileServer(http.Dir("Frontend/static/"))
+	fileServer := http.FileServer(http.Dir("Frontend/template/static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	// Setup views

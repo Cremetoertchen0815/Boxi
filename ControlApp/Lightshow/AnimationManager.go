@@ -113,7 +113,7 @@ func (manager *AnimationManager) ImportAnimation(animationPath string, name stri
 
 func storeThumbnail(id uint32) {
 	sourcePath := fmt.Sprintf("animations/%d/0001.png", id)
-	destinationPath := fmt.Sprintf("Frontend/static/thumbs/%d.png", id)
+	destinationPath := fmt.Sprintf("Frontend/template/static/thumbs/%d.png", id)
 
 	//Make sure source does exist
 	if _, err := os.Stat(sourcePath); err != nil {
