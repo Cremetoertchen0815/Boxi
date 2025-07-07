@@ -2,5 +2,39 @@
     <link rel="stylesheet" href="./static/css/{{.PageName}}.css">
 {{end}}
 {{define "Content"}}
-    <h3>Hi, I bims der content!</h3>
+
+
+        <h3>Basic settings:</h3>
+
+        <table>
+            <tr>
+                <td class="input-header">
+                    <label for="mode">Mode:</label>
+                </td>
+                <td>
+                    <select id="mode" name="mode">
+                        <option value="1" {{ if eq .Mode 1 }} selected {{ end }}>Happy</option>
+                        <option value="2" {{ if eq .Mode 2 }} selected {{ end }}>Moody</option>
+                        <option value="3" {{ if eq .Mode 3 }} selected {{ end }}>Regular</option>
+                        <option value="4" {{ if eq .Mode 4 }} selected {{ end }}>Party</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td class="input-header">
+                    <label for="mode">Allow NSFW:</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="nsfw" name="nsfw" {{ if eq .Nsfw true }} checked {{ end }}>
+                </td>
+            </tr>
+            <tr>
+                <td class="input-header">
+                    <label for="brightness">Display brightness:</label>
+                </td>
+                <td>
+                    <input type="number" id="brightness" name="brightness" max="100" min="0" value="{{.Brightness}}"> %
+                </td>
+            </tr>
+        </table>
 {{end}}

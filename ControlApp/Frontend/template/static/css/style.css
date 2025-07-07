@@ -105,3 +105,8 @@ footer {
   color: #f76227;
   font-weight: bold;
 }
+
+.input-header {
+  text-align: right;
+  padding-right: 10px;
+}
