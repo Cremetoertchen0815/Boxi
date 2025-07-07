@@ -30,10 +30,5 @@ func GetScaffoldData(r *http.Request) ScaffoldInformation {
 }
 
 func GetPageTitle(pageName string) string {
-	switch pageName {
-	case "":
-		return "Start"
-	}
-
-	return "Unknown"
+	return "Boxi App"
 }

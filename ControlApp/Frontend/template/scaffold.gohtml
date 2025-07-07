@@ -1,47 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Närwhale</title>
-    <link rel="stylesheet" href="./static/css/scaffold.css">
-    <script src="./static/js/common.js"></script>
-    <script src="./static/js/scaffold.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxi Webapp</title>
+    <link rel="stylesheet" href="./static/css/style.css">
     {{template "Header" .}}
-    <script src="./static/js/{{.PageName}}.js"></script>
 </head>
-
 <body>
-<div id="topContainer">
-    <div id="hamburgerOpener"></div>
-    <div id="logo"></div>
+<div id="sidebar" class="sidebar">
+    <nav>
+        <ul>
+            <li><a href="#">Start</a></li>
+            <li><a href="#">Auto Mode</a></li>
+            <li><a href="#">Manual Overrides</a></li>
+            <li><a href="#">Palettes</a></li>
+            <li><a href="#">Animations</a></li>
+        </ul>
+    </nav>
 </div>
 
-<div id="hamburgerBackground" class="menuBlur">
-    <div id="hamburgerMenu">
-        <a href="./start" class="menuEntry {{ if eq .PageName "start" }} activeEntry {{ end }}">Start</a>
-        <a href="./today" class="menuEntry {{ if eq .PageName "today" }} activeEntry {{ end }}">Heute</a>
-        <a href="./meals" class="menuEntry {{ if eq .PageName "meals" }} activeEntry {{ end }}">Mahlzeiten</a>
-        <a href="./dishes" class="menuEntry {{ if eq .PageName "dishes" }} activeEntry {{ end }}">Gerichte</a>
-        <a href="./foods" class="menuEntry {{ if eq .PageName "foods" }} activeEntry {{ end }}">Lebensmittel</a>
-    </div>
-</div>
-<div id="userAccountContainer">
-    <hr>
-    <div id="userLogout" class="menuEntry">Ausloggen</div>
-    <div id="userDelete" class="menuEntry dangerousEntry">Löschen</div>
-</div>
-<div id="bgCover"></div>
+<div id="overlay" class="overlay"></div>
 
-<div id="mainContainer">
-    <h1>
-        {{.PageTitle}}:
-    </h1>
+<header>
+    <button id="menuBtn" class="menu-btn">&#9776;</button>
+    <h2>{{.PageTitle}}</h2>
+</header>
 
+<main>
     {{template "Content" .}}
-</div>
+</main>
 
+<script src="./static/dist/hammer.min.js"></script>
+<script src="./static/js/menu.js"></script>
 </body>
-
 </html>
