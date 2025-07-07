@@ -80,3 +80,28 @@ main {
 h2 {
   margin: 0;
 }
+
+footer {
+  position: absolute;
+  bottom: 0;
+  background: black;
+  width: 100%;
+  color: white;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+#footer-text {
+  margin-left: 20px;
+  font-size: 0.8em;
+}
+
+.creme-text {
+  color: #1a4dc4;
+  font-weight: bold;
+}
+
+.foxpaw-text {
+  color: #f76227;
+  font-weight: bold;
+}
