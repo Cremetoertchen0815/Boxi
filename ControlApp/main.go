@@ -26,6 +26,10 @@ func main() {
 	// Setup views
 	pages := Frontend.CreatePageProvider()
 	http.HandleFunc("/", pages.HandleStartPage)
+	http.HandleFunc("/auto", pages.HandleAutoPage)
+	http.HandleFunc("/overrides", pages.HandleOverridesPage)
+	http.HandleFunc("/palettes", pages.HandlePalettesPage)
+	http.HandleFunc("/animations", pages.HandleAnimationPage)
 
 	// Setup api
 	fixture := Api.Fixture{Hardware: hardware, Visuals: visuals}
