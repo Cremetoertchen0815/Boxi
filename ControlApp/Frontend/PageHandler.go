@@ -34,7 +34,7 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 	startData := startPageInformation{scaffoldData, "lol"}
 
 	//Execute template
-	err := Me.startPage.Execute(w, startData)
+	err := Me.overridesPage.Execute(w, startData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -50,7 +50,7 @@ func (Me PageProvider) HandleAnimationPage(w http.ResponseWriter, r *http.Reques
 	startData := startPageInformation{scaffoldData, "lol"}
 
 	//Execute template
-	err := Me.startPage.Execute(w, startData)
+	err := Me.animationsPage.Execute(w, startData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -66,7 +66,7 @@ func (Me PageProvider) HandlePalettesPage(w http.ResponseWriter, r *http.Request
 	startData := startPageInformation{scaffoldData, "lol"}
 
 	//Execute template
-	err := Me.startPage.Execute(w, startData)
+	err := Me.palettesPage.Execute(w, startData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -82,7 +82,7 @@ func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 	startData := startPageInformation{scaffoldData, "lol"}
 
 	//Execute template
-	err := Me.startPage.Execute(w, startData)
+	err := Me.autoPage.Execute(w, startData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
