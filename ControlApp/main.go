@@ -24,7 +24,7 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	// Setup views
-	pages := Frontend.CreatePageProvider()
+	pages := Frontend.CreatePageProvider(hardware, visuals)
 	http.HandleFunc("/", pages.HandleStartPage)
 	http.HandleFunc("/auto", pages.HandleAutoPage)
 	http.HandleFunc("/overrides", pages.HandleOverridesPage)

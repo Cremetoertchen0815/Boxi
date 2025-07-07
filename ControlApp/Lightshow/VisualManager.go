@@ -14,7 +14,7 @@ type VisualManager struct {
 	hardwareManager               Infrastructure.HardwareInterface
 	lightingIsOverwritten         bool
 	animationOverwrite            *AnimationsInstruction
-	brightnessValue               uint8
+	brightnessValue               float64
 	lightingCurrentAutoSelection  LightingInstruction
 	animationCurrentAutoSelection AnimationsInstruction
 	textValues                    TextsInstruction
@@ -200,8 +200,8 @@ func (manager *VisualManager) SetBrightness(value float64) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()
 
-	bright := value
-	manager.hardwareManager.SendBrightnessChange(&bright, 0)
+	manager.brightnessValue = value
+	manager.hardwareManager.SendBrightnessChange(&manager.brightnessValue, 0)
 }
 
 func (manager *VisualManager) getAllAnimations() []Display.AnimationId {
@@ -220,6 +220,10 @@ func (manager *VisualManager) ImportAnimation(path string, name string, mood Lig
 
 func (manager *VisualManager) GetConfiguration() *AutoModeConfiguration {
 	return &manager.autoContext.Configuration
+}
+
+func (manager *VisualManager) GetBrightness() float64 {
+	return manager.brightnessValue
 }
 
 func (manager *VisualManager) StoreConfiguration(markAsDirty bool) {

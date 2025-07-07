@@ -7,7 +7,9 @@ import (
 
 type startPageInformation struct {
 	ScaffoldInformation
-	stuff string
+	Mood       int
+	Nsfw       bool
+	Brightness int
 }
 
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
@@ -15,7 +17,10 @@ func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 	scaffoldData := GetScaffoldData(r)
 
 	//Create data structure
-	startData := startPageInformation{scaffoldData, "lol"}
+	mood := int(Me.Visuals.GetConfiguration().Mood)
+	isNsfw := Me.Visuals.GetConfiguration().AllowNsfw
+	brightness := int(Me.Visuals.GetBrightness() * 100)
+	startData := startPageInformation{scaffoldData, mood, isNsfw, brightness}
 
 	//Execute template
 	err := Me.startPage.Execute(w, startData)
@@ -30,11 +35,8 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
 
-	//Create data structure
-	startData := startPageInformation{scaffoldData, "lol"}
-
 	//Execute template
-	err := Me.overridesPage.Execute(w, startData)
+	err := Me.overridesPage.Execute(w, scaffoldData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -46,11 +48,8 @@ func (Me PageProvider) HandleAnimationPage(w http.ResponseWriter, r *http.Reques
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
 
-	//Create data structure
-	startData := startPageInformation{scaffoldData, "lol"}
-
 	//Execute template
-	err := Me.animationsPage.Execute(w, startData)
+	err := Me.animationsPage.Execute(w, scaffoldData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -62,11 +61,8 @@ func (Me PageProvider) HandlePalettesPage(w http.ResponseWriter, r *http.Request
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
 
-	//Create data structure
-	startData := startPageInformation{scaffoldData, "lol"}
-
 	//Execute template
-	err := Me.palettesPage.Execute(w, startData)
+	err := Me.palettesPage.Execute(w, scaffoldData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -78,11 +74,8 @@ func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
 
-	//Create data structure
-	startData := startPageInformation{scaffoldData, "lol"}
-
 	//Execute template
-	err := Me.autoPage.Execute(w, startData)
+	err := Me.autoPage.Execute(w, scaffoldData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)

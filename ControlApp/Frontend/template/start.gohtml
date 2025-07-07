@@ -9,20 +9,20 @@
         <table>
             <tr>
                 <td class="input-header">
-                    <label for="mode">Mode:</label>
+                    <label for="mood">Mood:</label>
                 </td>
                 <td>
-                    <select id="mode" name="mode">
-                        <option value="1" {{ if eq .Mode 1 }} selected {{ end }}>Happy</option>
-                        <option value="2" {{ if eq .Mode 2 }} selected {{ end }}>Moody</option>
-                        <option value="3" {{ if eq .Mode 3 }} selected {{ end }}>Regular</option>
-                        <option value="4" {{ if eq .Mode 4 }} selected {{ end }}>Party</option>
+                    <select id="mood" name="mood">
+                        <option value="1" {{ if eq .Mood 0 }} selected {{ end }}>Happy</option>
+                        <option value="2" {{ if eq .Mood 1 }} selected {{ end }}>Moody</option>
+                        <option value="3" {{ if eq .Mood 2 }} selected {{ end }}>Regular</option>
+                        <option value="4" {{ if eq .Mood 3 }} selected {{ end }}>Party</option>
                     </select>
                 </td>
             </tr>
             <tr>
                 <td class="input-header">
-                    <label for="mode">Allow NSFW:</label>
+                    <label for="nsfw">Allow NSFW:</label>
                 </td>
                 <td>
                     <input type="checkbox" id="nsfw" name="nsfw" {{ if eq .Nsfw true }} checked {{ end }}>
