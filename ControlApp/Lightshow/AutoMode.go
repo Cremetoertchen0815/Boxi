@@ -61,7 +61,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		}
 
 		isBeat := pendingBeat && (context.lastBeat == nil || now.After(context.lastBeat.Add(context.Configuration.MinTimeBetweenBeats)))
-		if isBeat || (!context.wasInCalmMode && context.isDirty) {
+		if isBeat || (!context.wasInCalmMode && context.isDirty && !context.Configuration.Mood.IsCalm()) {
 			context.lastBeat = &now
 			context.manager.triggerBeat()
 			context.lightingSwitchToCalm = nil
@@ -70,7 +70,12 @@ func (context *AutoModeContext) calculateAutoMode() {
 			// Count down the display beat timer and play new animation if limit was reached
 			context.animationBeatsLeft--
 			if context.animationBeatsLeft <= 0 {
-				animation := context.getNextAnimation(OnBeat)
+				var animation AnimationsInstruction
+				if context.isDirty {
+					context.getNextAnimation(FirstBeat)
+				} else {
+					context.getNextAnimation(OnBeat)
+				}
 				context.manager.applyAnimation(animation)
 
 				timingConstraint, ok := context.Configuration.AnimationModeTiming[animation.Character]
@@ -132,7 +137,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		}
 
 		//Check if the calm animation is boring
-		if context.animationSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) || (context.wasInCalmMode && context.isDirty) {
+		if context.animationSwitchToCalm != nil && context.animationSwitchToCalm.Before(time.Now()) || context.isDirty {
 			context.animationSwitchToCalm = nil
 			animation := context.getNextAnimation(InCalmMode)
 			context.manager.applyAnimation(animation)
@@ -144,7 +149,7 @@ func (context *AutoModeContext) calculateAutoMode() {
 		}
 
 		//Check if the calm lighting is boring
-		if context.lightingSwitchToCalm != nil && context.lightingSwitchToCalm.Before(time.Now()) || (context.wasInCalmMode && context.isDirty) {
+		if context.lightingSwitchToCalm != nil && context.lightingSwitchToCalm.Before(time.Now()) || context.isDirty {
 			context.lightingSwitchToCalm = nil
 			lighting := context.getNextLighting(InCalmMode)
 			context.manager.applyLighting(lighting)
