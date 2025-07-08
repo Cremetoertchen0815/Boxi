@@ -137,12 +137,12 @@ func (fixture Fixture) HandleSetScreenOverrideBrightnessLevelApi(w http.Response
 	var tempId float64
 	moodNrStr := r.FormValue("value")
 	if moodNrStr != "" {
-		tmp, err := strconv.ParseFloat(moodNrStr, 64)
+		tmp, err := strconv.ParseInt(moodNrStr, 10, 32)
 		if err != nil || tempId < 0 {
 			http.Error(w, "Error parsing mood.", http.StatusBadRequest)
 			return
 		}
-		tempId = tmp
+		tempId = float64(tmp) / 100.0
 	}
 
 	fixture.Visuals.SetBrightness(tempId)

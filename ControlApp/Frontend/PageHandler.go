@@ -7,9 +7,10 @@ import (
 
 type startPageInformation struct {
 	ScaffoldInformation
-	Mood       int
-	Nsfw       bool
-	Brightness int
+	Mood              int
+	Nsfw              bool
+	Brightness        int
+	ConnectedDisplays string
 }
 
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +21,8 @@ func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 	mood := int(Me.Visuals.GetConfiguration().Mood)
 	isNsfw := Me.Visuals.GetConfiguration().AllowNsfw
 	brightness := int(Me.Visuals.GetBrightness() * 100)
-	startData := startPageInformation{scaffoldData, mood, isNsfw, brightness}
+	displays := fmt.Sprintf("%+v", Me.Hardware.GetConnectedDisplays())
+	startData := startPageInformation{scaffoldData, mood, isNsfw, brightness, displays}
 
 	//Disable caching
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
