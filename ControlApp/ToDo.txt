@@ -1,6 +1,5 @@
 Software steps:
 -Add QR code as right default boot screen
--Add API triggers for the start page
 -Implement the "Manual Lighting" page
 -Implement the "Animations" page
 -Implement the "Palettes" page
