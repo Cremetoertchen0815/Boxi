@@ -22,6 +22,9 @@ func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 	brightness := int(Me.Visuals.GetBrightness() * 100)
 	startData := startPageInformation{scaffoldData, mood, isNsfw, brightness}
 
+	//Disable caching
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	//Execute template
 	err := Me.startPage.Execute(w, startData)
 	if err != nil {
@@ -34,6 +37,9 @@ func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
+
+	//Disable caching
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	//Execute template
 	err := Me.overridesPage.Execute(w, scaffoldData)
@@ -48,6 +54,9 @@ func (Me PageProvider) HandleAnimationPage(w http.ResponseWriter, r *http.Reques
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
 
+	//Disable caching
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	//Execute template
 	err := Me.animationsPage.Execute(w, scaffoldData)
 	if err != nil {
@@ -61,6 +70,9 @@ func (Me PageProvider) HandlePalettesPage(w http.ResponseWriter, r *http.Request
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
 
+	//Disable caching
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+
 	//Execute template
 	err := Me.palettesPage.Execute(w, scaffoldData)
 	if err != nil {
@@ -73,6 +85,9 @@ func (Me PageProvider) HandlePalettesPage(w http.ResponseWriter, r *http.Request
 func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
+
+	//Disable caching
+	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	//Execute template
 	err := Me.autoPage.Execute(w, scaffoldData)
