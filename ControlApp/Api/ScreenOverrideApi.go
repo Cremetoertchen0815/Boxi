@@ -40,7 +40,7 @@ func (fixture Fixture) HandleScreensConnectedApi(w http.ResponseWriter, r *http.
 	}
 
 	indices := make([]int, 0)
-	for _, index := range fixture.Hardware.GetConnectedDisplays() {
+	for _, index := range fixture.Data.Hardware.GetConnectedDisplays() {
 		indices = append(indices, int(index))
 	}
 
@@ -65,7 +65,7 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 	}
 
 	if data.ResetScreens {
-		fixture.Visuals.SetAnimationsOverwrite(nil)
+		fixture.Data.Visuals.SetAnimationsOverwrite(nil)
 		return
 	}
 
@@ -82,7 +82,7 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 			indices = append(indices, Display.ServerDisplay(index))
 		}
 
-		exists, animationObj := fixture.Visuals.GetAnimations().GetById(Display.AnimationId(animation.AnimationId))
+		exists, animationObj := fixture.Data.Visuals.GetAnimations().GetById(Display.AnimationId(animation.AnimationId))
 		if !exists {
 			http.Error(w, fmt.Sprintf("Animation can't be found. %s", err), http.StatusBadRequest)
 			return
@@ -92,7 +92,7 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 	}
 
 	instr := Lightshow.AnimationsInstruction{Animations: aniInstr, Character: Lightshow.Unknown, BlinkSpeed: uint16(data.FadeoutSpeed)}
-	fixture.Visuals.SetAnimationsOverwrite(&instr)
+	fixture.Data.Visuals.SetAnimationsOverwrite(&instr)
 }
 
 func (fixture Fixture) HandleSetScreenOverrideTextSetApi(w http.ResponseWriter, r *http.Request) {
@@ -125,7 +125,7 @@ func (fixture Fixture) HandleSetScreenOverrideTextSetApi(w http.ResponseWriter, 
 		textInstr = append(textInstr, Lightshow.TextInstruction{Text: text.Text, Displays: indices})
 	}
 
-	fixture.Visuals.SetTexts(textInstr)
+	fixture.Data.Visuals.SetTexts(textInstr)
 }
 
 func (fixture Fixture) HandleSetScreenOverrideBrightnessLevelApi(w http.ResponseWriter, r *http.Request) {
@@ -145,5 +145,5 @@ func (fixture Fixture) HandleSetScreenOverrideBrightnessLevelApi(w http.Response
 		tempId = float64(tmp) / 100.0
 	}
 
-	fixture.Visuals.SetBrightness(tempId)
+	fixture.Data.Visuals.SetBrightness(tempId)
 }

@@ -24,7 +24,8 @@ func main() {
 	http.Handle("/static/", http.StripPrefix("/static/", fileServer))
 
 	// Setup views
-	pages := Frontend.CreatePageProvider(hardware, visuals)
+	data := Api.CreateDataContainer(hardware, visuals)
+	pages := Frontend.CreatePageProvider(data)
 	http.HandleFunc("/", pages.HandleStartPage)
 	http.HandleFunc("/auto", pages.HandleAutoPage)
 	http.HandleFunc("/overrides", pages.HandleOverridesPage)
@@ -32,18 +33,10 @@ func main() {
 	http.HandleFunc("/animations", pages.HandleAnimationPage)
 
 	// Setup api
-	fixture := Api.Fixture{Hardware: hardware, Visuals: visuals}
+	fixture := Api.Fixture{Data: data}
 
 	//Handle lighting override endpoints
-	http.HandleFunc("/api/lighting/auto", fixture.HandleSetLightingOverrideAutoApi)
-	http.HandleFunc("/api/lighting/off", fixture.HandleSetLightingOverrideOffApi)
-	http.HandleFunc("/api/lighting/static", fixture.HandleSetLightingOverrideSetColorApi)
-	http.HandleFunc("/api/lighting/fade-to-static", fixture.HandleSetLightingOverrideFadeToColorApi)
-	http.HandleFunc("/api/lighting/palette-fade", fixture.HandleSetLightingOverridePaletteFadeApi)
-	http.HandleFunc("/api/lighting/palette-switch", fixture.HandleSetLightingOverridePaletteSwitchApi)
-	http.HandleFunc("/api/lighting/brightness-flash", fixture.HandleSetLightingOverridePaletteBrightnessFlashApi)
-	http.HandleFunc("/api/lighting/hue-flash", fixture.HandleSetLightingOverridePaletteHueFlashApi)
-	http.HandleFunc("/api/lighting/strobe", fixture.HandleSetLightingOverrideStrobeApi)
+	http.HandleFunc("/api/lighting/mode", fixture.HandleSetLightingOverrideAutoApi)
 
 	//Handle screen override endpoints
 	http.HandleFunc("/api/screen/animation", fixture.HandleSetScreenOverrideAnimationSetApi)

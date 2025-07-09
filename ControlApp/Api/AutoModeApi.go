@@ -53,9 +53,9 @@ func (fixture Fixture) HandleChangeAutoModeMoodApi(w http.ResponseWriter, r *htt
 		}
 		valueNr = uint32(tempId)
 	}
-	configuration := fixture.Visuals.GetConfiguration()
+	configuration := fixture.Data.Visuals.GetConfiguration()
 	configuration.Mood = Lightshow.LightingMood(valueNr)
-	fixture.Visuals.StoreConfiguration(true)
+	fixture.Data.Visuals.StoreConfiguration(true)
 }
 
 func (fixture Fixture) HandleChangeAutoModeNsfwApi(w http.ResponseWriter, r *http.Request) {
@@ -67,9 +67,9 @@ func (fixture Fixture) HandleChangeAutoModeNsfwApi(w http.ResponseWriter, r *htt
 
 	//Get animation ID
 	value := r.FormValue("value") == "true" || r.FormValue("value") == "1"
-	configuration := fixture.Visuals.GetConfiguration()
+	configuration := fixture.Data.Visuals.GetConfiguration()
 	configuration.AllowNsfw = value
-	fixture.Visuals.StoreConfiguration(true)
+	fixture.Data.Visuals.StoreConfiguration(true)
 }
 
 func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +81,7 @@ func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *h
 		return
 	}
 
-	configuration := fixture.Visuals.GetConfiguration()
+	configuration := fixture.Data.Visuals.GetConfiguration()
 	configuration.StrobeChance = data.StrobeChance
 	configuration.HueShiftChance = data.HueShiftChance
 	configuration.FadeToColorCycles = data.FadeToColorCycles
@@ -100,7 +100,7 @@ func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *h
 	configuration.AnimationModeTiming[Lightshow.Calm] = getConstraint(data.CalmAnimationsTiming)
 	configuration.AnimationModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicAnimationsTiming)
 	configuration.AnimationModeTiming[Lightshow.Frantic] = getConstraint(data.FranticAnimationsTiming)
-	fixture.Visuals.StoreConfiguration(false)
+	fixture.Data.Visuals.StoreConfiguration(false)
 }
 
 func getConstraint(constraint timingConstraint) Lightshow.TimingConstraint {

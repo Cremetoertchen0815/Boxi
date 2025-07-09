@@ -40,7 +40,7 @@ func (fixture Fixture) HandleAnimationsGetAllApi(w http.ResponseWriter, r *http.
 
 	var palettes []animationHeader
 
-	for _, animation := range fixture.Visuals.GetAnimations().GetAll() {
+	for _, animation := range fixture.Data.Visuals.GetAnimations().GetAll() {
 		palettes = append(palettes, animationHeader{
 			uint32(animation.Id),
 			animation.Name,
@@ -159,7 +159,7 @@ func (fixture Fixture) handleAnimationImportApi(w http.ResponseWriter, r *http.R
 	}
 
 	//Convert animation
-	id, err := fixture.Visuals.ImportAnimation(dst.Name(), nameStr, Lightshow.LightingMood(moodNr), isSplit, isNsfw)
+	id, err := fixture.Data.Visuals.ImportAnimation(dst.Name(), nameStr, Lightshow.LightingMood(moodNr), isSplit, isNsfw)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Error importing animation. error %s", err), http.StatusInternalServerError)
 	}
@@ -187,14 +187,14 @@ func (fixture Fixture) handleAnimationDeleteApi(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	exists, _ := fixture.Visuals.GetAnimations().GetById(id)
+	exists, _ := fixture.Data.Visuals.GetAnimations().GetById(id)
 
 	if !exists {
 		http.Error(w, "Animation does not exist.", http.StatusBadRequest)
 		return
 	}
 
-	fixture.Visuals.GetAnimations().RemoveAnimation(id)
+	fixture.Data.Visuals.GetAnimations().RemoveAnimation(id)
 }
 
 func createTempFile() (*os.File, error) {

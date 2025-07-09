@@ -10,3 +10,23 @@ type DataContainer struct {
 	Visuals                 *Lightshow.VisualManager
 	OverrideLightingCurrent LightingInstructionTotal
 }
+
+func CreateDataContainer(hardware Infrastructure.HardwareInterface, visuals *Lightshow.VisualManager) *DataContainer {
+	result := DataContainer{
+		hardware, visuals, LightingInstructionTotal{
+			Enable:           false,
+			ApplyOnBeat:      false,
+			Mode:             0,
+			ColorDeviceA:     Color{},
+			ColorDeviceB:     Color{},
+			PaletteId:        0,
+			DurationMs:       10000,
+			PaletteShift:     0,
+			Speed:            0,
+			TargetBrightness: 0,
+			FrequencyHz:      12,
+		},
+	}
+
+	return &result
+}

@@ -29,7 +29,7 @@ type paletteHeader struct {
 type paletteType struct {
 	paletteHeader
 	Moods  []int   `json:"moods"`
-	Colors []color `json:"colors"`
+	Colors []Color `json:"colors"`
 }
 
 type paletteCreate struct {
@@ -49,7 +49,7 @@ func (fixture Fixture) HandlePaletteGetAllApi(w http.ResponseWriter, r *http.Req
 
 	var palettes []paletteHeader
 
-	for _, palette := range fixture.Visuals.GetPalettes().GetAll() {
+	for _, palette := range fixture.Data.Visuals.GetPalettes().GetAll() {
 		palettes = append(palettes, paletteHeader{palette.Id, palette.Name})
 	}
 
@@ -88,7 +88,7 @@ func (fixture Fixture) handlePaletteGetApi(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	exists, entity := fixture.Visuals.GetPalettes().GetById(id)
+	exists, entity := fixture.Data.Visuals.GetPalettes().GetById(id)
 
 	if !exists {
 		http.Error(w, "Palette does not exist.", http.StatusBadRequest)
@@ -96,11 +96,11 @@ func (fixture Fixture) handlePaletteGetApi(w http.ResponseWriter, r *http.Reques
 	}
 
 	header := paletteHeader{entity.Id, entity.Name}
-	var colors []color
+	var colors []Color
 	var moods []int
 
 	for _, col := range entity.Colors {
-		colors = append(colors, color{int(col.Red), int(col.Green), int(col.Blue), int(col.White), int(col.Amber), int(col.UltraViolet)})
+		colors = append(colors, Color{int(col.Red), int(col.Green), int(col.Blue), int(col.White), int(col.Amber), int(col.UltraViolet)})
 	}
 
 	for _, mood := range entity.Moods {
@@ -117,7 +117,7 @@ func (fixture Fixture) handlePaletteGetApi(w http.ResponseWriter, r *http.Reques
 
 func (fixture Fixture) handlePaletteCreateApi(w http.ResponseWriter, r *http.Request) {
 	id := rand.Uint32()
-	for exists, _ := fixture.Visuals.GetPalettes().GetById(id); exists; {
+	for exists, _ := fixture.Data.Visuals.GetPalettes().GetById(id); exists; {
 		id = rand.Uint32()
 	}
 
@@ -141,7 +141,7 @@ func (fixture Fixture) handlePaletteCreateApi(w http.ResponseWriter, r *http.Req
 	}
 
 	palette := Lightshow.Palette{Id: id, Name: data.Name, Moods: moods, Colors: []BoxiBus.Color{{}}}
-	fixture.Visuals.GetPalettes().SetPalette(palette)
+	fixture.Data.Visuals.GetPalettes().SetPalette(palette)
 
 	returnData := paletteCreated{id}
 
@@ -192,7 +192,7 @@ func (fixture Fixture) handlePaletteUpdateApi(w http.ResponseWriter, r *http.Req
 	}
 
 	palette := Lightshow.Palette{Id: data.Id, Name: data.Name, Moods: moods, Colors: colors}
-	fixture.Visuals.GetPalettes().SetPalette(palette)
+	fixture.Data.Visuals.GetPalettes().SetPalette(palette)
 }
 
 func (fixture Fixture) handlePaletteDeleteApi(w http.ResponseWriter, r *http.Request) {
@@ -210,12 +210,12 @@ func (fixture Fixture) handlePaletteDeleteApi(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	exists, _ := fixture.Visuals.GetPalettes().GetById(id)
+	exists, _ := fixture.Data.Visuals.GetPalettes().GetById(id)
 
 	if !exists {
 		http.Error(w, "Palette does not exist.", http.StatusBadRequest)
 		return
 	}
 
-	fixture.Visuals.GetPalettes().RemovePalette(id)
+	fixture.Data.Visuals.GetPalettes().RemovePalette(id)
 }
