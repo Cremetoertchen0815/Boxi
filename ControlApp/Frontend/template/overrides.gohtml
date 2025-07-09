@@ -1,6 +1,76 @@
 {{define "Header"}}
     <link rel="stylesheet" href="./static/css/{{.PageName}}.css">
+    <link rel="stylesheet" href="./static/css/colorpicker.css">
+{{end}}
+{{define "Scripts"}}
+    <script src="/static/js/colorpicker.js"></script>
 {{end}}
 {{define "Content"}}
-    <h3>Hi, I bims der Überschreibs!</h3>
+    <div id="overwrite-lighting-container" class="overwrite-container">
+        <input type="checkbox" id="overwrite-lighting"/>
+        Overwrite lighting
+
+        <div id="overwrite-lighting-content" class="overwrite-content">
+
+            <table>
+                <tr>
+                    <td class="input-header">
+                        <label for="overwrite-lighting-mode">Mode:</label>
+                    </td>
+                    <td>
+                        <select id="overwrite-lighting-mode">
+                            <option value="0" {{ if eq .LightingMode 0 }} selected {{ end }}>Off</option>
+                            <option value="1" {{ if eq .LightingMode 1 }} selected {{ end }}>Solid Color</option>
+                            <option value="2" {{ if eq .LightingMode 2 }} selected {{ end }}>Fade to Color</option>
+                            <option value="3" {{ if eq .LightingMode 3 }} selected {{ end }}>Palette Fade</option>
+                            <option value="0" {{ if eq .LightingMode 4 }} selected {{ end }}>Palette Switch</option>
+                            <option value="1" {{ if eq .LightingMode 5 }} selected {{ end }}>Brightness Flash</option>
+                            <option value="2" {{ if eq .LightingMode 6 }} selected {{ end }}>Hue Flash</option>
+                            <option value="3" {{ if eq .LightingMode 7 }} selected {{ end }}>Strobe</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="input-header">
+                        <label for="nsfw">Boxi 1 Color:</label>
+                    </td>
+                    <td>
+                        <div class="colorpicker" id="overwrite-lighting-mode-color-a"></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="input-header">
+                        <label for="nsfw">Boxi 2 Color:</label>
+                    </td>
+                    <td>
+                        <div class="colorpicker" id="overwrite-lighting-mode-color-b"></div>
+                    </td>
+                </tr>
+            </table>
+
+            <br/>
+            <br/>
+            <button id="overwrite-lighting-apply-now">Apply Now</button>
+            <button id="overwrite-lighting-apply-on-beat">Apply On Beat</button>
+        </div>
+    </div>
+
+
+    <div id="overwrite-animation-container" class="overwrite-container">
+        <input type="checkbox" id="overwrite-animation">
+        Overwrite animation
+
+        <div id="overwrite-animation-content">
+
+        </div>
+    </div>
+
+    <div id="overwrite-text-container" class="overwrite-container">
+        <input type="checkbox" id="overwrite-text">
+        Overwrite text
+
+        <div id="overwrite-text-content">
+
+        </div>
+    </div>
 {{end}}

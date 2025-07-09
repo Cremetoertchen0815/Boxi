@@ -1,0 +1,40 @@
+.colorpicker {
+    touch-action: none;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+    background-color: white;
+    width: 160px;
+    padding: 4px;
+    border-radius: 4px;
+}
+.slider-column {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 10px;
+}
+input[type="range"] {
+    writing-mode: vertical-lr;
+    direction: rtl;
+    /*noinspection CssInvalidPropertyValue*/
+    appearance: slider-vertical;
+    width: 10px;
+    height: 64px;
+    margin-bottom: 5px;
+}
+.preview {
+    width: 20px;
+    height: 20px;
+    border: 1px solid #ccc;
+    background-color: black;
+    margin-bottom: 43px;
+}
+.channel-label {
+    font-size: 12px;
+    font-weight: bold;
+}
+.value-label {
+    font-size: 8px;
+}
