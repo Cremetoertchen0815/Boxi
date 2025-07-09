@@ -7,10 +7,10 @@
 {{end}}
 {{define "Content"}}
     <div id="overwrite-lighting-container" class="overwrite-container">
-        <input type="checkbox" id="overwrite-lighting"/>
+        <input type="checkbox" id="overwrite-lighting" {{ if eq .LightingOverride true }} checked {{ end }}/>
         <label for="overwrite-lighting">Overwrite lighting</label>
 
-        <div id="overwrite-lighting-content" class="overwrite-content">
+        <div id="overwrite-lighting-content" class="overwrite-content" {{ if eq .LightingOverride false }} style="display: none;" {{ end }}>
 
             <table>
                 <tr>
@@ -30,71 +30,75 @@
                         </select>
                     </td>
                 </tr>
-                <tr>
+                <tr id="overwrite-lighting-palette-row" {{ if eq .LightingShowPalettes false }} style="display: none;" {{ end }}>
                     <td class="input-header">
                         <label for="overwrite-lighting-palette">Palette:</label>
                     </td>
                     <td>
                         <select id="overwrite-lighting-palette">
-                            <option value="0" {{ if eq .LightingMode 0 }} selected {{ end }}>Off</option>
-                            <option value="1" {{ if eq .LightingMode 1 }} selected {{ end }}>Solid Color</option>
-                            <option value="2" {{ if eq .LightingMode 2 }} selected {{ end }}>Fade to Color</option>
-                            <option value="3" {{ if eq .LightingMode 3 }} selected {{ end }}>Palette Fade</option>
-                            <option value="0" {{ if eq .LightingMode 4 }} selected {{ end }}>Palette Switch</option>
-                            <option value="1" {{ if eq .LightingMode 5 }} selected {{ end }}>Brightness Flash</option>
-                            <option value="2" {{ if eq .LightingMode 6 }} selected {{ end }}>Hue Flash</option>
-                            <option value="3" {{ if eq .LightingMode 7 }} selected {{ end }}>Strobe</option>
+                            {{ $currentId := .LightingPaletteId }}
+                            {{range $element := .LightingPalettes}}
+                                <option value="{{$element.Id}}" {{ if eq $currentId $element.Id }} selected {{ end }}>{{$element.Name}}</option>
+                            {{end}}
                         </select>
                     </td>
                 </tr>
-                <tr>
+                <tr id="overwrite-lighting-color-a-row" {{ if eq .LightingShowColorA false }} style="display: none;" {{ end }}>
                     <td class="input-header">
                         <label for="nsfw">Boxi 1 Color:</label>
                     </td>
                     <td>
-                        <div class="colorpicker" id="overwrite-lighting-color-a"></div>
+                        <div class="colorpicker" id="overwrite-lighting-color-a" color="{{.LightingColorA}}"></div>
                     </td>
                 </tr>
-                <tr>
+                <tr id="overwrite-lighting-color-b-row" {{ if eq .LightingShowColorB false }} style="display: none;" {{ end }}>
                     <td class="input-header">
                         <label for="nsfw">Boxi 2 Color:</label>
                     </td>
                     <td>
-                        <div class="colorpicker" id="overwrite-lighting-color-b"></div>
+                        <div class="colorpicker" id="overwrite-lighting-color-b" color="{{.LightingColorB}}"></div>
                     </td>
                 </tr>
-                <tr>
+                <tr id="overwrite-lighting-duration-row" {{ if eq .LightingShowDuration false }} style="display: none;" {{ end }}>
                     <td class="input-header">
                         <label for="overwrite-lighting-duration">Duration:</label>
                     </td>
                     <td>
-                        <input type="number" id="overwrite-lighting-duration" min="50" max="5000">
+                        <input type="number" id="overwrite-lighting-duration" min="50" max="5000" value="{{.LightingDurationValue}}">
                         <span class="unit"> ms</span>
                     </td>
                 </tr>
-                <tr>
+                <tr id="overwrite-lighting-frequency-row" {{ if eq .LightingShowFrequency false }} style="display: none;" {{ end }}>
                     <td class="input-header">
                         <label for="overwrite-lighting-frequency">Frequency:</label>
                     </td>
                     <td>
-                        <input type="number" id="overwrite-lighting-frequency" min="1" max="22">
+                        <input type="number" id="overwrite-lighting-frequency" min="1" max="22" value="{{.LightingFrequencyValue}}">
                         <span class="unit"> Hz</span>
                     </td>
                 </tr>
-                <tr>
+                <tr id="overwrite-lighting-brightness-row" {{ if eq .LightingShowBrightness false }} style="display: none;" {{ end }}>
                     <td class="input-header">
                         <label for="overwrite-lighting-brightness">Brightness:</label>
                     </td>
                     <td>
-                        <input type="number" id="overwrite-lighting-brightness" min="0" max="255">
+                        <input type="number" id="overwrite-lighting-brightness" min="0" max="255" value="{{.LightingBrightnessValue}}">
                     </td>
                 </tr>
-                <tr>
+                <tr id="overwrite-lighting-speed-row" {{ if eq .LightingShowSpeed false }} style="display: none;" {{ end }}>
+                    <td class="input-header">
+                        <label for="overwrite-lighting-speed">Speed:</label>
+                    </td>
+                    <td>
+                        <input type="number" id="overwrite-lighting-speed" min="0" max="16000" value="{{.LightingSpeedValue}}">
+                    </td>
+                </tr>
+                <tr id="overwrite-lighting-shift-row" {{ if eq .LightingShowShift false }} style="display: none;" {{ end }}>
                     <td class="input-header">
                         <label for="overwrite-lighting-shift">Palette Shift:</label>
                     </td>
                     <td>
-                        <input type="number" id="overwrite-lighting-shift" min="0" max="8">
+                        <input type="number" id="overwrite-lighting-shift" min="0" max="8" value="{{.LightingShiftValue}}">
                         <span class="unit"> colors</span>
                     </td>
                 </tr>

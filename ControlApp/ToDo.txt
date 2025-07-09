@@ -9,3 +9,4 @@ Software steps:
 
 Hardware issues:
 -Fix backlight PWM colliding with screen logic (add filter???)
+-Add Zener diodes to UART bus

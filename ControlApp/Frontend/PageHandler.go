@@ -26,17 +26,17 @@ type overridePageInformation struct {
 	LightingColorB          string
 	LightingShowPalettes    bool
 	LightingPalettes        []Lightshow.Palette
-	LightingPaletteIndex    uint32
+	LightingPaletteId       uint32
 	LightingShowDuration    bool
 	LightingDurationValue   int
 	LightingShowBrightness  bool
 	LightingBrightnessValue int
 	LightingShowFrequency   bool
 	LightingFrequencyValue  int
-	LightingShowShift       bool
-	LightingShiftValue      int
 	LightingShowSpeed       bool
 	LightingSpeedValue      int
+	LightingShowShift       bool
+	LightingShiftValue      int
 }
 
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
@@ -82,10 +82,10 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 		LightingShowColorA:      showColorA,
 		LightingColorA:          getColorString(Me.Data.OverrideLightingCurrent.ColorDeviceA),
 		LightingShowColorB:      showColorB,
-		LightingColorB:          getColorString(Me.Data.OverrideLightingCurrent.ColorDeviceA),
+		LightingColorB:          getColorString(Me.Data.OverrideLightingCurrent.ColorDeviceB),
 		LightingShowPalettes:    showPalette,
 		LightingPalettes:        Me.Data.Visuals.GetPalettes().GetAll(),
-		LightingPaletteIndex:    Me.Data.OverrideLightingCurrent.PaletteId,
+		LightingPaletteId:       Me.Data.OverrideLightingCurrent.PaletteId,
 		LightingShowDuration:    showSpeed,
 		LightingDurationValue:   Me.Data.OverrideLightingCurrent.DurationMs,
 		LightingShowBrightness:  showDuration,

@@ -6,12 +6,27 @@ const targets = {
     A: [255, 191, 0],
     U: [148, 0, 211]
 };
-
-$(".colorpicker").each( function( index, sliderContainer ) {
+$(".colorpicker").each(function(index, sliderContainer) {
     const colorPreview = document.createElement('div');
     colorPreview.className = "preview";
     sliderContainer.appendChild(colorPreview);
 
+    // Parse the "color" attribute
+    let initialValues = Array(6).fill(0);
+    const attr = sliderContainer.getAttribute("color");
+    if (attr) {
+        const parts = attr.split(",").map(v => parseInt(v.trim()));
+        if (parts.length === 6 && parts.every(n => !isNaN(n))) {
+            initialValues = parts;
+        }
+    }
+
+    // Initialize values
+    channels.forEach((channel, i) => {
+        values[index][channel] = initialValues[i];
+    });
+
+    // Build sliders
     channels.forEach(channel => {
         const column = document.createElement('div');
         column.className = 'slider-column';
@@ -20,7 +35,7 @@ $(".colorpicker").each( function( index, sliderContainer ) {
         slider.type = 'range';
         slider.min = 0;
         slider.max = 255;
-        slider.value = 0;
+        slider.value = values[index][channel];
         slider.id = 'slider_' + channel;
 
         const label = document.createElement('div');
@@ -29,13 +44,18 @@ $(".colorpicker").each( function( index, sliderContainer ) {
 
         const value = document.createElement('div');
         value.className = 'value-label';
-        value.textContent = '0';
+        value.textContent = slider.value;
         value.id = 'value_' + channel;
 
+        // Update logic
         slider.addEventListener('input', () => {
             values[index][channel] = parseInt(slider.value);
             value.textContent = slider.value;
             updatePreview(index, colorPreview);
+
+            // Update the "color" attribute on this container
+            const updatedColor = channels.map(c => values[index][c]).join(',');
+            sliderContainer.setAttribute("color", updatedColor);
         });
 
         column.appendChild(label);
@@ -43,6 +63,9 @@ $(".colorpicker").each( function( index, sliderContainer ) {
         column.appendChild(value);
         sliderContainer.appendChild(column);
     });
+
+    // Initial preview render
+    updatePreview(index, colorPreview);
 });
 
 function lerp(a, b, t) {
