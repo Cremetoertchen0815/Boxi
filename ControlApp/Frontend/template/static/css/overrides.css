@@ -1,0 +1,10 @@
+button {
+    padding: 4px;
+}
+
+.overwrite-content {
+    background-color: #9f9f9f;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 8px;
+}

@@ -13,6 +13,11 @@ type startPageInformation struct {
 	ConnectedDisplays string
 }
 
+type overridePageInformation struct {
+	ScaffoldInformation
+	LightingMode int
+}
+
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
@@ -39,12 +44,13 @@ func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
+	data := overridePageInformation{scaffoldData, 0}
 
 	//Disable caching
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	//Execute template
-	err := Me.overridesPage.Execute(w, scaffoldData)
+	err := Me.overridesPage.Execute(w, data)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
