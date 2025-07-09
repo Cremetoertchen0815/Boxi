@@ -7,4 +7,6 @@ button {
     padding: 15px;
     border-radius: 4px;
     margin-top: 8px;
+    max-width: 300px;
+    min-width: 220px;
 }
