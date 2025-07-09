@@ -8,7 +8,7 @@
 {{define "Content"}}
     <div id="overwrite-lighting-container" class="overwrite-container">
         <input type="checkbox" id="overwrite-lighting"/>
-        Overwrite lighting
+        <label for="overwrite-lighting">Overwrite lighting</label>
 
         <div id="overwrite-lighting-content" class="overwrite-content">
 
@@ -77,8 +77,8 @@
                         <label for="overwrite-lighting-frequency">Frequency:</label>
                     </td>
                     <td>
-                        <input type="number" id="overwrite-lighting-frequency" min="100" max="22000">
-                        <span class="unit"> mHz</span>
+                        <input type="number" id="overwrite-lighting-frequency" min="1" max="22">
+                        <span class="unit"> Hz</span>
                     </td>
                 </tr>
                 <tr>
@@ -110,7 +110,7 @@
 
     <div id="overwrite-animation-container" class="overwrite-container">
         <input type="checkbox" id="overwrite-animation">
-        Overwrite animation
+        <label for="overwrite-animation">Overwrite animation</label>
 
         <div id="overwrite-animation-content">
 
@@ -119,7 +119,7 @@
 
     <div id="overwrite-text-container" class="overwrite-container">
         <input type="checkbox" id="overwrite-text">
-        Overwrite text
+        <label for="overwrite-text">Overwrite text</label>
 
         <div id="overwrite-text-content">
 
