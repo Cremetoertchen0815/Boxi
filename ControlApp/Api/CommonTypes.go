@@ -1,6 +1,6 @@
 package Api
 
-type color struct {
+type Color struct {
 	R  int
 	G  int
 	B  int
@@ -9,7 +9,7 @@ type color struct {
 	UV int
 }
 
-func isColorValid(color color) bool {
+func isColorValid(color Color) bool {
 	return color.R >= 0 && color.R <= 0xFF &&
 		color.G >= 0 && color.G <= 0xFF &&
 		color.B >= 0 && color.B <= 0xFF &&

@@ -1,15 +1,13 @@
 package Frontend
 
 import (
-	"ControlApp/Infrastructure"
-	"ControlApp/Lightshow"
+	"ControlApp/Api"
 	"html/template"
 	"net/http"
 )
 
 type PageProvider struct {
-	Hardware Infrastructure.HardwareInterface
-	Visuals  *Lightshow.VisualManager
+	Data *Api.DataContainer
 
 	//Templates
 	startPage      *template.Template
@@ -25,7 +23,7 @@ type ScaffoldInformation struct {
 }
 
 // CreatePageProvider loads all templates and returns a PageProvider
-func CreatePageProvider(hardware Infrastructure.HardwareInterface, visuals *Lightshow.VisualManager) PageProvider {
+func CreatePageProvider(data *Api.DataContainer) PageProvider {
 	//Load templates
 	start := template.Must(template.ParseFiles("Frontend/template/scaffold.gohtml", "Frontend/template/start.gohtml"))
 	overrides := template.Must(template.ParseFiles("Frontend/template/scaffold.gohtml", "Frontend/template/overrides.gohtml"))
@@ -34,8 +32,7 @@ func CreatePageProvider(hardware Infrastructure.HardwareInterface, visuals *Ligh
 	auto := template.Must(template.ParseFiles("Frontend/template/scaffold.gohtml", "Frontend/template/auto.gohtml"))
 
 	return PageProvider{
-		Hardware:       hardware,
-		Visuals:        visuals,
+		Data:           data,
 		startPage:      start,
 		overridesPage:  overrides,
 		animationsPage: animations,
