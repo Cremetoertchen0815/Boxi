@@ -37,6 +37,10 @@ type overridePageInformation struct {
 	LightingSpeedValue      int
 	LightingShowShift       bool
 	LightingShiftValue      int
+	AnimationsOverride      bool
+	Animations              []Lightshow.Animation
+	AnimationsSelected      []Api.ScreenOverrideAnimationInstance
+	AnimationsFadeout       int
 }
 
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {

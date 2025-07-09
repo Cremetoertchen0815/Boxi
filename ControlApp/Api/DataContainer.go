@@ -6,9 +6,10 @@ import (
 )
 
 type DataContainer struct {
-	Hardware                Infrastructure.HardwareInterface
-	Visuals                 *Lightshow.VisualManager
-	OverrideLightingCurrent LightingInstructionTotal
+	Hardware                 Infrastructure.HardwareInterface
+	Visuals                  *Lightshow.VisualManager
+	OverrideLightingCurrent  LightingInstructionTotal
+	OverrideAnimationCurrent ScreenOverrideAnimationProperties
 }
 
 func CreateDataContainer(hardware Infrastructure.HardwareInterface, visuals *Lightshow.VisualManager) *DataContainer {
@@ -25,6 +26,16 @@ func CreateDataContainer(hardware Infrastructure.HardwareInterface, visuals *Lig
 			Speed:            0,
 			TargetBrightness: 0,
 			FrequencyHz:      12,
+		},
+		ScreenOverrideAnimationProperties{
+			Animations: []ScreenOverrideAnimationInstance{
+				{ScreenIndex: 1, AnimationId: 0},
+				{ScreenIndex: 2, AnimationId: 0},
+				{ScreenIndex: 4, AnimationId: 0},
+				{ScreenIndex: 8, AnimationId: 0},
+			},
+			FadeoutSpeed: 0,
+			ResetScreens: true,
 		},
 	}
 

@@ -117,7 +117,22 @@
         <label for="overwrite-animation">Overwrite animation</label>
 
         <div id="overwrite-animation-content">
-
+            <table>
+                <tr>
+                    <td class="input-header">
+                        <label for="overwrite-animation-id">Display 1:</label>
+                    </td>
+                    <td>
+                        <select id="overwrite-animation-id">
+                            <option value="0">None</option>
+                            {{ $currentAnimationId := .LightingPaletteId }}
+                            {{range $element := .LightingPalettes}}
+                                <option value="{{$element.Id}}" {{ if eq $currentId $element.Id }} selected {{ end }}>{{$element.Name}}</option>
+                            {{end}}
+                        </select>
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 

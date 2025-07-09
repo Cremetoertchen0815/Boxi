@@ -9,15 +9,15 @@ import (
 	"strconv"
 )
 
-type screenOverrideAnimationProperties struct {
-	Animations   []screenOverrideAnimationInstance `json:"animation"`
+type ScreenOverrideAnimationProperties struct {
+	Animations   []ScreenOverrideAnimationInstance `json:"animation"`
 	FadeoutSpeed int                               `json:"fadeoutSpeed"`
 	ResetScreens bool                              `json:"reset"`
 }
 
-type screenOverrideAnimationInstance struct {
-	ScreenIndices []int  `json:"screen"`
-	AnimationId   uint32 `json:"animationId"`
+type ScreenOverrideAnimationInstance struct {
+	ScreenIndex int    `json:"screen"`
+	AnimationId uint32 `json:"animationId"`
 }
 
 type screenOverrideTextProperties struct {
@@ -56,7 +56,7 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 		return
 	}
 
-	var data screenOverrideAnimationProperties
+	var data ScreenOverrideAnimationProperties
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -72,23 +72,18 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 	var aniInstr []Lightshow.AnimationInstruction
 
 	for _, animation := range data.Animations {
-		var indices []Display.ServerDisplay
-		for _, index := range animation.ScreenIndices {
-			if index < 0 || index > 3 {
-				http.Error(w, fmt.Sprintf("Screen ID is out of bound. %s", err), http.StatusBadRequest)
-				return
-			}
-
-			indices = append(indices, Display.ServerDisplay(index))
+		if animation.ScreenIndex < 0 || animation.ScreenIndex > 3 {
+			http.Error(w, fmt.Sprintf("Screen ID is out of bound. %s", err), http.StatusBadRequest)
+			return
 		}
-
+		index := Display.ServerDisplay(animation.ScreenIndex)
 		exists, animationObj := fixture.Data.Visuals.GetAnimations().GetById(Display.AnimationId(animation.AnimationId))
 		if !exists {
 			http.Error(w, fmt.Sprintf("Animation can't be found. %s", err), http.StatusBadRequest)
 			return
 		}
 
-		aniInstr = append(aniInstr, Lightshow.AnimationInstruction{Animation: animationObj.Id, Displays: indices})
+		aniInstr = append(aniInstr, Lightshow.AnimationInstruction{Animation: animationObj.Id, Displays: []Display.ServerDisplay{index}})
 	}
 
 	instr := Lightshow.AnimationsInstruction{Animations: aniInstr, Character: Lightshow.Unknown, BlinkSpeed: uint16(data.FadeoutSpeed)}

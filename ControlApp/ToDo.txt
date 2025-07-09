@@ -6,6 +6,7 @@ Software steps:
 -Implement the "Auto Mode Settings" page
 -Add ping to display servers every second to detect disconnect
 -Add saving backup of config file when saving
+-Test display server animation copying behaviour
 
 Hardware issues:
 -Fix backlight PWM colliding with screen logic (add filter???)
