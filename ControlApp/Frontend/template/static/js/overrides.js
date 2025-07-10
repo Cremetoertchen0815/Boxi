@@ -12,12 +12,13 @@ const lightingModeOptions = [
 const lightingModeSelector = $('#overwrite-lighting-mode')[0];
 
 //On lighting override checkbox changed
-$('#overwrite-lighting').on('change', e => {
+$('#overwrite-lighting').on('change', async e => {
     const checked = e.target.checked;
     const contentPanel = $('#overwrite-lighting-content')[0];
     contentPanel.style.display = checked ? "block" : "none";
 
-    //TODO: Send overwrite reset when unchecked
+    if (checked) return;
+    await sendLightingOverwrite(true, false);
 });
 
 //On animation override checkbox changed
@@ -30,19 +31,17 @@ $('#overwrite-animation').on('change', e => {
 });
 
 //On text override checkbox changed
-$('#overwrite-text').on('change', e => {
+$('#overwrite-text').on('change', async e => {
     const checked = e.target.checked;
     const contentPanel = $('#overwrite-text-content')[0];
     contentPanel.style.display = checked ? "block" : "none";
-
-    //TODO: Send overwrite reset when unchecked
 });
 
 
 //On lighting override mode changed
-lightingModeSelector.on('change', e => {
+lightingModeSelector.onchange = _ => {
     //Select the options to be modified
-    const index = parseInt(e.target.selectedOptions[0].value);
+    const index = parseInt(lightingModeSelector.selectedOptions[0].value);
     switch (index) {
         case 1: //Solid color
             setLightingModeOptions([1, 2]);
@@ -68,7 +67,7 @@ lightingModeSelector.on('change', e => {
         default: //Off
             setLightingModeOptions([]);
     }
-});
+};
 
 function setLightingModeOptions(indices) {
     console.log(indices);
@@ -83,4 +82,29 @@ function setLightingModeOptions(indices) {
 
         lightingModeOptions[i].style.display = "none";
     }
+}
+
+$('#overwrite-lighting-apply-now').on('click', async _ => await sendLightingOverwrite(false, false));
+
+$('#overwrite-lighting-apply-on-beat').on('click', async _ => await sendLightingOverwrite(false, true));
+
+async function sendLightingOverwrite(reset, onBeat) {
+    const returnObj = {
+        enable: !reset,
+        onBeat: onBeat,
+        mode: parseInt(lightingModeSelector.selectedOptions[0].value),
+        colorA: getColorFromColorPicker($('#overwrite-lighting-color-a')[0]),
+        colorB: getColorFromColorPicker($('#overwrite-lighting-color-b')[0]),
+        paletteId: parseInt($('#overwrite-lighting-palette')[0].selectedOptions[0].value),
+        duration: parseInt($('#overwrite-lighting-duration')[0].value),
+        paletteShift: parseInt($('#overwrite-lighting-shift')[0].value),
+        speed: parseInt($('#overwrite-lighting-speed')[0].value),
+        targetBrightness: parseInt($('#overwrite-lighting-brightness')[0].value),
+        frequency: parseInt($('#overwrite-lighting-frequency')[0].value)
+    }
+
+    await fetch('http://localhost:8080/api/lighting/mode', {
+        method: 'POST',
+        body: JSON.stringify(returnObj),
+    });
 }

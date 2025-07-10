@@ -11,15 +11,8 @@ $(".colorpicker").each(function(index, sliderContainer) {
     colorPreview.className = "preview";
     sliderContainer.appendChild(colorPreview);
 
-    // Parse the "color" attribute
-    let initialValues = Array(6).fill(0);
-    const attr = sliderContainer.getAttribute("color");
-    if (attr) {
-        const parts = attr.split(",").map(v => parseInt(v.trim()));
-        if (parts.length === 6 && parts.every(n => !isNaN(n))) {
-            initialValues = parts;
-        }
-    }
+    // Parse the “color” attribute
+    let initialValues = getColorArrayFromPicker(sliderContainer);
 
     // Initialize values
     channels.forEach((channel, i) => {
@@ -99,4 +92,29 @@ function updatePreview(index, obj) {
     const bFinal = Math.round(Math.min(255, blend.b));
 
     obj.style.backgroundColor = `rgb(${rFinal}, ${gFinal}, ${bFinal})`;
+}
+
+function getColorArrayFromPicker(picker) {
+    let initialValues = Array(6).fill(0);
+    const attr = picker.getAttribute("color");
+    if (attr) {
+        const parts = attr.split(",").map(v => parseInt(v.trim()));
+        if (parts.length === 6 && parts.every(n => !isNaN(n))) {
+            initialValues = parts;
+        }
+    }
+
+    return initialValues;
+}
+
+function getColorFromColorPicker(picker) {
+    const initialValues = getColorArrayFromPicker(picker);
+    return {
+        R: initialValues[0],
+        G: initialValues[1],
+        B: initialValues[2],
+        W: initialValues[3],
+        A: initialValues[4],
+        UV: initialValues[5],
+    }
 }
