@@ -4,6 +4,7 @@
 {{end}}
 {{define "Scripts"}}
     <script src="/static/js/colorpicker.js"></script>
+    <script src="/static/js/overrides.js"></script>
 {{end}}
 {{define "Content"}}
     <div id="overwrite-lighting-container" class="overwrite-container">
@@ -23,10 +24,10 @@
                             <option value="1" {{ if eq .LightingMode 1 }} selected {{ end }}>Solid Color</option>
                             <option value="2" {{ if eq .LightingMode 2 }} selected {{ end }}>Fade to Color</option>
                             <option value="3" {{ if eq .LightingMode 3 }} selected {{ end }}>Palette Fade</option>
-                            <option value="0" {{ if eq .LightingMode 4 }} selected {{ end }}>Palette Switch</option>
-                            <option value="1" {{ if eq .LightingMode 5 }} selected {{ end }}>Brightness Flash</option>
-                            <option value="2" {{ if eq .LightingMode 6 }} selected {{ end }}>Hue Flash</option>
-                            <option value="3" {{ if eq .LightingMode 7 }} selected {{ end }}>Strobe</option>
+                            <option value="4" {{ if eq .LightingMode 4 }} selected {{ end }}>Palette Switch</option>
+                            <option value="5" {{ if eq .LightingMode 5 }} selected {{ end }}>Brightness Flash</option>
+                            <option value="6" {{ if eq .LightingMode 6 }} selected {{ end }}>Hue Flash</option>
+                            <option value="7" {{ if eq .LightingMode 7 }} selected {{ end }}>Strobe</option>
                         </select>
                     </td>
                 </tr>

@@ -90,6 +90,7 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 	showColorB := mode == BoxiBus.SetColor || mode == BoxiBus.FadeToColor
 	showPalette := mode == BoxiBus.PaletteFade || mode == BoxiBus.PaletteSwitch || mode == BoxiBus.PaletteBrightnessFlash || mode == BoxiBus.PaletteHueFlash
 	showDuration := mode == BoxiBus.FadeToColor || mode == BoxiBus.PaletteFade
+	showBrightness := mode == BoxiBus.PaletteBrightnessFlash
 	showSpeed := mode == BoxiBus.PaletteBrightnessFlash || mode == BoxiBus.PaletteHueFlash
 	showShift := mode == BoxiBus.PaletteFade || mode == BoxiBus.PaletteSwitch || mode == BoxiBus.PaletteBrightnessFlash || mode == BoxiBus.PaletteHueFlash
 	showFrequency := mode == BoxiBus.Strobe
@@ -150,9 +151,9 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 		LightingShowPalettes:    showPalette,
 		LightingPalettes:        Me.Data.Visuals.GetPalettes().GetAll(),
 		LightingPaletteId:       Me.Data.OverrideLightingCurrent.PaletteId,
-		LightingShowDuration:    showSpeed,
+		LightingShowDuration:    showDuration,
 		LightingDurationValue:   Me.Data.OverrideLightingCurrent.DurationMs,
-		LightingShowBrightness:  showDuration,
+		LightingShowBrightness:  showBrightness,
 		LightingBrightnessValue: Me.Data.OverrideLightingCurrent.TargetBrightness,
 		LightingShowFrequency:   showFrequency,
 		LightingFrequencyValue:  Me.Data.OverrideLightingCurrent.FrequencyHz,
