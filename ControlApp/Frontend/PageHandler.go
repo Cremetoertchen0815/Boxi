@@ -24,6 +24,11 @@ type animationInformation struct {
 	ScreenNumber int
 }
 
+type textInformation struct {
+	Api.ScreenTextInstance
+	ScreenNumber int
+}
+
 type overridePageInformation struct {
 	ScaffoldInformation
 	LightingOverride        bool
@@ -50,7 +55,7 @@ type overridePageInformation struct {
 	AnimationsSelected      []animationInformation
 	AnimationsFadeout       int
 	TextOverride            bool
-	TextOverrideValues      []Api.ScreenTextInstance
+	TextOverrideValues      []textInformation
 }
 
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +115,7 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 	})
 
 	anyTextOverwrites := false
-	var texts []Api.ScreenTextInstance
+	var texts []textInformation
 	for _, text := range Me.Data.OverrideTextsCurrent.Texts {
 		textContent := text.Text
 		//Check if the text overwrite is empty
@@ -120,7 +125,18 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 			anyTextOverwrites = true
 		}
 
-		texts = append(texts, Api.ScreenTextInstance{ScreenIndex: text.ScreenIndex, Text: textContent})
+		number := 1
+		switch Display.ServerDisplay(text.ScreenIndex) {
+		case Display.Boxi1D2:
+			number = 2
+		case Display.Boxi2D1:
+			number = 3
+		case Display.Boxi2D2:
+			number = 4
+		}
+
+		coreData := Api.ScreenTextInstance{ScreenIndex: text.ScreenIndex, Text: textContent}
+		texts = append(texts, textInformation{coreData, number})
 	}
 
 	data := overridePageInformation{

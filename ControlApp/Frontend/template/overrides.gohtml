@@ -112,7 +112,7 @@
 
 
     <div id="overwrite-animation-container" class="overwrite-container">
-        <input type="checkbox" id="overwrite-animation">
+        <input type="checkbox" id="overwrite-animation" {{ if eq .AnimationsOverride true }} checked {{ end }}>
         <label for="overwrite-animation">Overwrite animation</label>
 
         <div id="overwrite-animation-content" class="overwrite-content" {{ if eq .AnimationsOverride false }} style="display: none;" {{ end }}>
@@ -148,11 +148,24 @@
     </div>
 
     <div id="overwrite-text-container" class="overwrite-container">
-        <input type="checkbox" id="overwrite-text">
+        <input type="checkbox" id="overwrite-text" {{ if eq .TextOverride true }} checked {{ end }}>
         <label for="overwrite-text">Overwrite text</label>
 
-        <div id="overwrite-text-content">
-
+        <div id="overwrite-text-content" class="overwrite-content" {{ if eq .TextOverride false }} style="display: none;" {{ end }}>
+            <table>
+                {{range $text := .TextOverrideValues}}
+                    <tr>
+                        <td class="input-header">
+                            <label for="overwrite-text-id-{{$text.ScreenIndex}}">Display {{$text.ScreenNumber}}:</label>
+                        </td>
+                        <td>
+                            <input type="text" id="overwrite-text-id-{{$text.ScreenIndex}}" class="overwrite-text-id" value="{{$text.Text}}"/>
+                        </td>
+                    </tr>
+                {{end}}
+            </table>
+            <br/>
+            <button id="overwrite-animation-apply">Apply</button>
         </div>
     </div>
 {{end}}
