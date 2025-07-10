@@ -1,3 +1,5 @@
+// noinspection JSUnresolvedReference
+
 const lightingModeOptions = [
     $('#overwrite-lighting-palette-row')[0],
     $('#overwrite-lighting-color-a-row')[0],
@@ -22,12 +24,13 @@ $('#overwrite-lighting').on('change', async e => {
 });
 
 //On animation override checkbox changed
-$('#overwrite-animation').on('change', e => {
+$('#overwrite-animation').on('change', async e => {
     const checked = e.target.checked;
     const contentPanel = $('#overwrite-animation-content')[0];
     contentPanel.style.display = checked ? "block" : "none";
 
-    //TODO: Send overwrite reset when unchecked
+    if (checked) return;
+    await sendAnimationOverwrite(true);
 });
 
 //On text override checkbox changed
@@ -35,6 +38,9 @@ $('#overwrite-text').on('change', async e => {
     const checked = e.target.checked;
     const contentPanel = $('#overwrite-text-content')[0];
     contentPanel.style.display = checked ? "block" : "none";
+
+    if (checked) return;
+    await sendTextsOverwrite(true);
 });
 
 
@@ -88,6 +94,10 @@ $('#overwrite-lighting-apply-now').on('click', async _ => await sendLightingOver
 
 $('#overwrite-lighting-apply-on-beat').on('click', async _ => await sendLightingOverwrite(false, true));
 
+$('#overwrite-animation-apply').on('click', async _ => await sendAnimationOverwrite(false));
+
+$('#overwrite-texts-apply').on('click', async _ => await sendTextsOverwrite(false));
+
 async function sendLightingOverwrite(reset, onBeat) {
     const returnObj = {
         enable: !reset,
@@ -104,6 +114,42 @@ async function sendLightingOverwrite(reset, onBeat) {
     }
 
     await fetch('http://localhost:8080/api/lighting/mode', {
+        method: 'POST',
+        body: JSON.stringify(returnObj),
+    });
+}
+
+async function sendAnimationOverwrite(reset) {
+    const animations = [];
+    $('.overwrite-animation-id').each((_, animationSelector) =>
+        animations.push({
+            screen: parseInt(animationSelector.getAttribute('index')),
+            animationId: parseInt(animationSelector.selectedOptions[0].value)
+        }));
+
+    const returnObj = {
+        animations: animations,
+        reset: reset,
+        fadeoutSpeed: parseInt($('#overwrite-animation-fadeout')[0].value)
+    }
+
+    await fetch('http://localhost:8080/api/screen/animation', {
+        method: 'POST',
+        body: JSON.stringify(returnObj),
+    });
+}
+
+async function sendTextsOverwrite(reset) {
+    const texts = [];
+    $('.overwrite-text-id').each((_, animationSelector) =>
+        texts.push({
+            screen: parseInt(animationSelector.getAttribute('index')),
+            text: reset ? "" : animationSelector.value
+        }));
+
+    const returnObj = { texts: texts }
+
+    await fetch('http://localhost:8080/api/screen/text', {
         method: 'POST',
         body: JSON.stringify(returnObj),
     });

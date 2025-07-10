@@ -11,14 +11,14 @@ import (
 )
 
 type ScreenOverrideAnimationProperties struct {
-	Animations   []ScreenOverrideAnimationInstance `json:"animation"`
+	Animations   []ScreenOverrideAnimationInstance `json:"animations"`
 	FadeoutSpeed int                               `json:"fadeoutSpeed"`
 	ResetScreens bool                              `json:"reset"`
 }
 
 type ScreenOverrideAnimationInstance struct {
 	ScreenIndex Display.ServerDisplay `json:"screen"`
-	AnimationId uint32                `json:"animationId"`
+	AnimationId Display.AnimationId   `json:"animationId"`
 }
 
 type ScreenOverrideTextProperties struct {
@@ -77,14 +77,18 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 			http.Error(w, fmt.Sprintf("Screen ID is out of bound. %s", err), http.StatusBadRequest)
 			return
 		}
-		index := Display.ServerDisplay(animation.ScreenIndex)
-		exists, animationObj := fixture.Data.Visuals.GetAnimations().GetById(Display.AnimationId(animation.AnimationId))
+
+		if animation.AnimationId == Display.None {
+			continue
+		}
+
+		exists, animationObj := fixture.Data.Visuals.GetAnimations().GetById(animation.AnimationId)
 		if !exists {
 			http.Error(w, fmt.Sprintf("Animation can't be found. %s", err), http.StatusBadRequest)
 			return
 		}
 
-		aniInstr = append(aniInstr, Lightshow.AnimationInstruction{Animation: animationObj.Id, Displays: []Display.ServerDisplay{index}})
+		aniInstr = append(aniInstr, Lightshow.AnimationInstruction{Animation: animationObj.Id, Displays: []Display.ServerDisplay{animation.ScreenIndex}})
 	}
 
 	instr := Lightshow.AnimationsInstruction{Animations: aniInstr, Character: Lightshow.Unknown, BlinkSpeed: uint16(data.FadeoutSpeed)}
