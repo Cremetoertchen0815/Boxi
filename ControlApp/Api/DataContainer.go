@@ -1,6 +1,7 @@
 package Api
 
 import (
+	"ControlApp/Display"
 	"ControlApp/Infrastructure"
 	"ControlApp/Lightshow"
 )
@@ -10,6 +11,7 @@ type DataContainer struct {
 	Visuals                  *Lightshow.VisualManager
 	OverrideLightingCurrent  LightingInstructionTotal
 	OverrideAnimationCurrent ScreenOverrideAnimationProperties
+	OverrideTextsCurrent     ScreenOverrideTextProperties
 }
 
 func CreateDataContainer(hardware Infrastructure.HardwareInterface, visuals *Lightshow.VisualManager) *DataContainer {
@@ -29,13 +31,21 @@ func CreateDataContainer(hardware Infrastructure.HardwareInterface, visuals *Lig
 		},
 		ScreenOverrideAnimationProperties{
 			Animations: []ScreenOverrideAnimationInstance{
-				{ScreenIndex: 1, AnimationId: 0},
-				{ScreenIndex: 2, AnimationId: 0},
-				{ScreenIndex: 4, AnimationId: 0},
-				{ScreenIndex: 8, AnimationId: 0},
+				{ScreenIndex: Display.Boxi1D1, AnimationId: 0},
+				{ScreenIndex: Display.Boxi1D2, AnimationId: 0},
+				{ScreenIndex: Display.Boxi2D1, AnimationId: 0},
+				{ScreenIndex: Display.Boxi2D2, AnimationId: 0},
 			},
 			FadeoutSpeed: 0,
 			ResetScreens: true,
+		},
+		ScreenOverrideTextProperties{
+			Texts: []ScreenTextInstance{
+				{ScreenIndex: Display.Boxi1D1, Text: " "},
+				{ScreenIndex: Display.Boxi1D2, Text: " "},
+				{ScreenIndex: Display.Boxi2D1, Text: " "},
+				{ScreenIndex: Display.Boxi2D2, Text: " "},
+			},
 		},
 	}
 

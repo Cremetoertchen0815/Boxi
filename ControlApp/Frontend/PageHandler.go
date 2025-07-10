@@ -49,6 +49,8 @@ type overridePageInformation struct {
 	Animations              []Lightshow.Animation
 	AnimationsSelected      []animationInformation
 	AnimationsFadeout       int
+	TextOverride            bool
+	TextOverrideValues      []Api.ScreenTextInstance
 }
 
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
@@ -107,6 +109,20 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 		return strings.ToLower(allAnimations[i].Name) < strings.ToLower(allAnimations[j].Name)
 	})
 
+	anyTextOverwrites := false
+	var texts []Api.ScreenTextInstance
+	for _, text := range Me.Data.OverrideTextsCurrent.Texts {
+		textContent := text.Text
+		//Check if the text overwrite is empty
+		if strings.TrimSpace(textContent) == "" {
+			textContent = ""
+		} else {
+			anyTextOverwrites = true
+		}
+
+		texts = append(texts, Api.ScreenTextInstance{ScreenIndex: text.ScreenIndex, Text: textContent})
+	}
+
 	data := overridePageInformation{
 		ScaffoldInformation:     scaffoldData,
 		LightingOverride:        Me.Data.OverrideLightingCurrent.Enable,
@@ -132,6 +148,8 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 		Animations:              allAnimations,
 		AnimationsSelected:      animations,
 		AnimationsFadeout:       Me.Data.OverrideAnimationCurrent.FadeoutSpeed,
+		TextOverride:            anyTextOverwrites,
+		TextOverrideValues:      texts,
 	}
 
 	//Disable caching

@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type ScreenOverrideAnimationProperties struct {
@@ -16,17 +17,17 @@ type ScreenOverrideAnimationProperties struct {
 }
 
 type ScreenOverrideAnimationInstance struct {
-	ScreenIndex Display.AnimationId `json:"screen"`
-	AnimationId uint32              `json:"animationId"`
+	ScreenIndex Display.ServerDisplay `json:"screen"`
+	AnimationId uint32                `json:"animationId"`
 }
 
-type screenOverrideTextProperties struct {
-	Texts []screenTextInstance `json:"texts"`
+type ScreenOverrideTextProperties struct {
+	Texts []ScreenTextInstance `json:"texts"`
 }
 
-type screenTextInstance struct {
-	ScreenIndices []int  `json:"screen"`
-	Text          string `json:"text"`
+type ScreenTextInstance struct {
+	ScreenIndex Display.ServerDisplay `json:"screen"`
+	Text        string                `json:"text"`
 }
 
 type fetchResult struct {
@@ -72,7 +73,7 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 	var aniInstr []Lightshow.AnimationInstruction
 
 	for _, animation := range data.Animations {
-		if animation.ScreenIndex < 0 || animation.ScreenIndex > 3 {
+		if animation.ScreenIndex < Display.Boxi1D1 || animation.ScreenIndex > Display.Boxi2D2 {
 			http.Error(w, fmt.Sprintf("Screen ID is out of bound. %s", err), http.StatusBadRequest)
 			return
 		}
@@ -96,7 +97,7 @@ func (fixture Fixture) HandleSetScreenOverrideTextSetApi(w http.ResponseWriter, 
 		return
 	}
 
-	var data screenOverrideTextProperties
+	var data ScreenOverrideTextProperties
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -107,17 +108,16 @@ func (fixture Fixture) HandleSetScreenOverrideTextSetApi(w http.ResponseWriter, 
 	var textInstr []Lightshow.TextInstruction
 
 	for _, text := range data.Texts {
-		var indices []Display.ServerDisplay
-		for _, index := range text.ScreenIndices {
-			if index < 0 || index > 3 {
-				http.Error(w, fmt.Sprintf("Screen ID is out of bound. %s", err), http.StatusBadRequest)
-				return
-			}
-
-			indices = append(indices, Display.ServerDisplay(index))
+		if text.ScreenIndex < Display.Boxi1D1 || text.ScreenIndex > Display.Boxi2D2 {
+			http.Error(w, fmt.Sprintf("Screen ID is out of bound. %s", err), http.StatusBadRequest)
+			return
+		}
+		textContent := text.Text
+		if strings.TrimSpace(textContent) == "" {
+			textContent = " "
 		}
 
-		textInstr = append(textInstr, Lightshow.TextInstruction{Text: text.Text, Displays: indices})
+		textInstr = append(textInstr, Lightshow.TextInstruction{Text: text.Text, Displays: []Display.ServerDisplay{text.ScreenIndex}})
 	}
 
 	fixture.Data.Visuals.SetTexts(textInstr)
