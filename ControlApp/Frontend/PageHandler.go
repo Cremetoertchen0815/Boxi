@@ -3,9 +3,12 @@ package Frontend
 import (
 	"ControlApp/Api"
 	"ControlApp/BoxiBus"
+	"ControlApp/Display"
 	"ControlApp/Lightshow"
 	"fmt"
 	"net/http"
+	"sort"
+	"strings"
 )
 
 type startPageInformation struct {
@@ -14,6 +17,11 @@ type startPageInformation struct {
 	Nsfw              bool
 	Brightness        int
 	ConnectedDisplays string
+}
+
+type animationInformation struct {
+	Api.ScreenOverrideAnimationInstance
+	ScreenNumber int
 }
 
 type overridePageInformation struct {
@@ -39,7 +47,7 @@ type overridePageInformation struct {
 	LightingShiftValue      int
 	AnimationsOverride      bool
 	Animations              []Lightshow.Animation
-	AnimationsSelected      []Api.ScreenOverrideAnimationInstance
+	AnimationsSelected      []animationInformation
 	AnimationsFadeout       int
 }
 
@@ -79,6 +87,26 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 	showShift := mode == BoxiBus.PaletteFade || mode == BoxiBus.PaletteSwitch || mode == BoxiBus.PaletteBrightnessFlash || mode == BoxiBus.PaletteHueFlash
 	showFrequency := mode == BoxiBus.Strobe
 
+	var animations []animationInformation
+	for _, anim := range Me.Data.OverrideAnimationCurrent.Animations {
+		number := 1
+		switch Display.ServerDisplay(anim.ScreenIndex) {
+		case Display.Boxi1D2:
+			number = 2
+		case Display.Boxi2D1:
+			number = 3
+		case Display.Boxi2D2:
+			number = 4
+		}
+		infoStruct := animationInformation{anim, number}
+		animations = append(animations, infoStruct)
+	}
+
+	allAnimations := Me.Data.Visuals.GetAnimations().GetAll()
+	sort.Slice(allAnimations, func(i, j int) bool {
+		return strings.ToLower(allAnimations[i].Name) < strings.ToLower(allAnimations[j].Name)
+	})
+
 	data := overridePageInformation{
 		ScaffoldInformation:     scaffoldData,
 		LightingOverride:        Me.Data.OverrideLightingCurrent.Enable,
@@ -100,6 +128,10 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 		LightingShiftValue:      Me.Data.OverrideLightingCurrent.PaletteShift,
 		LightingShowSpeed:       showSpeed,
 		LightingSpeedValue:      Me.Data.OverrideLightingCurrent.Speed,
+		AnimationsOverride:      !Me.Data.OverrideAnimationCurrent.ResetScreens,
+		Animations:              allAnimations,
+		AnimationsSelected:      animations,
+		AnimationsFadeout:       Me.Data.OverrideAnimationCurrent.FadeoutSpeed,
 	}
 
 	//Disable caching

@@ -105,7 +105,6 @@
             </table>
 
             <br/>
-            <br/>
             <button id="overwrite-lighting-apply-now">Apply Now</button>
             <button id="overwrite-lighting-apply-on-beat">Apply On Beat</button>
         </div>
@@ -116,23 +115,35 @@
         <input type="checkbox" id="overwrite-animation">
         <label for="overwrite-animation">Overwrite animation</label>
 
-        <div id="overwrite-animation-content">
+        <div id="overwrite-animation-content" class="overwrite-content" {{ if eq .AnimationsOverride false }} style="display: none;" {{ end }}>
             <table>
+                {{ $allAnimations := .Animations }}
+                {{range $screenAni := .AnimationsSelected}}
                 <tr>
                     <td class="input-header">
-                        <label for="overwrite-animation-id">Display 1:</label>
+                        <label for="overwrite-animation-id-{{$screenAni.ScreenIndex}}">Display {{$screenAni.ScreenNumber}}:</label>
                     </td>
                     <td>
-                        <select id="overwrite-animation-id">
+                        <select id="overwrite-animation-id-{{$screenAni.ScreenIndex}}" class="overwrite-animation-id" index="{{$screenAni.ScreenIndex}}">
                             <option value="0">None</option>
-                            {{ $currentAnimationId := .LightingPaletteId }}
-                            {{range $element := .LightingPalettes}}
-                                <option value="{{$element.Id}}" {{ if eq $currentId $element.Id }} selected {{ end }}>{{$element.Name}}</option>
+                            {{range $element := $allAnimations}}
+                                <option value="{{$element.Id}}" {{ if eq $screenAni.AnimationId $element.Id }} selected {{ end }}>{{$element.Name}}</option>
                             {{end}}
                         </select>
                     </td>
                 </tr>
+                {{end}}
+                <tr>
+                    <td class="input-header">
+                        <label for="overwrite-animation-fadeout">Fadeout Speed:</label>
+                    </td>
+                    <td>
+                        <input type="number" id="overwrite-animation-fadeout" min="0" max="5000" value="{{.AnimationsFadeout}}">
+                    </td>
+                </tr>
             </table>
+            <br/>
+            <button id="overwrite-animation-apply">Apply</button>
         </div>
     </div>
 

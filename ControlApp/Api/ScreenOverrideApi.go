@@ -16,8 +16,8 @@ type ScreenOverrideAnimationProperties struct {
 }
 
 type ScreenOverrideAnimationInstance struct {
-	ScreenIndex int    `json:"screen"`
-	AnimationId uint32 `json:"animationId"`
+	ScreenIndex Display.AnimationId `json:"screen"`
+	AnimationId uint32              `json:"animationId"`
 }
 
 type screenOverrideTextProperties struct {
