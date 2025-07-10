@@ -160,7 +160,7 @@
                             <label for="overwrite-text-id-{{$text.ScreenIndex}}">Display {{$text.ScreenNumber}}:</label>
                         </td>
                         <td>
-                            <input type="text" id="overwrite-text-id-{{$text.ScreenIndex}}" class="overwrite-text-id" value="{{$text.Text}}"/>
+                            <input type="text" id="overwrite-text-id-{{$text.ScreenIndex}}" index="{{$text.ScreenIndex}}" class="overwrite-text-id" value="{{$text.Text}}"/>
                         </td>
                     </tr>
                 {{end}}

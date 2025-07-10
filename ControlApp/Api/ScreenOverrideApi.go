@@ -67,6 +67,7 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 
 	if data.ResetScreens {
 		fixture.Data.Visuals.SetAnimationsOverwrite(nil)
+		fixture.Data.Visuals.MarkLightshowAsDirty()
 		return
 	}
 
@@ -93,6 +94,7 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 
 	instr := Lightshow.AnimationsInstruction{Animations: aniInstr, Character: Lightshow.Unknown, BlinkSpeed: uint16(data.FadeoutSpeed)}
 	fixture.Data.Visuals.SetAnimationsOverwrite(&instr)
+	fixture.Data.Visuals.MarkLightshowAsDirty()
 }
 
 func (fixture Fixture) HandleSetScreenOverrideTextSetApi(w http.ResponseWriter, r *http.Request) {

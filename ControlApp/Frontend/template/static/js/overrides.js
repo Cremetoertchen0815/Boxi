@@ -1,4 +1,5 @@
 // noinspection JSUnresolvedReference
+const baseAddr = "http://192.168.4.1:8080/"
 
 const lightingModeOptions = [
     $('#overwrite-lighting-palette-row')[0],
@@ -113,7 +114,7 @@ async function sendLightingOverwrite(reset, onBeat) {
         frequency: parseInt($('#overwrite-lighting-frequency')[0].value)
     }
 
-    await fetch('http://localhost:8080/api/lighting/mode', {
+    await fetch(baseAddr + 'api/lighting/mode', {
         method: 'POST',
         body: JSON.stringify(returnObj),
     });
@@ -133,7 +134,7 @@ async function sendAnimationOverwrite(reset) {
         fadeoutSpeed: parseInt($('#overwrite-animation-fadeout')[0].value)
     }
 
-    await fetch('http://localhost:8080/api/screen/animation', {
+    await fetch(baseAddr + 'api/screen/animation', {
         method: 'POST',
         body: JSON.stringify(returnObj),
     });
@@ -144,12 +145,12 @@ async function sendTextsOverwrite(reset) {
     $('.overwrite-text-id').each((_, animationSelector) =>
         texts.push({
             screen: parseInt(animationSelector.getAttribute('index')),
-            text: reset ? "" : animationSelector.value
+            text: reset ? " " : animationSelector.value
         }));
 
     const returnObj = { texts: texts }
 
-    await fetch('http://localhost:8080/api/screen/text', {
+    await fetch(baseAddr + 'api/screen/text', {
         method: 'POST',
         body: JSON.stringify(returnObj),
     });

@@ -114,11 +114,11 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 		break
 	case 2:
 		instruction = Lightshow.LightingInstruction{
-			MessageBlock: BoxiBus.CreateLightingFadeToColor(color1, color2, uint16(durationCycles), false),
+			MessageBlock: BoxiBus.CreateLightingFadeToColor(color1, color2, uint16(durationCycles), data.ApplyOnBeat),
 		}
 		break
 	case 3:
-		block, err := BoxiBus.CreateLightingPaletteFade(palette.Colors, uint16(durationCycles), byte(data.PaletteShift), false)
+		block, err := BoxiBus.CreateLightingPaletteFade(palette.Colors, uint16(durationCycles), byte(data.PaletteShift), data.ApplyOnBeat)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Instruction couldn't be created. %s", err), http.StatusInternalServerError)
 			return
@@ -129,7 +129,7 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 		}
 		break
 	case 4:
-		block, err := BoxiBus.CreateLightingPaletteSwitch(palette.Colors, byte(data.PaletteShift), false)
+		block, err := BoxiBus.CreateLightingPaletteSwitch(palette.Colors, byte(data.PaletteShift), data.ApplyOnBeat)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Instruction couldn't be created. %s", err), http.StatusInternalServerError)
 			return
@@ -140,7 +140,7 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 		}
 		break
 	case 5:
-		block, err := BoxiBus.CreateLightingPaletteBrightnessFlash(palette.Colors, uint16(data.Speed), byte(data.TargetBrightness), byte(data.PaletteShift), false)
+		block, err := BoxiBus.CreateLightingPaletteBrightnessFlash(palette.Colors, uint16(data.Speed), byte(data.TargetBrightness), byte(data.PaletteShift), data.ApplyOnBeat)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Instruction couldn't be created. %s", err), http.StatusInternalServerError)
 			return
@@ -152,7 +152,7 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 		break
 	case 6:
 
-		block, err := BoxiBus.CreateLightingPaletteHueFlash(palette.Colors, uint16(data.Speed), byte(data.PaletteShift), false)
+		block, err := BoxiBus.CreateLightingPaletteHueFlash(palette.Colors, uint16(data.Speed), byte(data.PaletteShift), data.ApplyOnBeat)
 		if err != nil {
 			http.Error(w, fmt.Sprintf("Instruction couldn't be created. %s", err), http.StatusInternalServerError)
 			return
@@ -164,7 +164,7 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 		break
 	case 7:
 		instruction = Lightshow.LightingInstruction{
-			MessageBlock: BoxiBus.CreateLightingStrobe(color1, uint16(frequency), 0, false),
+			MessageBlock: BoxiBus.CreateLightingStrobe(color1, uint16(frequency), 0, data.ApplyOnBeat),
 		}
 		break
 	}

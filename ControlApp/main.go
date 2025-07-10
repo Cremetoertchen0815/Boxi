@@ -14,7 +14,10 @@ func main() {
 	log.Println("Starting application...")
 
 	// Initialize hardware
-	hardware := Infrastructure.DebugStub{}
+	hardware, err := Infrastructure.Initialize()
+	if err != nil {
+		log.Fatalf("Error initializing hardware: %s", err)
+	}
 
 	// Initialize lighting manager
 	visuals := Lightshow.CreateVisualManager(hardware)
@@ -68,5 +71,5 @@ func main() {
 
 	// Start server (listening on localhost prevents firewall popup on Windows)
 	log.Println("Listening started")
-	log.Fatalln(http.ListenAndServe(":8080", nil))
+	log.Fatalln(http.ListenAndServe("192.168.4.1:8080", nil))
 }
