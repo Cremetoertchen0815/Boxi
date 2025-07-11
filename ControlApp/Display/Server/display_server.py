@@ -332,6 +332,12 @@ while True:
 
             case 0x03: #PlayAnimation
                 animationId = str(int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False))
+
+                pp = os.path.join(ANIMATION_DIR, animationId)
+                if not os.path.isdir(pp):
+                    print("Animation " + animationId + " does not exist.")
+                    continue
+
                 if (parameter & 0b01) == 0b01:
                     worker1.update_animation(animationId)
                 if (parameter & 0b10) == 0b10:
