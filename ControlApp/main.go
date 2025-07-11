@@ -66,7 +66,7 @@ func main() {
 
 	//Mark lightshow dirty after time delay
 	go func(manager *Lightshow.VisualManager) {
-		time.Sleep(time.Second * 5)
+		time.Sleep(time.Second * 12)
 		manager.MarkLightshowAsDirty()
 	}(visuals)
 

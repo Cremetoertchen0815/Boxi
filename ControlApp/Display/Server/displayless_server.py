@@ -180,7 +180,6 @@ while True:
             print("Wrong header. Header was: " + str(header))
             continue
 
-        print("Right header.")
         callback = bytes([header[5], header[6], header[7], header[8]])
         parameter = int.from_bytes([header[9], header[10]], byteorder='big', signed=False)
         payloadLen = int.from_bytes([header[11], header[12], header[13], header[14]], byteorder='big', signed=False)
@@ -197,18 +196,14 @@ while True:
                 animationId = int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False)
                 print("Animation " + str(animationId) + " is being checked.")
                 anim_path = os.path.join(ANIMATION_DIR, str(animationId))
-                print("a")
                 result = False
                 if os.path.isdir(anim_path):
                     files = [f for f in os.listdir(anim_path)]
                     if len(files) == parameter:
                         result = True
 
-                print("b")
                 send_answer(callback, result)
-                print("c")
             case 0x02: #UploadFrame
-                print("z")
                 animationId = int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False)
                 payload = payload[4:]
                 print("Animation " + str(animationId) + ", frame " + str(parameter) + " is being uploaded")
