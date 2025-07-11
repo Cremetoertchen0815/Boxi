@@ -147,6 +147,21 @@ func (manager *AnimationManager) GetAll() []Animation {
 	return animations
 }
 
+func (manager *AnimationManager) GetAllAnimationIds() []Display.AnimationId {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
+	var animations []Display.AnimationId
+	for _, animation := range manager.animations {
+		animations = append(animations, animation.Id)
+
+		if animation.SecondaryAnimation != Display.None {
+			animations = append(animations, animation.SecondaryAnimation)
+		}
+	}
+	return animations
+}
+
 func (manager *AnimationManager) RemoveAnimation(animationId Display.AnimationId) {
 	manager.accessLock.Lock()
 	defer manager.accessLock.Unlock()

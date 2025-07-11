@@ -260,6 +260,16 @@ print("Displays connected!")
 # Create TCP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+def recv_all(n):
+    """Receive exactly n bytes from the socket."""
+    data = bytearray()
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            raise ConnectionError("Socket connection broken")
+        data.extend(packet)
+    return bytes(data)
+
 def send_answer(callback_bytes, success):
     if callback_bytes[0] == 0 and callback_bytes[1] == 0 and callback_bytes[2] == 0 and callback_bytes[3] == 0:
         return
@@ -293,7 +303,7 @@ while True:
         callback = bytes([header[5], header[6], header[7], header[8]])
         parameter = int.from_bytes([header[9], header[10]], byteorder='big', signed=False)
         payloadLen = int.from_bytes([header[11], header[12], header[13], header[14]], byteorder='big', signed=False)
-        payload = sock.recv(payloadLen)
+        payload = recv_all(payloadLen)
         if not payload or len(payload) != payloadLen:
             continue
 

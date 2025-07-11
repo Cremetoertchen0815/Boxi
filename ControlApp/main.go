@@ -21,6 +21,7 @@ func main() {
 
 	// Initialize lighting manager
 	visuals := Lightshow.CreateVisualManager(hardware)
+	hardware.SetAnimationProvider(visuals.GetAnimations())
 
 	// Setup static file server
 	fileServer := http.FileServer(http.Dir("Frontend/template/static/"))

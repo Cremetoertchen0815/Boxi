@@ -138,6 +138,16 @@ print("Displays connected!")
 # Create TCP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+def recv_all(n):
+    """Receive exactly n bytes from the socket."""
+    data = bytearray()
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            raise ConnectionError("Socket connection broken")
+        data.extend(packet)
+    return bytes(data)
+
 def send_answer(callback_bytes, success):
     if callback_bytes[0] == 0 and callback_bytes[1] == 0 and callback_bytes[2] == 0 and callback_bytes[3] == 0:
         return
@@ -161,18 +171,22 @@ while True:
     try:
         header = sock.recv(HEADER_BUFFER_SIZE)
         if not header or len(header) != 15:
+            print("Wrong len. Len was: " + str(len(header)))
             print("Server disconnected. Closing application...")
             exit()
 
 
         if header[0] != ord('y') or header[1] != ord('i') or header[2] != ord('f') or header[3] != ord('f') or header[4] > 5 or header[4] < 1:
+            print("Wrong header. Header was: " + str(header))
             continue
 
+        print("Right header.")
         callback = bytes([header[5], header[6], header[7], header[8]])
         parameter = int.from_bytes([header[9], header[10]], byteorder='big', signed=False)
         payloadLen = int.from_bytes([header[11], header[12], header[13], header[14]], byteorder='big', signed=False)
-        payload = sock.recv(payloadLen)
+        payload = recv_all(payloadLen)
         if not payload or len(payload) != payloadLen:
+            print("Wrong payloiad len. Len was: " + str(len(payload)) + " instead of " + str(payloadLen) + ". Bytes are: ")
             continue
 
         match header[4]:
@@ -183,14 +197,18 @@ while True:
                 animationId = int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False)
                 print("Animation " + str(animationId) + " is being checked.")
                 anim_path = os.path.join(ANIMATION_DIR, str(animationId))
+                print("a")
                 result = False
                 if os.path.isdir(anim_path):
                     files = [f for f in os.listdir(anim_path)]
                     if len(files) == parameter:
                         result = True
 
+                print("b")
                 send_answer(callback, result)
+                print("c")
             case 0x02: #UploadFrame
+                print("z")
                 animationId = int.from_bytes([payload[0], payload[1], payload[2], payload[3]], byteorder='big', signed=False)
                 payload = payload[4:]
                 print("Animation " + str(animationId) + ", frame " + str(parameter) + " is being uploaded")
@@ -208,6 +226,7 @@ while True:
 
                     send_answer(callback, True)
                 except Exception:
+                    print("Womp")
                     send_answer(callback, False)
 
             case 0x03: #PlayAnimation

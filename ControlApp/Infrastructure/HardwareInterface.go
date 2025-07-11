@@ -8,6 +8,7 @@ import (
 type HardwareInterface interface {
 	GetConnectedDisplays() []Display.ServerDisplay
 	GetBeatState() bool
+	SetAnimationProvider(animationProvider AnimationProvider)
 	UpdateStatusCode(statusCode BoxiBus.DisplayStatusCode, serverId byte)
 	SendLightingInstruction(block BoxiBus.MessageBlock)
 	SendAnimationInstruction(animation Display.AnimationId, displays []Display.ServerDisplay)

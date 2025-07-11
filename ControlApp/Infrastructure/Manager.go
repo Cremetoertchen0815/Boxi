@@ -22,7 +22,7 @@ type Manager struct {
 }
 
 type AnimationProvider interface {
-	getAllAnimations() []Display.AnimationId
+	GetAllAnimationIds() []Display.AnimationId
 }
 
 func Initialize() (*Manager, error) {
@@ -31,7 +31,7 @@ func Initialize() (*Manager, error) {
 		log.Fatal(err)
 	}
 
-	displays, err := Display.ListenForServers(true)
+	displays, err := Display.ListenForServers(false)
 	if err != nil {
 		message := BoxiBus.CreateDisplayStatusUpdate(BoxiBus.DisplayServerFailed, 1)
 		_ = connection.Send(message)
@@ -55,6 +55,10 @@ func Initialize() (*Manager, error) {
 	go manager.handleDisplayServerLogon(displays.ServerConnected)
 
 	return manager, nil
+}
+
+func (manager *Manager) SetAnimationProvider(animationProvider AnimationProvider) {
+	manager.animationProvider = animationProvider
 }
 
 func initBeatPin() (gpio.PinIO, error) {
@@ -92,7 +96,7 @@ func (manager *Manager) handleDisplayServerLogon(logonChannel <-chan byte) {
 		}
 
 		// Sync animations
-		for _, animationId := range manager.animationProvider.getAllAnimations() {
+		for _, animationId := range manager.animationProvider.GetAllAnimationIds() {
 			frames, err := GetAnimationFrames(uint32(animationId))
 			if err != nil {
 				continue

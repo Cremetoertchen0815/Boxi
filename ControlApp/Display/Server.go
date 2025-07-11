@@ -59,8 +59,8 @@ func (server *Server) sendInstructionWithCallback(instructionType instructionTyp
 	data = append(data, payload...)
 
 	server.writeLock.Lock()
+	defer server.writeLock.Unlock()
 	i, err := server.connection.Write(data)
-	server.writeLock.Unlock()
 
 	if i != len(data) {
 		return false, errors.New("data wasn't completely transmitted")
@@ -84,7 +84,7 @@ func waitForTimeout(callback <-chan bool) bool {
 		select {
 		case ret := <-callback:
 			resultCh <- ret
-		case <-time.After(1 * time.Second):
+		case <-time.After(3 * time.Second):
 			resultCh <- false
 		}
 	}(callback)

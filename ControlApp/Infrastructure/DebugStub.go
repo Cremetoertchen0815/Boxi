@@ -46,3 +46,7 @@ func (manager DebugStub) UploadAnimation(id Display.AnimationId) {
 func (manager DebugStub) UpdateStatusCode(statusCode BoxiBus.DisplayStatusCode, serverId byte) {
 	log.Printf("Updated status code, code: %d, serverId: %d \n", statusCode, serverId)
 }
+
+func (manager DebugStub) SetAnimationProvider(animationProvider AnimationProvider) {
+
+}
