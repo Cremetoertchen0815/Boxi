@@ -4,7 +4,6 @@ Software steps:
 -Implement the "Auto Mode Settings" page
 -Add ping to display servers every second to detect disconnect
 -Add saving backup of config file when saving
--Select secondary screen animation for secondary screen, if both screens are overridden with the same animation
 
 Hardware issues:
 -Fix backlight PWM colliding with screen logic (add filter???)

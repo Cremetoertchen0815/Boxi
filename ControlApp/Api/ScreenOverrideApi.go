@@ -89,7 +89,18 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 			return
 		}
 
-		aniInstr = append(aniInstr, Lightshow.AnimationInstruction{Animation: animationObj.Id, Displays: []Display.ServerDisplay{animation.ScreenIndex}})
+		id := animationObj.Id
+		if animationObj.SecondaryAnimation != Display.None {
+			for _, a := range data.Animations {
+				if ((a.ScreenIndex == Display.Boxi1D1 && animation.ScreenIndex == Display.Boxi1D2) ||
+					(a.ScreenIndex == Display.Boxi2D1 && animation.ScreenIndex == Display.Boxi2D2)) && a.AnimationId == id {
+					id = animationObj.SecondaryAnimation
+					break
+				}
+			}
+		}
+
+		aniInstr = append(aniInstr, Lightshow.AnimationInstruction{Animation: id, Displays: []Display.ServerDisplay{animation.ScreenIndex}})
 	}
 
 	instr := Lightshow.AnimationsInstruction{Animations: aniInstr, Character: Lightshow.Unknown, BlinkSpeed: uint16(data.FadeoutSpeed)}
