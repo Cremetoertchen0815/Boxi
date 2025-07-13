@@ -25,7 +25,7 @@ func CreateVisualManager(hardwareManager Infrastructure.HardwareInterface) *Visu
 	visual := VisualManager{hardwareManager: hardwareManager, accessLock: &sync.Mutex{}, brightnessValue: 1}
 	visual.animations = LoadAnimations()
 	visual.palettes = LoadPalettes()
-	visual.autoContext = CreateAutoMode(&visual, loadConfiguration())
+	visual.autoContext = CreateAutoMode(&visual, load())
 
 	// Sync animations when they get uploaded
 	go visual.watchForAnimationUploads()
@@ -227,7 +227,7 @@ func (manager *VisualManager) GetBrightness() float64 {
 }
 
 func (manager *VisualManager) StoreConfiguration(markAsDirty bool) {
-	storeConfiguration(manager.GetConfiguration())
+	manager.GetConfiguration().Store()
 	manager.autoContext.isDirty = markAsDirty
 }
 

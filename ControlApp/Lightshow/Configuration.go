@@ -1,9 +1,7 @@
 package Lightshow
 
 import (
-	"encoding/json"
 	"log"
-	"os"
 	"time"
 )
 
@@ -45,46 +43,24 @@ const (
 
 const autoModeConfigPath = "Configuration/auto_mode.json"
 
-func loadConfiguration() AutoModeConfiguration {
-	configFile, err := os.Open(autoModeConfigPath)
+const autoModeConfigBackupPath = "Configuration/auto_mode_backup.json"
 
-	var config AutoModeConfiguration
+func load() AutoModeConfiguration {
+	config, err := loadConfiguration[AutoModeConfiguration](autoModeConfigPath)
+
 	if err != nil {
-		log.Fatalf("Config file for auto mode could not be accessed! %s", err)
+		config, err = loadConfiguration[AutoModeConfiguration](autoModeConfigBackupPath)
 	}
 
-	defer func(configFile *os.File) {
-		_ = configFile.Close()
-	}(configFile)
-
-	jsonParser := json.NewDecoder(configFile)
-
-	err = jsonParser.Decode(&config)
 	if err != nil {
-		log.Fatalf("Invalid JSON format of auto mode config file! %s", err)
+		log.Fatalf("Config file for auto mode could not be accessed! %s", err)
 	}
 
 	return config
 }
 
-func storeConfiguration(config *AutoModeConfiguration) {
-	_ = os.Remove(autoModeConfigPath)
-
-	configFile, err := os.OpenFile(autoModeConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-
-	if err != nil {
-		log.Fatalf("Config file for auto mode could not be opened for writing! %s", err)
-	}
-
-	defer func(configFile *os.File) {
-		_ = configFile.Close()
-	}(configFile)
-
-	jsonParser := json.NewEncoder(configFile)
-	err = jsonParser.Encode(config)
-	if err != nil {
-		log.Fatalf("Configuration for auto mode could be JSON encoded! %s", err)
-	}
+func (config *AutoModeConfiguration) Store() {
+	storeConfiguration(config, autoModeConfigPath, autoModeConfigBackupPath)
 }
 
 // IsCalm returns whether the mood has exclusively calm character.

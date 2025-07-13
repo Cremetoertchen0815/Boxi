@@ -3,7 +3,6 @@ package Lightshow
 import (
 	"ControlApp/Display"
 	"ControlApp/Infrastructure"
-	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -26,24 +25,16 @@ type AnimationManager struct {
 }
 
 const animationsConfigPath = "Configuration/animations.json"
+const animationsConfigBackupPath = "Configuration/animations_backup.json"
 
 func LoadAnimations() *AnimationManager {
-	configFile, err := os.Open(animationsConfigPath)
-
-	var config map[Display.AnimationId]Animation
+	config, err := loadConfiguration[map[Display.AnimationId]Animation](animationsConfigPath)
 	if err != nil {
-		log.Fatalf("Config file for animations could not be accessed! %s", err)
+		config, err = loadConfiguration[map[Display.AnimationId]Animation](animationsConfigBackupPath)
 	}
 
-	defer func(configFile *os.File) {
-		_ = configFile.Close()
-	}(configFile)
-
-	jsonParser := json.NewDecoder(configFile)
-
-	err = jsonParser.Decode(&config)
 	if err != nil {
-		log.Fatalf("Invalid JSON format of animations config file! %s", err)
+		log.Fatalf("Config file for animations could not be accessed! %s", err)
 	}
 
 	uploadQueue := make(chan Display.AnimationId, 2)
@@ -55,23 +46,7 @@ func LoadAnimations() *AnimationManager {
 }
 
 func (manager *AnimationManager) storeConfiguration() {
-	_ = os.Remove(animationsConfigPath)
-
-	configFile, err := os.OpenFile(animationsConfigPath, os.O_CREATE|os.O_WRONLY, os.ModePerm)
-
-	if err != nil {
-		log.Fatalf("Config file for animations could not be opened for writing! %s", err)
-	}
-
-	defer func(configFile *os.File) {
-		_ = configFile.Close()
-	}(configFile)
-
-	jsonParser := json.NewEncoder(configFile)
-	err = jsonParser.Encode(manager.animations)
-	if err != nil {
-		log.Fatalf("Configuration for animations could be JSON encoded! %s", err)
-	}
+	storeConfiguration(&manager.animations, animationsConfigPath, animationsConfigBackupPath)
 }
 
 func (manager *AnimationManager) ImportAnimation(animationPath string, name string, mood LightingMood, splitAnimation bool, nsfw bool) (Display.AnimationId, error) {

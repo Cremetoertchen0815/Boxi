@@ -21,24 +21,17 @@ type Palette struct {
 }
 
 const palettesConfigPath = "Configuration/palettes.json"
+const palettesConfigBackupPath = "Configuration/palettes_backup.json"
 
 func LoadPalettes() *PaletteManager {
-	configFile, err := os.Open(palettesConfigPath)
+	config, err := loadConfiguration[map[uint32]Palette](palettesConfigPath)
 
-	var config map[uint32]Palette
 	if err != nil {
-		log.Fatalf("Config file for palettes could not be accessed! %s", err)
+		config, err = loadConfiguration[map[uint32]Palette](palettesConfigBackupPath)
 	}
 
-	defer func(configFile *os.File) {
-		_ = configFile.Close()
-	}(configFile)
-
-	jsonParser := json.NewDecoder(configFile)
-
-	err = jsonParser.Decode(&config)
 	if err != nil {
-		log.Fatalf("Invalid JSON format of palettes config file! %s", err)
+		log.Fatalf("Config file for palettes could not be accessed! %s", err)
 	}
 
 	return &PaletteManager{
