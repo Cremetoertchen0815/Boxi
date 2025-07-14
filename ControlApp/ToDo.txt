@@ -1,5 +1,4 @@
 Software steps:
--Implement refreshing palette names list when item was stored
 -Show/hide color picker when number of colors changes on palettes page
 -Implement creation on the palettes page
 -Implement deletion on the palettes page

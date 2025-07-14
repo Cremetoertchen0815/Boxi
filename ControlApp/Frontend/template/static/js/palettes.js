@@ -65,7 +65,17 @@ $('#itemSelection').on('change', async e => {
     contentPanel.style.display = "block";
 });
 
-$('#palette-save').on('click', async _ => await saveChange());
+$('#palette-save').on('click', async _ => {
+    await saveChange()
+
+    if (currentPalette < 0) return;
+
+    $('#itemSelection').children('option').each(function() {
+        if (parseInt(this.value) === currentPalette) {
+            this.text = nameInput.value;
+        }
+    })
+});
 
 function getColorString(colors) {
     console.log(colors);
