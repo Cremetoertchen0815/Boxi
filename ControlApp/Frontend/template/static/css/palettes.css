@@ -24,6 +24,7 @@ main {
     font-size: 1em;
     display: inline-block;
     cursor: pointer;
+    padding: initial;
 }
 
 #palette-content {
@@ -32,4 +33,5 @@ main {
     border-radius: 4px;
     margin-top: 16px;
     width: calc(100% - 30px);
+    display: none;
 }

@@ -123,3 +123,7 @@ label {
 .unit {
    font-size: 0.7rem;
  }
+
+button {
+  padding: 5px;
+}
