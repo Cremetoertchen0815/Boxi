@@ -8,6 +8,11 @@ body {
   overflow-x: hidden;
 }
 
+#global-container {
+  min-height: 100%;
+  position:relative;
+}
+
 header {
   display: flex;
   align-items: center;
@@ -83,6 +88,7 @@ h2 {
 
 footer {
   position: absolute;
+  left: 0;
   bottom: 0;
   background: black;
   width: 100%;
