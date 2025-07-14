@@ -21,20 +21,23 @@
 
 <div id="overlay" class="overlay"></div>
 
-<header>
-    <button id="menuBtn" class="menu-btn">&#9776;</button>
-    <h2>{{.PageTitle}}</h2>
-</header>
+<div id="global-container">
+    <header>
+        <button id="menuBtn" class="menu-btn">&#9776;</button>
+        <h2>{{.PageTitle}}</h2>
+    </header>
 
-<main>
-    {{template "Content" .}}
-</main>
+    <main>
+        {{template "Content" .}}
+    </main>
 
-<footer>
-    <div id="footer-text">
-        Made in 2025 by <a class="creme-text" href="https://cremetoertchen.com">Creme</a> and <span class="foxpaw-text">Foxpaw</span>
-    </div>
-</footer>
+    <footer>
+        <div id="footer-text">
+            Made in 2025 by <a class="creme-text" href="https://cremetoertchen.com">Creme</a> and <span
+                    class="foxpaw-text">Foxpaw</span>
+        </div>
+    </footer>
+</div>
 
 <script src="/static/dist/jquery.min.js"></script>
 <script src="/static/dist/hammer.min.js"></script>
