@@ -58,6 +58,11 @@ type overridePageInformation struct {
 	TextOverrideValues      []textInformation
 }
 
+type palettePageInformation struct {
+	ScaffoldInformation
+	Palettes []Lightshow.Palette
+}
+
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
@@ -98,7 +103,7 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 	var animations []animationInformation
 	for _, anim := range Me.Data.OverrideAnimationCurrent.Animations {
 		number := 1
-		switch Display.ServerDisplay(anim.ScreenIndex) {
+		switch anim.ScreenIndex {
 		case Display.Boxi1D2:
 			number = 2
 		case Display.Boxi2D1:
@@ -127,7 +132,7 @@ func (Me PageProvider) HandleOverridesPage(w http.ResponseWriter, r *http.Reques
 		}
 
 		number := 1
-		switch Display.ServerDisplay(text.ScreenIndex) {
+		switch text.ScreenIndex {
 		case Display.Boxi1D2:
 			number = 2
 		case Display.Boxi2D1:
@@ -204,12 +209,13 @@ func (Me PageProvider) HandleAnimationPage(w http.ResponseWriter, r *http.Reques
 func (Me PageProvider) HandlePalettesPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
+	templateData := palettePageInformation{scaffoldData, Me.Data.Visuals.GetPalettes().GetAll()}
 
 	//Disable caching
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	//Execute template
-	err := Me.palettesPage.Execute(w, scaffoldData)
+	err := Me.palettesPage.Execute(w, templateData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)

@@ -1,6 +1,26 @@
 {{define "Header"}}
     <link rel="stylesheet" href="./static/css/{{.PageName}}.css">
+    <link rel="stylesheet" href="./static/css/colorpicker.css">
+{{end}}
+{{define "Scripts"}}
+    <script src="/static/js/colorpicker.js"></script>
+    <script src="/static/js/palettes.js"></script>
 {{end}}
 {{define "Content"}}
-    <h3>Hi, I bims der paledde!</h3>
+    <div id="selectionContainer">
+        <label for="itemSelection" id="itemSelectionLabel">Edit: </label>
+        <select name="itemSelection" id="itemSelection">
+            <option value="-1" selected>Select palette</option>
+            {{range .Palettes}}
+                <option value="{{.Id}}">{{.Name}}</option>
+            {{end}}
+        </select>
+
+        <button id="itemAddButton" class="smallButtons">+</button>
+        <button id="itemRemoveButton" class="smallButtons">-</button>
+    </div>
+
+    <div id="palette-content">
+
+    </div>
 {{end}}

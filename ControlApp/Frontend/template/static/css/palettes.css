@@ -1,0 +1,35 @@
+main {
+    max-width: 300px;
+    min-width: 220px;
+}
+
+#itemSelectionLabel {
+    width: 100px;
+}
+
+
+#itemSelection {
+    width: calc(100% - 130px);
+}
+
+.smallButtons {
+    width: 40px;
+    height: 24px;
+    margin-left: 5px;
+    background-color: #9f9f9f;
+    color: black;
+    border: black solid 1.5px;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 1em;
+    display: inline-block;
+    cursor: pointer;
+}
+
+#palette-content {
+    background-color: #9f9f9f;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 16px;
+    width: calc(100% - 30px);
+}
