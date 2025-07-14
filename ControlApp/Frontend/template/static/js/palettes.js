@@ -23,6 +23,12 @@ const colorPickerRows = [
     $('#palette-color-g-row')[0],
     $('#palette-color-h-row')[0],
 ];
+const moodCheckboxes = [
+    $('#palette-mood-happy')[0],
+    $('#palette-mood-moody')[0],
+    $('#palette-mood-regular')[0],
+    $('#palette-mood-party')[0]
+];
 let currentPalette = -1;
 
 $('#itemSelection').on('change', async e => {
@@ -35,6 +41,14 @@ $('#itemSelection').on('change', async e => {
     const paletteData = await getColors(currentPalette);
     console.log(paletteData);
     countSelector.value = paletteData.colors.length;
+
+    for (let i = 0; i < 4; i++) {
+        moodCheckboxes[i].checked = false;
+    }
+
+    for (let i = 0; i < paletteData.moods.length; i++) {
+        moodCheckboxes[paletteData.moods[i]].checked = true;
+    }
 
     for (let i = 0; i < 8; i++) {
         if (i >= paletteData.colors.length) {

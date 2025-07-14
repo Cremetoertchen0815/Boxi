@@ -4,7 +4,7 @@ main {
 }
 
 #itemSelectionLabel {
-    width: 100px;
+    display: initial;
 }
 
 
@@ -34,4 +34,12 @@ main {
     margin-top: 16px;
     width: calc(100% - 30px);
     display: none;
+}
+
+tr {
+    display: block;
+}
+
+.input-header {
+    width: 80px;
 }
