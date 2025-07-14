@@ -1,13 +1,13 @@
 const channels = ['R', 'G', 'B', 'W', 'A', 'U'];
 const values = [
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
-    { R: 0, G: 0, B: 0, W: 0, A: 0, U: 0 },
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
+    {R: 0, G: 0, B: 0, W: 0, A: 0, U: 0},
 ];
 
 const targets = {
@@ -15,7 +15,7 @@ const targets = {
     A: [255, 191, 0],
     U: [148, 0, 211]
 };
-$(".colorpicker").each(function(index, sliderContainer) {
+$(".colorpicker").each(function (index, sliderContainer) {
     const colorPreview = document.createElement('div');
     colorPreview.className = "preview";
     sliderContainer.appendChild(colorPreview);
@@ -66,8 +66,31 @@ $(".colorpicker").each(function(index, sliderContainer) {
         sliderContainer.appendChild(column);
     });
 
-    // Initial preview render
-    updatePreview(index, colorPreview);
+    // Watch for color attribute changes
+    const observer = new MutationObserver(mutations => {
+        mutations.forEach(mutation => {
+            if (mutation.type === "attributes" && mutation.attributeName === "color") {
+                const newColorArray = getColorArrayFromPicker(sliderContainer);
+                if (newColorArray.length === 6) {
+                    // Update internal values
+                    channels.forEach((channel, i) => {
+                        values[index][channel] = newColorArray[i];
+
+                        // Update slider and label
+                        const slider = sliderContainer.querySelector(`#slider_${channel}`);
+                        const label = sliderContainer.querySelector(`#value_${channel}`);
+                        if (slider) slider.value = newColorArray[i];
+                        if (label) label.textContent = newColorArray[i];
+                    });
+
+                    // Update the preview
+                    updatePreview(index, colorPreview);
+                }
+            }
+        });
+    });
+
+    observer.observe(sliderContainer, {attributes: true});
 });
 
 function lerp(a, b, t) {
@@ -81,7 +104,7 @@ function updatePreview(index, obj) {
     let b = values[index].B;
 
     // LERP each target into RGB color (W, A, U)
-    const blend = { r, g, b };
+    const blend = {r, g, b};
 
     // Each max value (255) equals 50% blend
     const lerpFactor = (val) => val / 255 * 0.5;

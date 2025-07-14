@@ -1,6 +1,8 @@
 Software steps:
+-Implement saving on the palettes page
+-Implement creation on the palettes page
+-Implement deletion on the palettes page
 -Implement the "Animations" page
--Implement the "Palettes" page
 -Implement the "Auto Mode Settings" page
 -Add ping to display servers every second to detect disconnect
 
