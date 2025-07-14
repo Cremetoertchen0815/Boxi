@@ -77,6 +77,16 @@ $('#palette-save').on('click', async _ => {
     })
 });
 
+countSelector.onchange = () => {
+    const value = parseInt(countSelector.value);
+    if (value < 1 || value > 8) return;
+
+    for (let i = 0; i<8; i++) {
+        const pickerRow = colorPickerRows[i];
+        pickerRow.style.display = i < value ? "initial" : "none";
+    }
+};
+
 function getColorString(colors) {
     console.log(colors);
     return [colors.R, colors.G, colors.B, colors.W, colors.A, colors.UV].join(',');
@@ -89,8 +99,6 @@ async function getColors(id) {
             screen: parseInt(animationSelector.getAttribute('index')),
             text: reset ? " " : animationSelector.value
         }));
-
-    const returnObj = { texts: texts }
 
     const result = await fetch(baseAddr + 'api/palette?id=' + id, {
         method: 'GET'
