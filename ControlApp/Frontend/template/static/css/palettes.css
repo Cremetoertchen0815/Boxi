@@ -18,7 +18,7 @@ main {
     margin-left: 5px;
     background-color: #9f9f9f;
     color: black;
-    border: black solid 1.5px;
+    border: black solid 2px;
     border-radius: 5px;
     font-weight: bold;
     font-size: 1em;
@@ -42,4 +42,8 @@ tr {
 
 .input-header {
     width: 80px;
+}
+
+#palette-name {
+    width: 160px;
 }

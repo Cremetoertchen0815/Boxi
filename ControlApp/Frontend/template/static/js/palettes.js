@@ -3,6 +3,7 @@ const baseAddr = "http://localhost:8080/"
 
 const contentPanel = $('#palette-content')[0];
 const countSelector = $('#palette-count')[0];
+const nameInput = $('#palette-name')[0];
 const colorPickers = [
     $('#palette-color-a')[0],
     $('#palette-color-b')[0],
@@ -41,6 +42,7 @@ $('#itemSelection').on('change', async e => {
     const paletteData = await getColors(currentPalette);
     console.log(paletteData);
     countSelector.value = paletteData.colors.length;
+    nameInput.value = paletteData.name;
 
     for (let i = 0; i < 4; i++) {
         moodCheckboxes[i].checked = false;
@@ -63,6 +65,8 @@ $('#itemSelection').on('change', async e => {
     contentPanel.style.display = "block";
 });
 
+$('#palette-save').on('click', async _ => await saveChange());
+
 function getColorString(colors) {
     console.log(colors);
     return [colors.R, colors.G, colors.B, colors.W, colors.A, colors.UV].join(',');
@@ -83,4 +87,32 @@ async function getColors(id) {
     });
 
     return await result.json()
+}
+
+async function saveChange() {
+
+    const moods = [];
+    for (let i = 0; i<4; i++) {
+        if (!moodCheckboxes[i].checked) continue;
+        moods.push(i);
+    }
+
+    const colorCount = parseInt(countSelector.value);
+    const color = [];
+    for (let i = 0; i<colorCount; i++) {
+        const picker = colorPickers[i];
+        color.push(getColorFromColorPicker(picker));
+    }
+
+    const data = {
+        id: currentPalette,
+        name: nameInput.value,
+        moods: moods,
+        colors: color
+    }
+
+    await fetch(baseAddr + 'api/palette', {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
 }

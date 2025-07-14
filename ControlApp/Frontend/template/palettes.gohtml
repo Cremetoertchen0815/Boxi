@@ -22,6 +22,14 @@
 
     <div id="palette-content">
         <table>
+            <tr id="palette-name-row">
+                <td class="input-header">
+                    <label for="palette-name">Name:</label>
+                </td>
+                <td>
+                    <input type="text" id="palette-name">
+                </td>
+            </tr>
             <tr id="palette-moods">
                 <td class="input-header">
                     <label for="palette-mood-happy">Fits to mood:</label>
@@ -29,7 +37,7 @@
             </tr>
             <tr id="palette-mood-happy-row">
                 <td class="input-header">
-                    <label for="palette-mood-happy"><i>Happy:</i></label>
+                    <label for="palette-mood-happy"><i>Happy</i></label>
                 </td>
                 <td>
                     <input type="checkbox" id="palette-mood-happy"/>
@@ -38,7 +46,7 @@
 
             <tr id="palette-mood-moody-row">
                 <td class="input-header">
-                    <label for="palette-mood-moody"><i>Moody:</i></label>
+                    <label for="palette-mood-moody"><i>Moody</i></label>
                 </td>
                 <td>
                     <input type="checkbox" id="palette-mood-moody"/>
@@ -46,7 +54,7 @@
             </tr>
             <tr id="palette-mood-regular-row">
                 <td class="input-header">
-                    <label for="palette-mood-regular"><i>Regular:</i></label>
+                    <label for="palette-mood-regular"><i>Regular</i></label>
                 </td>
                 <td>
                     <input type="checkbox" id="palette-mood-regular"/>
@@ -54,7 +62,7 @@
             </tr>
             <tr id="palette-mood-party-row">
                 <td class="input-header">
-                    <label for="palette-mood-party"><i>Party:</i></label>
+                    <label for="palette-mood-party"><i>Party</i></label>
                 </td>
                 <td>
                     <input type="checkbox" id="palette-mood-party"/>
@@ -137,6 +145,6 @@
         </table>
 
         <br/>
-        <button id="overwrite-lighting-apply-now">Save</button>
+        <button id="palette-save">Save</button>
     </div>
 {{end}}
