@@ -105,7 +105,9 @@ $('#itemAddButton').on('click', async () => {
 
 $('#itemRemoveButton').on('click', async () => {
     const idToDelete = itemSelection.selectedOptions[0].value;
+    const name = itemSelection.selectedOptions[0].innerText;
     if (idToDelete < 0) return;
+    if (!confirm("Do you really want to delete palette '" + name + "'?")) return;
 
     await deletePalette(idToDelete);
 
