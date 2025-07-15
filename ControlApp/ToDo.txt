@@ -1,7 +1,6 @@
 Software steps:
 -Implement the "Animations" page
 -Implement the "Auto Mode Settings" page
--Add ping to display servers every second to detect disconnect
 
 Hardware issues:
 -Fix backlight PWM colliding with screen logic (add filter???)
