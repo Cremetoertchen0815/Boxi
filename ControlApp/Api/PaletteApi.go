@@ -188,7 +188,7 @@ func (fixture Fixture) handlePaletteDeleteApi(w http.ResponseWriter, r *http.Req
 	var id uint32
 	idStr := r.FormValue("id")
 	if idStr != "" {
-		tempId, err := strconv.ParseInt(idStr, 10, 32)
+		tempId, err := strconv.ParseInt(idStr, 10, 33)
 		if err != nil || tempId < 0 {
 			http.Error(w, "Error parsing ID.", http.StatusBadRequest)
 			return

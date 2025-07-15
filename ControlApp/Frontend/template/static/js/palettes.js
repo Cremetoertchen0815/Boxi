@@ -41,7 +41,6 @@ itemSelection.onchange = async () => {
     }
 
     const paletteData = await getColors(currentPalette);
-    console.log(paletteData);
     countSelector.value = paletteData.colors.length;
     nameInput.value = paletteData.name;
 
@@ -101,11 +100,33 @@ $('#itemAddButton').on('click', async () => {
     itemSelection.appendChild(itemOption);
     itemSelection.value = id;
 
-    await itemSelection.onchange()
+    await itemSelection.onchange();
+});
+
+$('#itemRemoveButton').on('click', async () => {
+    const idToDelete = itemSelection.selectedOptions[0].value;
+    if (idToDelete < 0) return;
+
+    await deletePalette(idToDelete);
+
+    let childToDelete = null;
+    const children = itemSelection.children;
+    for (let i = 0; i < children.length; i++) {
+        const c = children[i];
+        if (c.value !== idToDelete) continue;
+        childToDelete = c;
+        break;
+    }
+
+    if (childToDelete != null) {
+        childToDelete.remove();
+    }
+
+    itemSelection.value = -1;
+    await itemSelection.onchange();
 });
 
 function getColorString(colors) {
-    console.log(colors);
     return [colors.R, colors.G, colors.B, colors.W, colors.A, colors.UV].join(',');
 }
 
@@ -163,4 +184,10 @@ async function createPalette(name) {
     });
 
     return await result.json()
+}
+
+async function deletePalette(id) {
+    await fetch(baseAddr + 'api/palette?id=' + id, {
+        method: 'DELETE'
+    });
 }
