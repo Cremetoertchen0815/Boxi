@@ -1,5 +1,4 @@
 Software steps:
--Implement creation on the palettes page
 -Implement deletion on the palettes page
 -Implement the "Animations" page
 -Implement the "Auto Mode Settings" page

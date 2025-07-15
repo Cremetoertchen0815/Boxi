@@ -33,8 +33,7 @@ type paletteType struct {
 }
 
 type paletteCreate struct {
-	Name  string `json:"name"`
-	Moods []int  `json:"moods"`
+	Name string `json:"name"`
 }
 
 type paletteCreated struct {
@@ -77,7 +76,7 @@ func (fixture Fixture) handlePaletteGetApi(w http.ResponseWriter, r *http.Reques
 	var id uint32
 	idStr := r.FormValue("id")
 	if idStr != "" {
-		tempId, err := strconv.ParseInt(idStr, 10, 32)
+		tempId, err := strconv.ParseInt(idStr, 10, 33)
 		if err != nil || tempId < 0 {
 			http.Error(w, "Error parsing ID.", http.StatusBadRequest)
 			return
@@ -97,7 +96,8 @@ func (fixture Fixture) handlePaletteGetApi(w http.ResponseWriter, r *http.Reques
 
 	header := paletteHeader{entity.Id, entity.Name}
 	var colors []Color
-	var moods []int
+	//goland:noinspection ALL
+	moods := []int{}
 
 	for _, col := range entity.Colors {
 		colors = append(colors, Color{int(col.Red), int(col.Green), int(col.Blue), int(col.White), int(col.Amber), int(col.UltraViolet)})
@@ -129,18 +129,7 @@ func (fixture Fixture) handlePaletteCreateApi(w http.ResponseWriter, r *http.Req
 		return
 	}
 
-	var moods []Lightshow.LightingMood
-
-	for _, mood := range data.Moods {
-		if mood < 0 || mood > 3 {
-			http.Error(w, fmt.Sprintf("Illegal mood value '%d'.", mood), http.StatusBadRequest)
-			return
-		}
-
-		moods = append(moods, Lightshow.LightingMood(mood))
-	}
-
-	palette := Lightshow.Palette{Id: id, Name: data.Name, Moods: moods, Colors: []BoxiBus.Color{{}}}
+	palette := Lightshow.Palette{Id: id, Name: data.Name, Moods: []Lightshow.LightingMood{Lightshow.Regular}, Colors: []BoxiBus.Color{{}}}
 	fixture.Data.Visuals.GetPalettes().SetPalette(palette)
 
 	returnData := paletteCreated{id}

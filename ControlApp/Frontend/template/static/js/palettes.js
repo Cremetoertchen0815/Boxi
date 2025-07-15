@@ -4,6 +4,7 @@ const baseAddr = "http://localhost:8080/"
 const contentPanel = $('#palette-content')[0];
 const countSelector = $('#palette-count')[0];
 const nameInput = $('#palette-name')[0];
+const itemSelection = $('#itemSelection')[0];
 const colorPickers = [
     $('#palette-color-a')[0],
     $('#palette-color-b')[0],
@@ -32,8 +33,8 @@ const moodCheckboxes = [
 ];
 let currentPalette = -1;
 
-$('#itemSelection').on('change', async e => {
-    currentPalette = parseInt(e.target.selectedOptions[0].value);
+itemSelection.onchange = async () => {
+    currentPalette = parseInt(itemSelection.selectedOptions[0].value);
     if (currentPalette < 0) {
         contentPanel.style.display = "none";
         return;
@@ -63,7 +64,7 @@ $('#itemSelection').on('change', async e => {
     }
 
     contentPanel.style.display = "block";
-});
+};
 
 $('#palette-save').on('click', async _ => {
     await saveChange()
@@ -86,6 +87,22 @@ countSelector.onchange = () => {
         pickerRow.style.display = i < value ? "initial" : "none";
     }
 };
+
+$('#itemAddButton').on('click', async () => {
+    const name = prompt("Please enter the name of the new palette:");
+    if (name === null) return;
+
+    const response = await createPalette(name);
+    const id = response.id;
+
+    const itemOption = document.createElement("option");
+    itemOption.value = id;
+    itemOption.innerText = name;
+    itemSelection.appendChild(itemOption);
+    itemSelection.value = id;
+
+    await itemSelection.onchange()
+});
 
 function getColorString(colors) {
     console.log(colors);
@@ -133,4 +150,17 @@ async function saveChange() {
         method: 'PUT',
         body: JSON.stringify(data)
     });
+}
+
+async function createPalette(name) {
+    const data = {
+        name: name,
+    }
+
+    const result = await fetch(baseAddr + 'api/palette', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+
+    return await result.json()
 }
