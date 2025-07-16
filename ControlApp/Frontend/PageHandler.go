@@ -63,6 +63,18 @@ type palettePageInformation struct {
 	Palettes []Lightshow.Palette
 }
 
+type animationsPageInformation struct {
+	ScaffoldInformation
+	Animations []animationInstance
+}
+
+type animationInstance struct {
+	Id        uint32
+	Name      string
+	Details   string
+	Thumbnail string
+}
+
 func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
@@ -191,14 +203,48 @@ func getColorString(color Api.Color) string {
 }
 
 func (Me PageProvider) HandleAnimationPage(w http.ResponseWriter, r *http.Request) {
+
+	var animations []animationInstance
+	for _, animation := range Me.Data.Visuals.GetAnimations().GetAll() {
+		moodStr := "Unknown"
+		switch animation.Mood {
+		case Lightshow.Happy:
+			moodStr = "Happy"
+			break
+		case Lightshow.Moody:
+			moodStr = "Moody"
+			break
+		case Lightshow.Regular:
+			moodStr = "Regular"
+			break
+		case Lightshow.Party:
+			moodStr = "Party"
+			break
+		}
+
+		nsfwStr := "Not NSFW"
+		if animation.IsNsfw {
+			nsfwStr = "NSFW"
+		}
+
+		aniInstance := animationInstance{
+			Id:        uint32(animation.Id),
+			Name:      animation.Name,
+			Details:   moodStr + ", " + nsfwStr,
+			Thumbnail: fmt.Sprintf("/static/thumbs/%d.png", animation.Id),
+		}
+		animations = append(animations, aniInstance)
+	}
+
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
+	templateData := animationsPageInformation{scaffoldData, animations}
 
 	//Disable caching
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	//Execute template
-	err := Me.animationsPage.Execute(w, scaffoldData)
+	err := Me.animationsPage.Execute(w, templateData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
