@@ -7,11 +7,11 @@
 {{define "Content"}}
     <div id="animation-container">
         {{range .Animations}}
-            <div class="animation-item" id="{{.Id}}">
+            <div class="animation-item" animation-id="{{.Id}}">
                 <img src="{{.Thumbnail}}" class="animation-item-preview" alt="Animation preview"/>
                 <span class="animation-item-name">{{.Name}}</span>
                 <span class="animation-item-details">{{.Details}}</span>
-                <img class="animation-item-delete" alt="Animation preview"/>
+                <img src="/static/img/delete.svg" class="animation-item-delete" alt="Delete"/>
             </div>
         {{end}}
 

@@ -7,6 +7,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"sort"
 	"sync"
 )
 
@@ -124,6 +125,11 @@ func (manager *AnimationManager) GetAll() []Animation {
 	for _, animation := range manager.animations {
 		animations = append(animations, animation)
 	}
+
+	sort.Slice(animations, func(i, j int) bool {
+		return animations[i].Id < animations[j].Id
+	})
+
 	return animations
 }
 

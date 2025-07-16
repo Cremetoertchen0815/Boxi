@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"sort"
 	"sync"
 )
 
@@ -100,6 +101,11 @@ func (manager *PaletteManager) GetAll() []Palette {
 	for _, palette := range manager.palettes {
 		palettes = append(palettes, palette)
 	}
+
+	sort.Slice(palettes, func(i, j int) bool {
+		return palettes[i].Id < palettes[j].Id
+	})
+
 	return palettes
 }
 
