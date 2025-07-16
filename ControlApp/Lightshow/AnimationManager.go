@@ -37,6 +37,11 @@ func LoadAnimations() *AnimationManager {
 		log.Fatalf("Config file for animations could not be accessed! %s", err)
 	}
 
+	//Generate thumbnails
+	for animationId := range config {
+		storeThumbnail(uint32(animationId))
+	}
+
 	uploadQueue := make(chan Display.AnimationId, 2)
 	return &AnimationManager{
 		animations:  config,
