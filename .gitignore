@@ -1,5 +1,7 @@
-/ControlApp/Frontend/static/thumbs/*
+/ControlApp/Frontend/template/static/thumbs/*
+ControlApp/Frontend/template/static/thumbs/*
 /ControlApp/animations
 ControlApp/animations
 /ControlApp/animations/*
 ControlApp/animations/*
+
