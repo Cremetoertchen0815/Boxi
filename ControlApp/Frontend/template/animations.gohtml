@@ -9,7 +9,7 @@
         <div id="animation-add-container">
             <img id="animation-add-icon" src="/static/img/plus.svg"/>
             <div id="animation-add-dialog">
-                <form action="http://192.168.4.1:8080/api/animation" method="post" enctype="multipart/form-data">
+                <form id="data-form" action="http://192.168.4.1:8080/api/animation" method="post" enctype="multipart/form-data">
                     <table>
                         <tr>
                             <td class="input-header">
@@ -63,6 +63,11 @@
                     <br/>
                     <input type="submit" value="Submit"/>
                 </form>
+
+                <div id="upload-status" style="display: none; margin-top: 10px;">
+                    <span id="upload-spinner">⏳</span> Uploading...
+                </div>
+                <div id="upload-error" style="color: red; display: none; margin-top: 10px;"></div>
             </div>
         </div>
         {{range .Animations}}
