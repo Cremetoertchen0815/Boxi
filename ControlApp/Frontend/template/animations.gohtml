@@ -6,6 +6,65 @@
 {{end}}
 {{define "Content"}}
     <div id="animation-container">
+        <div id="animation-add-container">
+            <img id="animation-add-icon" src="/static/img/plus.svg"/>
+            <div id="animation-add-dialog">
+                <form action="http://192.168.4.1:8080/api/animation" method="post" enctype="multipart/form-data">
+                    <table>
+                        <tr>
+                            <td class="input-header">
+                                <label for="name">Name:</label>
+                            </td>
+                            <td>
+                                <input type="text" required class="input-length-limiter" id="name" name="name" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="input-header">
+                                <label for="animationFile">Video file:</label>
+                            </td>
+                            <td>
+                                <input type="file" required class="input-length-limiter" id="animationFile" name="animationFile" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="input-header">
+                                <label>Mood:</label>
+                            </td>
+                            <td>
+                                <input type="radio" id="happy-radio" name="mood" value="0">
+                                <label for="happy-radio">Happy</label><br>
+                                <input type="radio" id="moody-radio" name="mood" value="1">
+                                <label for="moody-radio">Moody</label><br>
+                                <input type="radio" id="regular-radio" checked name="mood" value="2">
+                                <label for="regular-radio">Regular</label><br>
+                                <input type="radio" id="party-radio" name="mood" value="3">
+                                <label for="party-radio">Party</label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="input-header">
+                                <label for="split">Dual screen:</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="split" name="split" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="input-header">
+                                <label for="nsfw">NSFW:</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="nsfw" name="nsfw" />
+                            </td>
+                        </tr>
+                    </table>
+
+                    <br/>
+                    <input type="submit" value="Submit"/>
+                </form>
+            </div>
+        </div>
         {{range .Animations}}
             <div class="animation-item" animation-id="{{.Id}}">
                 <img src="{{.Thumbnail}}" class="animation-item-preview" alt="Animation preview"/>
