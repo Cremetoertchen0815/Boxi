@@ -9,8 +9,10 @@
         {{range .Animations}}
             <div class="animation-item" animation-id="{{.Id}}">
                 <img src="{{.Thumbnail}}" class="animation-item-preview" alt="Animation preview"/>
-                <span class="animation-item-name">{{.Name}}</span>
-                <span class="animation-item-details">{{.Details}}</span>
+                <div class="animation-texts">
+                    <span class="animation-item-name">{{.Name}}</span>
+                    <span class="animation-item-details">{{.Details}}</span>
+                </div>
                 <img src="/static/img/delete.svg" class="animation-item-delete" alt="Delete"/>
             </div>
         {{end}}

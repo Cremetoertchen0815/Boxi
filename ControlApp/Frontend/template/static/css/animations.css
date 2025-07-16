@@ -1,0 +1,46 @@
+#animation-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-width: 300px;
+    min-width: 220px;
+}
+
+.animation-item {
+    background-color: #9f9f9f;
+    padding: 6px 8px;
+    border: 2px solid black;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.animation-item-preview {
+    width: 70px;
+    border-radius: 4px;
+}
+
+.animation-texts {
+    width: 100%;
+}
+
+.animation-item-name {
+    font-size: 0.9rem;
+    font-weight: bold;
+    display: block;
+}
+
+.animation-item-delete {
+    width: 26px;
+    background: white;
+    height: 32px;
+    border-radius: 4px;
+    border: solid black 2px;
+    padding: 2px;
+}
+
+.animation-item-details {
+    font-size: 0.75rem;
+}
