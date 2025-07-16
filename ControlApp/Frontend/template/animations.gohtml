@@ -1,6 +1,19 @@
 {{define "Header"}}
     <link rel="stylesheet" href="./static/css/{{.PageName}}.css">
 {{end}}
+{{define "Scripts"}}
+    <script src="/static/js/animations.js"></script>
+{{end}}
 {{define "Content"}}
-    <h3>Hi, I bims der Animations!</h3>
+    <div id="animation-container">
+        {{range .Animations}}
+            <div class="animation-item" id="{{.Id}}">
+                <img src="{{.Thumbnail}}" class="animation-item-preview" alt="Animation preview"/>
+                <span class="animation-item-name">{{.Name}}</span>
+                <span class="animation-item-mood">{{.Mood}}</span>
+                <img class="animation-item-delete" alt="Animation preview"/>
+            </div>
+        {{end}}
+
+    </div>
 {{end}}
