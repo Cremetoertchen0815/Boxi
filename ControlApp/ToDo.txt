@@ -1,5 +1,4 @@
 Software steps:
--Fix the checkboxes "on" not converting into bools when submitting on "Animations" page
 -Implement deleting animations on "Animations" page
 -Implement the "Auto Mode Settings" page
 

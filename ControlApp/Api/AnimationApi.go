@@ -102,33 +102,11 @@ func (fixture Fixture) handleAnimationImportApi(w http.ResponseWriter, r *http.R
 		moodNr = uint8(tempId)
 	}
 
-	isSplit := false
 	isSplitStr := r.FormValue("split")
-	if isSplitStr != "" {
-		tempId, err := strconv.ParseInt(isSplitStr, 10, 8)
-		if err != nil || tempId < 0 {
-			http.Error(w, "Error parsing mood.", http.StatusBadRequest)
-			return
-		}
+	isSplit := isSplitStr != "on"
 
-		if tempId != 0 {
-			isSplit = true
-		}
-	}
-
-	isNsfw := false
 	isNsfwStr := r.FormValue("nsfw")
-	if isNsfwStr != "" {
-		tempId, err := strconv.ParseInt(isNsfwStr, 10, 8)
-		if err != nil || tempId < 0 {
-			http.Error(w, "Error parsing nsfw.", http.StatusBadRequest)
-			return
-		}
-
-		if tempId != 0 {
-			isNsfw = true
-		}
-	}
+	isNsfw := isNsfwStr != "on"
 
 	nameStr := r.FormValue("name")
 
