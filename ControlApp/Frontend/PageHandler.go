@@ -277,46 +277,28 @@ func (Me PageProvider) HandlePalettesPage(w http.ResponseWriter, r *http.Request
 func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
-	configData := Api.AutoModeConfig{
-		StrobeChance:               0,
-		HueShiftChance:             0,
-		FadeToColorCycles:          0,
-		PaletteFadeCycles:          0,
-		FlashFadeoutSpeed:          0,
-		HueFlashFadeoutSpeed:       0,
-		StrobeFrequency:            0,
-		FlashTargetBrightness:      0,
-		FlashHueShift:              0,
-		MinTimeBetweenBeatsSec:     0,
-		LightingCalmModeBoringSec:  0,
-		AnimationCalmModeBoringSec: 0,
-		CalmLightingTiming:         Api.TimingConstraint{},
-		RhythmicLightingTiming:     Api.TimingConstraint{},
-		FranticLightingTiming:      Api.TimingConstraint{},
-		CalmAnimationsTiming:       Api.TimingConstraint{},
-		RhythmicAnimationsTiming:   Api.TimingConstraint{},
-		FranticAnimationsTiming:    Api.TimingConstraint{},
-	}
 
-	//configuration := fixture.Data.Visuals.GetConfiguration()
-	//	configuration.StrobeChance = data.StrobeChance
-	//	configuration.HueShiftChance = data.HueShiftChance
-	//	configuration.FadeToColorCycles = data.FadeToColorCycles
-	//	configuration.PaletteFadeCycles = data.PaletteFadeCycles
-	//	configuration.FlashFadeoutSpeed = data.FlashFadeoutSpeed
-	//	configuration.HueFlashFadeoutSpeed = data.HueFlashFadeoutSpeed
-	//	configuration.StrobeFrequency = data.StrobeFrequency
-	//	configuration.FlashTargetBrightness = data.FlashTargetBrightness
-	//	configuration.FlashHueShift = data.FlashHueShift
-	//	configuration.MinTimeBetweenBeats = time.Duration(float64(time.Second) * data.MinTimeBetweenBeatsSec)
-	//	configuration.LightingCalmModeBoring = time.Duration(float64(time.Second) * data.LightingCalmModeBoringSec)
-	//	configuration.AnimationCalmModeBoring = time.Duration(float64(time.Second) * data.AnimationCalmModeBoringSec)
-	//	configuration.LightingModeTiming[Lightshow.Calm] = getConstraint(data.CalmLightingTiming)
-	//	configuration.LightingModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicLightingTiming)
-	//	configuration.LightingModeTiming[Lightshow.Frantic] = getConstraint(data.FranticLightingTiming)
-	//	configuration.AnimationModeTiming[Lightshow.Calm] = getConstraint(data.CalmAnimationsTiming)
-	//	configuration.AnimationModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicAnimationsTiming)
-	//	configuration.AnimationModeTiming[Lightshow.Frantic] = getConstraint(data.FranticAnimationsTiming)
+	rawConfig := Me.Data.Visuals.GetConfiguration()
+	configData := Api.AutoModeConfig{
+		StrobeChance:               rawConfig.StrobeChance,
+		HueShiftChance:             rawConfig.HueShiftChance,
+		FadeToColorCycles:          rawConfig.FadeToColorCycles,
+		PaletteFadeCycles:          rawConfig.PaletteFadeCycles,
+		FlashFadeoutSpeed:          rawConfig.FlashFadeoutSpeed,
+		HueFlashFadeoutSpeed:       rawConfig.HueFlashFadeoutSpeed,
+		StrobeFrequency:            rawConfig.StrobeFrequency,
+		FlashTargetBrightness:      rawConfig.FlashTargetBrightness,
+		FlashHueShift:              rawConfig.FlashHueShift,
+		MinTimeBetweenBeatsSec:     rawConfig.MinTimeBetweenBeats.Seconds(),
+		LightingCalmModeBoringSec:  rawConfig.LightingCalmModeBoring.Seconds(),
+		AnimationCalmModeBoringSec: rawConfig.AnimationCalmModeBoring.Seconds(),
+		CalmLightingTiming:         getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Calm]),
+		RhythmicLightingTiming:     getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Rhythmic]),
+		FranticLightingTiming:      getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Frantic]),
+		CalmAnimationsTiming:       getApiTimingConstraint(rawConfig.AnimationModeTiming[Lightshow.Calm]),
+		RhythmicAnimationsTiming:   getApiTimingConstraint(rawConfig.AnimationModeTiming[Lightshow.Rhythmic]),
+		FranticAnimationsTiming:    getApiTimingConstraint(rawConfig.AnimationModeTiming[Lightshow.Frantic]),
+	}
 
 	templateData := autoModePageInformation{
 		ScaffoldInformation: scaffoldData,
@@ -333,4 +315,12 @@ func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
+}
+
+func getApiTimingConstraint(constraint Lightshow.TimingConstraint) Api.TimingConstraint {
+	return Api.TimingConstraint{
+		MinNumberOfBeats:  constraint.MinNumberOfBeats,
+		MaxNumberOfBeats:  constraint.MaxNumberOfBeats,
+		NoBeatDeadTimeSec: constraint.NoBeatDeadTime.Seconds(),
+	}
 }
