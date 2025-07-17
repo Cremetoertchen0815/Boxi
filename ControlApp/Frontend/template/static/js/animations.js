@@ -45,3 +45,22 @@ $('#data-form').on('submit', async e => {
         status.style.display = 'none';
     }
 });
+
+
+$('.animation-item-delete').on('click', async e => {
+    const itemContainer = e.target.parentElement;
+    const id = parseInt(itemContainer.getAttribute('animation-id'));
+    const name = itemContainer.querySelector('.animation-item-name').innerText;
+
+    if (!confirm("Do you really want to delete animation '" + name + "'?")) return;
+
+    await deleteAnimation(id);
+    itemContainer.remove();
+});
+
+
+async function deleteAnimation(id) {
+    await fetch(baseAddr + 'api/animation?id=' + id, {
+        method: 'DELETE'
+    });
+}

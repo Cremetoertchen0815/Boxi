@@ -1,6 +1,7 @@
 const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menuBtn');
 const overlay = document.getElementById('overlay');
+const baseAddr = "http://localhost:8080/"
 
 function openSidebar() {
   sidebar.classList.add('open');

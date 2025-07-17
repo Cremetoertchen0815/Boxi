@@ -1,6 +1,4 @@
 // noinspection JSUnresolvedReference
-const baseAddr = "http://localhost:8080/"
-
 const contentPanel = $('#palette-content')[0];
 const countSelector = $('#palette-count')[0];
 const nameInput = $('#palette-name')[0];
