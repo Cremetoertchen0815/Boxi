@@ -1,4 +1,3 @@
-
 $('#animation-add-icon').on('click', e => {
    e.target.style.display = 'none';
 
@@ -23,7 +22,7 @@ $('#data-form').on('submit', async e => {
     errorBox.textContent = '';
 
     try {
-        const response = await fetch(url, {
+        const response = await fetch(baseAddr + "api/animation", {
             method: 'POST',
             body: formData
         });

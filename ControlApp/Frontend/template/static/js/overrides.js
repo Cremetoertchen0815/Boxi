@@ -1,6 +1,4 @@
 // noinspection JSUnresolvedReference
-const baseAddr = "http://192.168.4.1:8080/"
-
 const lightingModeOptions = [
     $('#overwrite-lighting-palette-row')[0],
     $('#overwrite-lighting-color-a-row')[0],
