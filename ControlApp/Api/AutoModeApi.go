@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-type autoModeConfig struct {
+type AutoModeConfig struct {
 	StrobeChance               int              `json:"strobeChance"`
 	HueShiftChance             int              `json:"hueShiftChance"`
 	FadeToColorCycles          uint16           `json:"fadeToColorCycles"`
@@ -22,15 +22,15 @@ type autoModeConfig struct {
 	MinTimeBetweenBeatsSec     float64          `json:"minTimeBetweenBeats"`
 	LightingCalmModeBoringSec  float64          `json:"timeBeforeLightingBoring"`  //How long it takes until calm lighting is boring
 	AnimationCalmModeBoringSec float64          `json:"timeBeforeAnimationBoring"` //How long it takes until a calm animation is boring
-	CalmLightingTiming         timingConstraint `json:"timingCalmLighting"`        //The timing constraints for calm lighting
-	RhythmicLightingTiming     timingConstraint `json:"timingRhythmicLighting"`    //The timing constraints for rhythmic lighting
-	FranticLightingTiming      timingConstraint `json:"timingFranticLighting"`     //The timing constraints for frantic lighting
-	CalmAnimationsTiming       timingConstraint `json:"timingCalmAnimations"`      //The timing constraints for calm animations
-	RhythmicAnimationsTiming   timingConstraint `json:"timingRhythmicAnimations"`  //The timing constraints for rhythmic animations
-	FranticAnimationsTiming    timingConstraint `json:"timingFranticAnimations"`   //The timing constraints for calm animations
+	CalmLightingTiming         TimingConstraint `json:"timingCalmLighting"`        //The timing constraints for calm lighting
+	RhythmicLightingTiming     TimingConstraint `json:"timingRhythmicLighting"`    //The timing constraints for rhythmic lighting
+	FranticLightingTiming      TimingConstraint `json:"timingFranticLighting"`     //The timing constraints for frantic lighting
+	CalmAnimationsTiming       TimingConstraint `json:"timingCalmAnimations"`      //The timing constraints for calm animations
+	RhythmicAnimationsTiming   TimingConstraint `json:"timingRhythmicAnimations"`  //The timing constraints for rhythmic animations
+	FranticAnimationsTiming    TimingConstraint `json:"timingFranticAnimations"`   //The timing constraints for calm animations
 }
 
-type timingConstraint struct {
+type TimingConstraint struct {
 	MinNumberOfBeats  int     `json:"minBeatsUntilSwitch"` //The least number of beats before switching to the next mode.
 	MaxNumberOfBeats  int     `json:"maxBeatsUntilSwitch"` //The most number of beats before switching to the next mode.
 	NoBeatDeadTimeSec float64 `json:"noBeatDeadTime"`      //The duration since the last beat when forcibly switching to a calm mode.
@@ -73,7 +73,7 @@ func (fixture Fixture) HandleChangeAutoModeNsfwApi(w http.ResponseWriter, r *htt
 }
 
 func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *http.Request) {
-	var data autoModeConfig
+	var data AutoModeConfig
 
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
@@ -103,7 +103,7 @@ func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *h
 	fixture.Data.Visuals.StoreConfiguration(false)
 }
 
-func getConstraint(constraint timingConstraint) Lightshow.TimingConstraint {
+func getConstraint(constraint TimingConstraint) Lightshow.TimingConstraint {
 	return Lightshow.TimingConstraint{
 		MinNumberOfBeats: constraint.MinNumberOfBeats,
 		MaxNumberOfBeats: constraint.MaxNumberOfBeats,

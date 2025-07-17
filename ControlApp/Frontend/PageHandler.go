@@ -63,6 +63,11 @@ type palettePageInformation struct {
 	Palettes []Lightshow.Palette
 }
 
+type autoModePageInformation struct {
+	ScaffoldInformation
+	Api.AutoModeConfig
+}
+
 type animationsPageInformation struct {
 	ScaffoldInformation
 	Animations []animationInstance
@@ -272,12 +277,57 @@ func (Me PageProvider) HandlePalettesPage(w http.ResponseWriter, r *http.Request
 func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 	//Fetch scaffold data from context
 	scaffoldData := GetScaffoldData(r)
+	configData := Api.AutoModeConfig{
+		StrobeChance:               0,
+		HueShiftChance:             0,
+		FadeToColorCycles:          0,
+		PaletteFadeCycles:          0,
+		FlashFadeoutSpeed:          0,
+		HueFlashFadeoutSpeed:       0,
+		StrobeFrequency:            0,
+		FlashTargetBrightness:      0,
+		FlashHueShift:              0,
+		MinTimeBetweenBeatsSec:     0,
+		LightingCalmModeBoringSec:  0,
+		AnimationCalmModeBoringSec: 0,
+		CalmLightingTiming:         Api.TimingConstraint{},
+		RhythmicLightingTiming:     Api.TimingConstraint{},
+		FranticLightingTiming:      Api.TimingConstraint{},
+		CalmAnimationsTiming:       Api.TimingConstraint{},
+		RhythmicAnimationsTiming:   Api.TimingConstraint{},
+		FranticAnimationsTiming:    Api.TimingConstraint{},
+	}
+
+	//configuration := fixture.Data.Visuals.GetConfiguration()
+	//	configuration.StrobeChance = data.StrobeChance
+	//	configuration.HueShiftChance = data.HueShiftChance
+	//	configuration.FadeToColorCycles = data.FadeToColorCycles
+	//	configuration.PaletteFadeCycles = data.PaletteFadeCycles
+	//	configuration.FlashFadeoutSpeed = data.FlashFadeoutSpeed
+	//	configuration.HueFlashFadeoutSpeed = data.HueFlashFadeoutSpeed
+	//	configuration.StrobeFrequency = data.StrobeFrequency
+	//	configuration.FlashTargetBrightness = data.FlashTargetBrightness
+	//	configuration.FlashHueShift = data.FlashHueShift
+	//	configuration.MinTimeBetweenBeats = time.Duration(float64(time.Second) * data.MinTimeBetweenBeatsSec)
+	//	configuration.LightingCalmModeBoring = time.Duration(float64(time.Second) * data.LightingCalmModeBoringSec)
+	//	configuration.AnimationCalmModeBoring = time.Duration(float64(time.Second) * data.AnimationCalmModeBoringSec)
+	//	configuration.LightingModeTiming[Lightshow.Calm] = getConstraint(data.CalmLightingTiming)
+	//	configuration.LightingModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicLightingTiming)
+	//	configuration.LightingModeTiming[Lightshow.Frantic] = getConstraint(data.FranticLightingTiming)
+	//	configuration.AnimationModeTiming[Lightshow.Calm] = getConstraint(data.CalmAnimationsTiming)
+	//	configuration.AnimationModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicAnimationsTiming)
+	//	configuration.AnimationModeTiming[Lightshow.Frantic] = getConstraint(data.FranticAnimationsTiming)
+
+	templateData := autoModePageInformation{
+		ScaffoldInformation: scaffoldData,
+		AutoModeConfig:      configData,
+	}
 
 	//Disable caching
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 
 	//Execute template
-	err := Me.autoPage.Execute(w, scaffoldData)
+	err := Me.autoPage.Execute(w, templateData)
 	if err != nil {
 		fmt.Print(err)
 		w.WriteHeader(http.StatusInternalServerError)
