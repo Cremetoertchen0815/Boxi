@@ -22,10 +22,8 @@ type AutoModeConfig struct {
 	MinTimeBetweenBeatsSec     float64          `json:"minTimeBetweenBeats"`
 	LightingCalmModeBoringSec  float64          `json:"timeBeforeLightingBoring"`  //How long it takes until calm lighting is boring
 	AnimationCalmModeBoringSec float64          `json:"timeBeforeAnimationBoring"` //How long it takes until a calm animation is boring
-	CalmLightingTiming         TimingConstraint `json:"timingCalmLighting"`        //The timing constraints for calm lighting
 	RhythmicLightingTiming     TimingConstraint `json:"timingRhythmicLighting"`    //The timing constraints for rhythmic lighting
 	FranticLightingTiming      TimingConstraint `json:"timingFranticLighting"`     //The timing constraints for frantic lighting
-	CalmAnimationsTiming       TimingConstraint `json:"timingCalmAnimations"`      //The timing constraints for calm animations
 	RhythmicAnimationsTiming   TimingConstraint `json:"timingRhythmicAnimations"`  //The timing constraints for rhythmic animations
 	FranticAnimationsTiming    TimingConstraint `json:"timingFranticAnimations"`   //The timing constraints for calm animations
 }
@@ -94,10 +92,8 @@ func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *h
 	configuration.MinTimeBetweenBeats = time.Duration(float64(time.Second) * data.MinTimeBetweenBeatsSec)
 	configuration.LightingCalmModeBoring = time.Duration(float64(time.Second) * data.LightingCalmModeBoringSec)
 	configuration.AnimationCalmModeBoring = time.Duration(float64(time.Second) * data.AnimationCalmModeBoringSec)
-	configuration.LightingModeTiming[Lightshow.Calm] = getConstraint(data.CalmLightingTiming)
 	configuration.LightingModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicLightingTiming)
 	configuration.LightingModeTiming[Lightshow.Frantic] = getConstraint(data.FranticLightingTiming)
-	configuration.AnimationModeTiming[Lightshow.Calm] = getConstraint(data.CalmAnimationsTiming)
 	configuration.AnimationModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicAnimationsTiming)
 	configuration.AnimationModeTiming[Lightshow.Frantic] = getConstraint(data.FranticAnimationsTiming)
 	fixture.Data.Visuals.StoreConfiguration(false)

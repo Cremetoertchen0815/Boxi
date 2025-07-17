@@ -292,10 +292,8 @@ func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 		MinTimeBetweenBeatsSec:     rawConfig.MinTimeBetweenBeats.Seconds(),
 		LightingCalmModeBoringSec:  rawConfig.LightingCalmModeBoring.Seconds(),
 		AnimationCalmModeBoringSec: rawConfig.AnimationCalmModeBoring.Seconds(),
-		CalmLightingTiming:         getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Calm]),
 		RhythmicLightingTiming:     getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Rhythmic]),
 		FranticLightingTiming:      getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Frantic]),
-		CalmAnimationsTiming:       getApiTimingConstraint(rawConfig.AnimationModeTiming[Lightshow.Calm]),
 		RhythmicAnimationsTiming:   getApiTimingConstraint(rawConfig.AnimationModeTiming[Lightshow.Rhythmic]),
 		FranticAnimationsTiming:    getApiTimingConstraint(rawConfig.AnimationModeTiming[Lightshow.Frantic]),
 	}
