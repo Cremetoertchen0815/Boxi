@@ -15,7 +15,7 @@
                     <input type="number" id="auto-config-strobe-chance" min="1" max="50" value="{{.StrobeChance}}">
                 </td>
                 <td>
-                    <span class="unit">, 1 out of X</span>
+                    <span class="unit"> 1/X</span>
                 </td>
             </tr>
             <tr>
@@ -26,7 +26,7 @@
                     <input type="number" id="auto-config-hue-shift-chance" min="1" max="50" value="{{.HueShiftChance}}">
                 </td>
                 <td>
-                    <span class="unit">, 1 out of X</span>
+                    <span class="unit"> 1/X</span>
                 </td>
             </tr>
             <tr>
@@ -35,6 +35,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-duration-ftc" min="100" max="20000" value="{{.FadeToColorMs}}">
+                </td>
+                <td>
                     <span class="unit"> ms</span>
                 </td>
             </tr>
@@ -44,6 +46,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-duration-palette-fade" min="100" max="20000" value="{{.PaletteFadeMs}}">
+                </td>
+                <td>
                     <span class="unit"> ms</span>
                 </td>
             </tr>
@@ -53,7 +57,9 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-speed-brightness-flash" min="1" max="100" value="{{.FlashFadeoutSpeed}}">
-                    <span class="unit"> (units/cycle)</span>
+                </td>
+                <td>
+                    <span class="unit"> units/cycle</span>
                 </td>
             </tr>
             <tr>
@@ -62,6 +68,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-target-brightness-flash" min="0" max="100" value="{{.FlashTargetBrightness}}">
+                </td>
+                <td>
                     <span class="unit"> %</span>
                 </td>
             </tr>
@@ -71,7 +79,9 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-speed-hue-flash" min="1" max="100" value="{{.HueFlashFadeoutSpeed}}">
-                    <span class="unit"> (units/cycle)</span>
+                </td>
+                <td>
+                    <span class="unit"> units/cycle</span>
                 </td>
             </tr>
             <tr>
@@ -80,6 +90,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-color-span-hue-flash" min="1" max="8" value="{{.FlashHueShift}}">
+                </td>
+                <td>
                     <span class="unit"> colors</span>
                 </td>
             </tr>
@@ -89,6 +101,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-strobe-frequency" min="1" max="22" value="{{.StrobeFrequency}}">
+                </td>
+                <td>
                     <span class="unit"> Hz</span>
                 </td>
             </tr>
@@ -98,6 +112,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-beat-cooldown-time" min="50" max="2000" value="{{.MinTimeBetweenBeatsMs}}">
+                </td>
+                <td>
                     <span class="unit"> ms</span>
                 </td>
             </tr>
@@ -107,6 +123,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-calm-lighting-boring" min="1" max="60" value="{{.LightingCalmModeBoringSec}}">
+                </td>
+                <td>
                     <span class="unit"> s</span>
                 </td>
             </tr>
@@ -116,6 +134,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-calm-animation-boring" min="1" max="60" value="{{.AnimationCalmModeBoringSec}}">
+                </td>
+                <td>
                     <span class="unit"> s</span>
                 </td>
             </tr>
@@ -125,6 +145,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-rhythmic-lighting-min-beats" min="1" max="100" value="{{.RhythmicLightingTiming.MinNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -134,6 +156,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-rhythmic-lighting-max-beats" min="1" max="100" value="{{.RhythmicLightingTiming.MaxNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -143,6 +167,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-rhythmic-lighting-calmdown" min="1" max="60" value="{{.RhythmicLightingTiming.NoBeatDeadTimeSec}}">
+                </td>
+                <td>
                     <span class="unit"> s</span>
                 </td>
             </tr>
@@ -152,6 +178,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-rhythmic-animation-min-beats" min="1" max="100" value="{{.RhythmicAnimationsTiming.MinNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -161,6 +189,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-rhythmic-animation-max-beats" min="1" max="100" value="{{.RhythmicAnimationsTiming.MaxNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -170,6 +200,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-rhythmic-animation-calmdown" min="1" max="60" value="{{.RhythmicAnimationsTiming.NoBeatDeadTimeSec}}">
+                </td>
+                <td>
                     <span class="unit"> s</span>
                 </td>
             </tr>
@@ -179,6 +211,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-frantic-lighting-min-beats" min="1" max="100" value="{{.FranticLightingTiming.MinNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -188,6 +222,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-frantic-lighting-max-beats" min="1" max="100" value="{{.FranticLightingTiming.MaxNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -197,6 +233,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-frantic-lighting-calmdown" min="1" max="60" value="{{.FranticLightingTiming.NoBeatDeadTimeSec}}">
+                </td>
+                <td>
                     <span class="unit"> s</span>
                 </td>
             </tr>
@@ -206,6 +244,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-frantic-animation-min-beats" min="1" max="100" value="{{.FranticAnimationsTiming.MinNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -215,6 +255,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-frantic-animation-max-beats" min="1" max="100" value="{{.FranticAnimationsTiming.MaxNumberOfBeats}}">
+                </td>
+                <td>
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -224,6 +266,8 @@
                 </td>
                 <td>
                     <input type="number" id="auto-config-frantic-animation-calmdown" min="1" max="60" value="{{.FranticAnimationsTiming.NoBeatDeadTimeSec}}">
+                </td>
+                <td>
                     <span class="unit"> s</span>
                 </td>
             </tr>

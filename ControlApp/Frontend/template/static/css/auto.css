@@ -1,0 +1,17 @@
+td:nth-child(1) {
+    padding: 5px;
+}
+
+td:nth-child(2) {
+    padding: 5px;
+    width: 50px;
+}
+
+td:nth-child(3) {
+    padding: 5px;
+    width: 40px;
+}
+
+input {
+    width: 100%;
+}
