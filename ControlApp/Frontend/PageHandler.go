@@ -7,6 +7,7 @@ import (
 	"ControlApp/Infrastructure"
 	"ControlApp/Lightshow"
 	"fmt"
+	"math"
 	"net/http"
 	"sort"
 	"strings"
@@ -283,12 +284,12 @@ func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 	configData := Api.AutoModeConfig{
 		StrobeChance:               rawConfig.StrobeChance,
 		HueShiftChance:             rawConfig.HueShiftChance,
-		FadeToColorMs:              uint16(float64(rawConfig.FadeToColorCycles) / Infrastructure.FadeDurationMsToCycles),
-		PaletteFadeMs:              uint16(float64(rawConfig.PaletteFadeCycles) / Infrastructure.FadeDurationMsToCycles),
+		FadeToColorMs:              uint16(math.Round(float64(rawConfig.FadeToColorCycles) / Infrastructure.FadeDurationMsToCycles)),
+		PaletteFadeMs:              uint16(math.Round(float64(rawConfig.PaletteFadeCycles) / Infrastructure.FadeDurationMsToCycles)),
 		FlashFadeoutSpeed:          rawConfig.FlashFadeoutSpeed,
 		HueFlashFadeoutSpeed:       rawConfig.HueFlashFadeoutSpeed,
-		StrobeFrequency:            uint16(Infrastructure.StrobeFrequencyMultiplier / float64(rawConfig.StrobeFrequency)),
-		FlashTargetBrightness:      byte(float64(rawConfig.FlashTargetBrightness) / 255 * 100),
+		StrobeFrequency:            uint16(math.Round(Infrastructure.StrobeFrequencyMultiplier / float64(rawConfig.StrobeFrequency))),
+		FlashTargetBrightness:      byte(math.Round(float64(rawConfig.FlashTargetBrightness) / 255 * 100)),
 		FlashHueShift:              rawConfig.FlashHueShift,
 		MinTimeBetweenBeatsMs:      uint16(rawConfig.MinTimeBetweenBeats.Milliseconds()),
 		LightingCalmModeBoringSec:  uint16(rawConfig.LightingCalmModeBoring.Seconds()),

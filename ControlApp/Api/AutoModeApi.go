@@ -5,6 +5,7 @@ import (
 	"ControlApp/Lightshow"
 	"encoding/json"
 	"fmt"
+	"math"
 	"net/http"
 	"strconv"
 	"time"
@@ -88,12 +89,12 @@ func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *h
 	configuration := fixture.Data.Visuals.GetConfiguration()
 	configuration.StrobeChance = data.StrobeChance
 	configuration.HueShiftChance = data.HueShiftChance
-	configuration.FadeToColorCycles = uint16(float64(data.FadeToColorMs) * Infrastructure.FadeDurationMsToCycles)
-	configuration.PaletteFadeCycles = uint16(float64(data.PaletteFadeMs) * Infrastructure.FadeDurationMsToCycles)
+	configuration.FadeToColorCycles = uint16(math.Round(float64(data.FadeToColorMs) * Infrastructure.FadeDurationMsToCycles))
+	configuration.PaletteFadeCycles = uint16(math.Round(float64(data.PaletteFadeMs) * Infrastructure.FadeDurationMsToCycles))
 	configuration.FlashFadeoutSpeed = data.FlashFadeoutSpeed
 	configuration.HueFlashFadeoutSpeed = data.HueFlashFadeoutSpeed
-	configuration.StrobeFrequency = uint16(Infrastructure.StrobeFrequencyMultiplier / float64(data.StrobeFrequency))
-	configuration.FlashTargetBrightness = byte(float64(data.FlashTargetBrightness) / 100 * 255)
+	configuration.StrobeFrequency = uint16(math.Round(Infrastructure.StrobeFrequencyMultiplier / float64(data.StrobeFrequency)))
+	configuration.FlashTargetBrightness = byte(math.Round(float64(data.FlashTargetBrightness) / 100 * 255))
 	configuration.FlashHueShift = data.FlashHueShift
 	configuration.MinTimeBetweenBeats = time.Duration(data.MinTimeBetweenBeatsMs) * time.Millisecond
 	configuration.LightingCalmModeBoring = time.Duration(data.LightingCalmModeBoringSec) * time.Second
