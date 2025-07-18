@@ -28,3 +28,26 @@ hammer.on('swipeleft', (ev) => {
     closeSidebar();
   }
 });
+
+$(document).on('change blur', 'input[type="number"]', function () {
+  const $input = $(this);
+  const minAttr = $input.attr('min');
+  const maxAttr = $input.attr('max');
+
+  if (minAttr === undefined || maxAttr === undefined) return;
+
+  const min = parseFloat(minAttr);
+  const max = parseFloat(maxAttr);
+  let val = parseFloat($input.val());
+
+  // Only validate if it's a number
+  if (!isNaN(val)) {
+    if (min !== null && val < min) {
+      $input.val(min);
+    } else if (max !== null && val > max) {
+      $input.val(max);
+    }
+  } else {
+    $input.val(min);
+  }
+});
