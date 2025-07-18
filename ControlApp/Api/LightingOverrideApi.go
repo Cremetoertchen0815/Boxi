@@ -2,15 +2,11 @@ package Api
 
 import (
 	"ControlApp/BoxiBus"
+	"ControlApp/Infrastructure"
 	"ControlApp/Lightshow"
 	"encoding/json"
 	"fmt"
 	"net/http"
-)
-
-const (
-	fadeDurationMsToCycles    float64 = 0.130
-	strobeFrequencyMultiplier float64 = 24
 )
 
 type LightingInstructionTotal struct {
@@ -76,7 +72,7 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 		UltraViolet: byte(data.ColorDeviceB.UV),
 	}
 
-	durationCycles := int(float64(data.DurationMs) * fadeDurationMsToCycles)
+	durationCycles := int(float64(data.DurationMs) * Infrastructure.FadeDurationMsToCycles)
 	if durationCycles <= 0 || durationCycles > 0xFFFF {
 		http.Error(w, "Fade duration outside of range.", http.StatusBadRequest)
 		return
@@ -93,7 +89,7 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 		return
 	}
 
-	frequency := int((1 / float64(data.FrequencyHz)) * strobeFrequencyMultiplier)
+	frequency := int((1 / float64(data.FrequencyHz)) * Infrastructure.StrobeFrequencyMultiplier)
 	if frequency <= 0 || frequency > 0xF {
 		http.Error(w, "frequency outside of range.", http.StatusBadRequest)
 		return

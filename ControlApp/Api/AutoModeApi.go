@@ -1,6 +1,7 @@
 package Api
 
 import (
+	"ControlApp/Infrastructure"
 	"ControlApp/Lightshow"
 	"encoding/json"
 	"fmt"
@@ -12,16 +13,16 @@ import (
 type AutoModeConfig struct {
 	StrobeChance               int              `json:"strobeChance"`
 	HueShiftChance             int              `json:"hueShiftChance"`
-	FadeToColorSec             uint16           `json:"fadeToColorDuration"`
-	PaletteFadeSec             uint16           `json:"paletteFadeDuration"`
+	FadeToColorMs              uint16           `json:"fadeToColorDuration"`
+	PaletteFadeMs              uint16           `json:"paletteFadeDuration"`
 	FlashFadeoutSpeed          uint16           `json:"brightnessFlashFadeSpeed"`
 	HueFlashFadeoutSpeed       uint16           `json:"hueFlashFadeSpeed"`
 	StrobeFrequency            uint16           `json:"strobeFrequency"`
 	FlashTargetBrightness      byte             `json:"brightnessFlashBrightness"`
 	FlashHueShift              byte             `json:"hueFlashShift"`
-	MinTimeBetweenBeatsMs      float64          `json:"minTimeBetweenBeats"`
-	LightingCalmModeBoringSec  float64          `json:"timeBeforeLightingBoring"`  //How long it takes until calm lighting is boring
-	AnimationCalmModeBoringSec float64          `json:"timeBeforeAnimationBoring"` //How long it takes until a calm animation is boring
+	MinTimeBetweenBeatsMs      uint16           `json:"minTimeBetweenBeats"`
+	LightingCalmModeBoringSec  uint16           `json:"timeBeforeLightingBoring"`  //How long it takes until calm lighting is boring
+	AnimationCalmModeBoringSec uint16           `json:"timeBeforeAnimationBoring"` //How long it takes until a calm animation is boring
 	RhythmicLightingTiming     TimingConstraint `json:"timingRhythmicLighting"`    //The timing constraints for rhythmic lighting
 	FranticLightingTiming      TimingConstraint `json:"timingFranticLighting"`     //The timing constraints for frantic lighting
 	RhythmicAnimationsTiming   TimingConstraint `json:"timingRhythmicAnimations"`  //The timing constraints for rhythmic animations
@@ -82,16 +83,16 @@ func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *h
 	configuration := fixture.Data.Visuals.GetConfiguration()
 	configuration.StrobeChance = data.StrobeChance
 	configuration.HueShiftChance = data.HueShiftChance
-	configuration.FadeToColorCycles = data.FadeToColorCycles
-	configuration.PaletteFadeCycles = data.PaletteFadeCycles
+	configuration.FadeToColorCycles = uint16(float64(data.FadeToColorMs) * Infrastructure.FadeDurationMsToCycles)
+	configuration.PaletteFadeCycles = uint16(float64(data.PaletteFadeMs) * Infrastructure.FadeDurationMsToCycles)
 	configuration.FlashFadeoutSpeed = data.FlashFadeoutSpeed
 	configuration.HueFlashFadeoutSpeed = data.HueFlashFadeoutSpeed
-	configuration.StrobeFrequency = data.StrobeFrequency
-	configuration.FlashTargetBrightness = data.FlashTargetBrightness
+	configuration.StrobeFrequency = uint16(Infrastructure.StrobeFrequencyMultiplier / float64(data.StrobeFrequency))
+	configuration.FlashTargetBrightness = byte(float64(data.FlashTargetBrightness) / 100 * 255)
 	configuration.FlashHueShift = data.FlashHueShift
-	configuration.MinTimeBetweenBeats = time.Duration(float64(time.Second) * data.MinTimeBetweenBeatsSec)
-	configuration.LightingCalmModeBoring = time.Duration(float64(time.Second) * data.LightingCalmModeBoringSec)
-	configuration.AnimationCalmModeBoring = time.Duration(float64(time.Second) * data.AnimationCalmModeBoringSec)
+	configuration.MinTimeBetweenBeats = time.Duration(data.MinTimeBetweenBeatsMs) * time.Millisecond
+	configuration.LightingCalmModeBoring = time.Duration(data.LightingCalmModeBoringSec) * time.Second
+	configuration.AnimationCalmModeBoring = time.Duration(data.AnimationCalmModeBoringSec) * time.Second
 	configuration.LightingModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicLightingTiming)
 	configuration.LightingModeTiming[Lightshow.Frantic] = getConstraint(data.FranticLightingTiming)
 	configuration.AnimationModeTiming[Lightshow.Rhythmic] = getConstraint(data.RhythmicAnimationsTiming)

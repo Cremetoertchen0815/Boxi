@@ -4,6 +4,7 @@ import (
 	"ControlApp/Api"
 	"ControlApp/BoxiBus"
 	"ControlApp/Display"
+	"ControlApp/Infrastructure"
 	"ControlApp/Lightshow"
 	"fmt"
 	"net/http"
@@ -282,16 +283,16 @@ func (Me PageProvider) HandleAutoPage(w http.ResponseWriter, r *http.Request) {
 	configData := Api.AutoModeConfig{
 		StrobeChance:               rawConfig.StrobeChance,
 		HueShiftChance:             rawConfig.HueShiftChance,
-		FadeToColorCycles:          rawConfig.FadeToColorCycles,
-		PaletteFadeCycles:          rawConfig.PaletteFadeCycles,
+		FadeToColorMs:              uint16(float64(rawConfig.FadeToColorCycles) / Infrastructure.FadeDurationMsToCycles),
+		PaletteFadeMs:              uint16(float64(rawConfig.PaletteFadeCycles) / Infrastructure.FadeDurationMsToCycles),
 		FlashFadeoutSpeed:          rawConfig.FlashFadeoutSpeed,
 		HueFlashFadeoutSpeed:       rawConfig.HueFlashFadeoutSpeed,
-		StrobeFrequency:            rawConfig.StrobeFrequency,
-		FlashTargetBrightness:      rawConfig.FlashTargetBrightness,
+		StrobeFrequency:            uint16(float64(rawConfig.StrobeFrequency) / Infrastructure.StrobeFrequencyMultiplier),
+		FlashTargetBrightness:      byte(float64(rawConfig.FlashTargetBrightness) / 255 * 100),
 		FlashHueShift:              rawConfig.FlashHueShift,
-		MinTimeBetweenBeatsSec:     rawConfig.MinTimeBetweenBeats.Seconds(),
-		LightingCalmModeBoringSec:  rawConfig.LightingCalmModeBoring.Seconds(),
-		AnimationCalmModeBoringSec: rawConfig.AnimationCalmModeBoring.Seconds(),
+		MinTimeBetweenBeatsMs:      uint16(rawConfig.MinTimeBetweenBeats.Milliseconds()),
+		LightingCalmModeBoringSec:  uint16(rawConfig.LightingCalmModeBoring.Seconds()),
+		AnimationCalmModeBoringSec: uint16(rawConfig.AnimationCalmModeBoring.Seconds()),
 		RhythmicLightingTiming:     getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Rhythmic]),
 		FranticLightingTiming:      getApiTimingConstraint(rawConfig.LightingModeTiming[Lightshow.Frantic]),
 		RhythmicAnimationsTiming:   getApiTimingConstraint(rawConfig.AnimationModeTiming[Lightshow.Rhythmic]),
