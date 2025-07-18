@@ -74,6 +74,11 @@ func (fixture Fixture) HandleChangeAutoModeNsfwApi(w http.ResponseWriter, r *htt
 func (fixture Fixture) HandleChangeAutoModeConfigApi(w http.ResponseWriter, r *http.Request) {
 	var data AutoModeConfig
 
+	if r.Method != "POST" {
+		http.Error(w, "Method not allowed.", http.StatusMethodNotAllowed)
+		return
+	}
+
 	err := json.NewDecoder(r.Body).Decode(&data)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Invalid parameters. %s", err), http.StatusBadRequest)
