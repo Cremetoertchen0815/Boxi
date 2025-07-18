@@ -12,14 +12,14 @@ import (
 type AutoModeConfig struct {
 	StrobeChance               int              `json:"strobeChance"`
 	HueShiftChance             int              `json:"hueShiftChance"`
-	FadeToColorCycles          uint16           `json:"fadeToColorCycles"`
-	PaletteFadeCycles          uint16           `json:"paletteFadeCycles"`
+	FadeToColorSec             uint16           `json:"fadeToColorDuration"`
+	PaletteFadeSec             uint16           `json:"paletteFadeDuration"`
 	FlashFadeoutSpeed          uint16           `json:"brightnessFlashFadeSpeed"`
 	HueFlashFadeoutSpeed       uint16           `json:"hueFlashFadeSpeed"`
 	StrobeFrequency            uint16           `json:"strobeFrequency"`
 	FlashTargetBrightness      byte             `json:"brightnessFlashBrightness"`
 	FlashHueShift              byte             `json:"hueFlashShift"`
-	MinTimeBetweenBeatsSec     float64          `json:"minTimeBetweenBeats"`
+	MinTimeBetweenBeatsMs      float64          `json:"minTimeBetweenBeats"`
 	LightingCalmModeBoringSec  float64          `json:"timeBeforeLightingBoring"`  //How long it takes until calm lighting is boring
 	AnimationCalmModeBoringSec float64          `json:"timeBeforeAnimationBoring"` //How long it takes until a calm animation is boring
 	RhythmicLightingTiming     TimingConstraint `json:"timingRhythmicLighting"`    //The timing constraints for rhythmic lighting

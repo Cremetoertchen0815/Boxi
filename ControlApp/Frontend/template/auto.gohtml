@@ -12,7 +12,7 @@
                     <label for="auto-config-strobe-chance">Chance of Strobe:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-strobe-chance">
+                    <input type="number" id="auto-config-strobe-chance" min="1" max="50">
                     <span class="unit">, 1 out of X</span>
                 </td>
             </tr>
@@ -21,7 +21,7 @@
                     <label for="auto-config-hue-shift-chance">Chance of hue shift:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-hue-shift-chance">
+                    <input type="number" id="auto-config-hue-shift-chance" min="1" max="50">
                     <span class="unit">, 1 out of X</span>
                 </td>
             </tr>
@@ -30,8 +30,8 @@
                     <label for="auto-config-duration-ftc">Fade Duration for 'Fade to color' mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-duration-ftc">
-                    <span class="unit"> seconds</span>
+                    <input type="number" id="auto-config-duration-ftc" min="100" max="20000">
+                    <span class="unit"> ms</span>
                 </td>
             </tr>
             <tr>
@@ -39,8 +39,8 @@
                     <label for="auto-config-duration-palette-fade">Fade Duration for 'Palette Fade' mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-duration-palette-fade">
-                    <span class="unit"> seconds</span>
+                    <input type="number" id="auto-config-duration-palette-fade" min="100" max="20000">
+                    <span class="unit"> ms</span>
                 </td>
             </tr>
             <tr>
@@ -48,7 +48,7 @@
                     <label for="auto-config-speed-brightness-flash">Fade Speed of 'Brightness flash' mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-speed-brightness-flash">
+                    <input type="number" id="auto-config-speed-brightness-flash" min="1" max="100">
                     <span class="unit"> (units/cycle)</span>
                 </td>
             </tr>
@@ -57,8 +57,8 @@
                     <label for="auto-config-target-brightness-flash">Target brightness of 'Brightness flash' mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-target-brightness-flash">
-                    <span class="unit"> Hz</span>
+                    <input type="number" id="auto-config-target-brightness-flash" min="0" max="100">
+                    <span class="unit"> %</span>
                 </td>
             </tr>
             <tr>
@@ -66,7 +66,7 @@
                     <label for="auto-config-speed-hue-flash">Fade Speed of 'Hue flash' mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-speed-hue-flash">
+                    <input type="number" id="auto-config-speed-hue-flash" min="1" max="100">
                     <span class="unit"> (units/cycle)</span>
                 </td>
             </tr>
@@ -75,7 +75,7 @@
                     <label for="auto-config-color-span-hue-flash">Color span of 'Hue flash' mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-color-span-hue-flash">
+                    <input type="number" id="auto-config-color-span-hue-flash" min="1" max="8">
                     <span class="unit"> colors</span>
                 </td>
             </tr>
@@ -84,7 +84,7 @@
                     <label for="auto-config-strobe-frequency">Strobe Frequency:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-strobe-frequency">
+                    <input type="number" id="auto-config-strobe-frequency" min="1" max="22">
                     <span class="unit"> Hz</span>
                 </td>
             </tr>
@@ -93,7 +93,7 @@
                     <label for="auto-config-beat-cooldown-time">Beat sensor cooldown time:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-beat-cooldown-time">
+                    <input type="number" id="auto-config-beat-cooldown-time" min="50" max="2000">
                     <span class="unit"> ms</span>
                 </td>
             </tr>
@@ -102,7 +102,7 @@
                     <label for="auto-config-calm-lighting-boring">Calm lighting mode boredom timespan:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-calm-lighting-boring">
+                    <input type="number" id="auto-config-calm-lighting-boring" min="1" max="60">
                     <span class="unit"> s</span>
                 </td>
             </tr>
@@ -111,16 +111,7 @@
                     <label for="auto-config-calm-animation-boring">Calm animation boredom timespan:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-calm-animation-boring">
-                    <span class="unit"> s</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="input-header">
-                    <label for="auto-config-calm-animation-boring">Calm animation boredom timespan:</label>
-                </td>
-                <td>
-                    <input type="number" id="auto-config-calm-animation-boring">
+                    <input type="number" id="auto-config-calm-animation-boring" min="1" max="60">
                     <span class="unit"> s</span>
                 </td>
             </tr>
@@ -129,7 +120,7 @@
                     <label for="auto-config-rhythmic-lighting-min-beats">Min. beat count until boredom of rhythmic lighting mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-rhythmic-lighting-min-beats">
+                    <input type="number" id="auto-config-rhythmic-lighting-min-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -138,7 +129,7 @@
                     <label for="auto-config-rhythmic-lighting-max-beats">Max. beat count until boredom of rhythmic lighting mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-rhythmic-lighting-max-beats">
+                    <input type="number" id="auto-config-rhythmic-lighting-max-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -147,8 +138,8 @@
                     <label for="auto-config-rhythmic-lighting-calmdown">Calm down time for rhythmic lighting mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-rhythmic-lighting-calmdown">
-                    <span class="unit"> beats</span>
+                    <input type="number" id="auto-config-rhythmic-lighting-calmdown" min="1" max="60">
+                    <span class="unit"> s</span>
                 </td>
             </tr>
             <tr>
@@ -156,7 +147,7 @@
                     <label for="auto-config-rhythmic-animation-min-beats">Min. beat count until boredom of rhythmic animation:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-rhythmic-animation-min-beats">
+                    <input type="number" id="auto-config-rhythmic-animation-min-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -165,7 +156,7 @@
                     <label for="auto-config-rhythmic-animation-max-beats">Max. beat count until boredom of rhythmic animation:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-rhythmic-animation-max-beats">
+                    <input type="number" id="auto-config-rhythmic-animation-max-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -174,16 +165,16 @@
                     <label for="auto-config-rhythmic-animation-calmdown">Calm down time for rhythmic animation:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-rhythmic-animation-calmdown">
-                    <span class="unit"> beats</span>
+                    <input type="number" id="auto-config-rhythmic-animation-calmdown" min="1" max="60">
+                    <span class="unit"> s</span>
                 </td>
             </tr>
             <tr>
                 <td class="input-header">
-                    <label for="auto-config-rhythmic-lighting-min-beats">Min. beat count until boredom of frantic lighting mode:</label>
+                    <label for="auto-config-frantic-lighting-min-beats">Min. beat count until boredom of frantic lighting mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-frantic-lighting-min-beats">
+                    <input type="number" id="auto-config-frantic-lighting-min-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -192,7 +183,7 @@
                     <label for="auto-config-frantic-lighting-max-beats">Max. beat count until boredom of frantic lighting mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-frantic-lighting-max-beats">
+                    <input type="number" id="auto-config-frantic-lighting-max-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -201,8 +192,8 @@
                     <label for="auto-config-frantic-lighting-calmdown">Calm down time for frantic lighting mode:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-frantic-lighting-calmdown">
-                    <span class="unit"> beats</span>
+                    <input type="number" id="auto-config-frantic-lighting-calmdown" min="1" max="60">
+                    <span class="unit"> s</span>
                 </td>
             </tr>
             <tr>
@@ -210,7 +201,7 @@
                     <label for="auto-config-frantic-animation-min-beats">Min. beat count until boredom of frantic animation:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-frantic-animation-min-beats">
+                    <input type="number" id="auto-config-frantic-animation-min-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -219,7 +210,7 @@
                     <label for="auto-config-frantic-animation-max-beats">Max. beat count until boredom of frantic animation:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-frantic-animation-max-beats">
+                    <input type="number" id="auto-config-frantic-animation-max-beats" min="1" max="100">
                     <span class="unit"> beats</span>
                 </td>
             </tr>
@@ -228,8 +219,8 @@
                     <label for="auto-config-frantic-animation-calmdown">Calm down time for frantic animation:</label>
                 </td>
                 <td>
-                    <input type="number" id="auto-config-frantic-animation-calmdown">
-                    <span class="unit"> beats</span>
+                    <input type="number" id="auto-config-frantic-animation-calmdown" min="1" max="60">
+                    <span class="unit"> s</span>
                 </td>
             </tr>
         </table>
