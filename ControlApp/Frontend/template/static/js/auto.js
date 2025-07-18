@@ -13,24 +13,24 @@ $('#auto-config-save').on('click', async () => {
         timeBeforeLightingBoring: parseInt($('#auto-config-calm-lighting-boring')[0].value),
         timeBeforeAnimationBoring: parseInt($('#auto-config-calm-animation-boring')[0].value),
         timingRhythmicLighting: {
-            MinNumberOfBeats: parseInt($('#auto-config-rhythmic-lighting-min-beats')[0].value),
-            MaxNumberOfBeats: parseInt($('#auto-config-rhythmic-lighting-max-beats')[0].value),
-            NoBeatDeadTimeSec: parseInt($('#auto-config-rhythmic-lighting-calmdown')[0].value),
-        },
-        timingFranticLighting: {
-            MinNumberOfBeats: parseInt($('#auto-config-rhythmic-animation-min-beats')[0].value),
-            MaxNumberOfBeats: parseInt($('#auto-config-rhythmic-animation-max-beats')[0].value),
-            NoBeatDeadTimeSec: parseInt($('#auto-config-rhythmic-animation-calmdown')[0].value),
+            minBeatsUntilSwitch: parseInt($('#auto-config-rhythmic-lighting-min-beats')[0].value),
+            maxBeatsUntilSwitch: parseInt($('#auto-config-rhythmic-lighting-max-beats')[0].value),
+            noBeatDeadTime: parseInt($('#auto-config-rhythmic-lighting-calmdown')[0].value),
         },
         timingRhythmicAnimations: {
-            MinNumberOfBeats: parseInt($('#auto-config-frantic-lighting-min-beats')[0].value),
-            MaxNumberOfBeats: parseInt($('#auto-config-frantic-lighting-max-beats')[0].value),
-            NoBeatDeadTimeSec: parseInt($('#auto-config-frantic-lighting-calmdown')[0].value),
+            minBeatsUntilSwitch: parseInt($('#auto-config-rhythmic-animation-min-beats')[0].value),
+            maxBeatsUntilSwitch: parseInt($('#auto-config-rhythmic-animation-max-beats')[0].value),
+            noBeatDeadTime: parseInt($('#auto-config-rhythmic-animation-calmdown')[0].value),
+        },
+        timingFranticLighting: {
+            minBeatsUntilSwitch: parseInt($('#auto-config-frantic-lighting-min-beats')[0].value),
+            maxBeatsUntilSwitch: parseInt($('#auto-config-frantic-lighting-max-beats')[0].value),
+            noBeatDeadTime: parseInt($('#auto-config-frantic-lighting-calmdown')[0].value),
         },
         timingFranticAnimations: {
-            MinNumberOfBeats: parseInt($('#auto-config-frantic-animation-min-beats')[0].value),
-            MaxNumberOfBeats: parseInt($('#auto-config-frantic-animation-max-beats')[0].value),
-            NoBeatDeadTimeSec: parseInt($('#auto-config-frantic-animation-calmdown')[0].value),
+            minBeatsUntilSwitch: parseInt($('#auto-config-frantic-animation-min-beats')[0].value),
+            maxBeatsUntilSwitch: parseInt($('#auto-config-frantic-animation-max-beats')[0].value),
+            noBeatDeadTime: parseInt($('#auto-config-frantic-animation-calmdown')[0].value),
         },
     };
 
