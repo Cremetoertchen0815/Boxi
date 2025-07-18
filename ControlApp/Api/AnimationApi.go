@@ -103,10 +103,10 @@ func (fixture Fixture) handleAnimationImportApi(w http.ResponseWriter, r *http.R
 	}
 
 	isSplitStr := r.FormValue("split")
-	isSplit := isSplitStr != "on"
+	isSplit := isSplitStr == "on"
 
 	isNsfwStr := r.FormValue("nsfw")
-	isNsfw := isNsfwStr != "on"
+	isNsfw := isNsfwStr == "on"
 
 	nameStr := r.FormValue("name")
 
