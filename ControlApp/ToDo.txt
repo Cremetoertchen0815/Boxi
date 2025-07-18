@@ -1,5 +1,4 @@
 Software steps:
--Implement the "Auto Mode Settings" page
 -Show disk usage and CPU temperature of host and client on start page
 
 Hardware issues:
