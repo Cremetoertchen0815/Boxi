@@ -151,7 +151,7 @@ void setup() {
   printSplashScreen();
   digitalWrite(TFT_LIGHT, HIGH);
 
-  Serial.begin(19200);
+  Serial.begin(57600);
 }
 
 void loop() {
@@ -164,6 +164,6 @@ void loop() {
   pwm.setPWM(1, 0, currentOutput.Green);
   pwm.setPWM(2, 0, currentOutput.Blue);
   pwm.setPWM(3, 0, currentOutput.White);
-  pwm.setPWM(7, 0, currentOutput.Amber);
+  pwm.setPWM(4, 0, currentOutput.Amber);
   pwm.setPWM(5, 0, currentOutput.UltraViolet);
 }

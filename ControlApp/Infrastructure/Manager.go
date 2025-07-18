@@ -26,7 +26,7 @@ type AnimationProvider interface {
 }
 
 func Initialize() (*Manager, error) {
-	connection, err := BoxiBus.ConnectToArduino(19200)
+	connection, err := BoxiBus.ConnectToArduino(57600)
 	if err != nil {
 		log.Fatal(err)
 	}

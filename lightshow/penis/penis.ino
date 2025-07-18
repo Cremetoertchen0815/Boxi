@@ -1,5 +1,7 @@
 #include <Wire.h>
-#include <DmxSimple.h>
+#include <Adafruit_PWMServoDriver.h>
+
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 void setup() {
   pwm.begin();
@@ -11,13 +13,15 @@ void setup() {
   // out for this!
   Wire.setClock(400000);
 
-  //Set up DMX
-  DmxSimple.usePin(6);
-  DmxSimple.maxChannel(1);
+  Serial.begin(19200);
 }
 
 void loop() {
-  DmxSimple.write(1, 100);
-  DmxSimple.write(2, 200);
-  DmxSimple.write(3, 254);
+  for(int i = 0; i < 6; i++) {
+    
+  pwm.setPin(i, 0, 50);
+  delay(500);
+  pwm.setPin(i, 0, 0);
+  delay(500);
+  }
 }

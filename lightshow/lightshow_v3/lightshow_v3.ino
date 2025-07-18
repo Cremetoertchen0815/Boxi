@@ -500,12 +500,12 @@ void transmitColors(DualColor outputColor) {
   pwm.setPWM(11, 0, pwmValA);
   pwm.setPWM(10, 0, pwmValUV);
 
-  uint16_t sendValR = outputColor.Boxi1.Red * MAX_PWM;
-  uint16_t sendValG = outputColor.Boxi1.Green * MAX_PWM;
-  uint16_t sendValB = outputColor.Boxi1.Blue * MAX_PWM;
-  uint16_t sendValW = outputColor.Boxi1.White * MAX_PWM;
-  uint16_t sendValA = outputColor.Boxi1.Amber * MAX_PWM;
-  uint16_t sendValUV = outputColor.Boxi1.UltraViolet * MAX_PWM;
+  uint16_t sendValR = outputColor.Boxi2.Red * MAX_PWM;
+  uint16_t sendValG = outputColor.Boxi2.Green * MAX_PWM;
+  uint16_t sendValB = outputColor.Boxi2.Blue * MAX_PWM;
+  uint16_t sendValW = outputColor.Boxi2.White * MAX_PWM;
+  uint16_t sendValA = outputColor.Boxi2.Amber * MAX_PWM;
+  uint16_t sendValUV = outputColor.Boxi2.UltraViolet * MAX_PWM;
   uint8_t bytesToSend[] = {
     0xe6, 0x21,
     sendValR>>8, sendValR, sendValG>>8, sendValG,
@@ -613,7 +613,7 @@ void setup() {
   printSplashScreen();
   digitalWrite(TFT_LIGHT, HIGH);
 
-  Serial.begin(19200);
+  Serial.begin(57600);
 }
 
 void loop() {
