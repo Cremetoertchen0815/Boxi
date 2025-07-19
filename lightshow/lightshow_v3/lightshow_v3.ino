@@ -507,11 +507,11 @@ void transmitColors(DualColor outputColor) {
   uint16_t sendValA = outputColor.Boxi2.Amber * MAX_PWM;
   uint16_t sendValUV = outputColor.Boxi2.UltraViolet * MAX_PWM;
   uint8_t bytesToSend[] = {
-    0xe6, 0x21,
+    0xFF, 0xe6, 0x21,
     sendValR>>8, sendValR, sendValG>>8, sendValG,
     sendValB>>8, sendValB, sendValW>>8, sendValW,
     sendValA>>8, sendValA, sendValUV>>8, sendValUV};
-  Serial.write(bytesToSend, 14);
+  Serial.write(bytesToSend, 15);
 
   //Update external lighting via DMX
   uint8_t dmxValR1 = outputColor.Boxi1.Red * MAX_DMX;
@@ -613,7 +613,7 @@ void setup() {
   printSplashScreen();
   digitalWrite(TFT_LIGHT, HIGH);
 
-  Serial.begin(57600);
+  Serial.begin(38400);
 }
 
 void loop() {

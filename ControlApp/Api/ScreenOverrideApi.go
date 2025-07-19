@@ -92,8 +92,8 @@ func (fixture Fixture) HandleSetScreenOverrideAnimationSetApi(w http.ResponseWri
 		id := animationObj.Id
 		if animationObj.SecondaryAnimation != Display.None {
 			for _, a := range data.Animations {
-				if ((a.ScreenIndex == Display.Boxi1D1 && animation.ScreenIndex == Display.Boxi1D2) ||
-					(a.ScreenIndex == Display.Boxi2D1 && animation.ScreenIndex == Display.Boxi2D2)) && a.AnimationId == id {
+				if ((a.ScreenIndex == Display.Boxi1D2 && animation.ScreenIndex == Display.Boxi1D1) ||
+					(a.ScreenIndex == Display.Boxi2D2 && animation.ScreenIndex == Display.Boxi2D1)) && a.AnimationId == id {
 					id = animationObj.SecondaryAnimation
 					break
 				}
@@ -149,7 +149,7 @@ func (fixture Fixture) HandleSetScreenOverrideBrightnessLevelApi(w http.Response
 	var tempId float64
 	moodNrStr := r.FormValue("value")
 	if moodNrStr != "" {
-		tmp, err := strconv.ParseInt(moodNrStr, 10, 32)
+		tmp, err := strconv.ParseInt(moodNrStr, 10, 33)
 		if err != nil || tempId < 0 {
 			http.Error(w, "Error parsing mood.", http.StatusBadRequest)
 			return

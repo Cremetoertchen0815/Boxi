@@ -71,7 +71,8 @@ void checkHostActivity() {
 //Processes the incoming data from the RPI at the UART port
 bool processUart() {
   //Make sure header is fine before handling data
-  if (Serial.available() < 14 ||
+  if (Serial.available() < 15 ||
+      Serial.read() != 0xFF ||
       Serial.read() != 0xe6 ||
       Serial.read() != 0x21) return false;
 
@@ -151,7 +152,7 @@ void setup() {
   printSplashScreen();
   digitalWrite(TFT_LIGHT, HIGH);
 
-  Serial.begin(57600);
+  Serial.begin(38400);
 }
 
 void loop() {
