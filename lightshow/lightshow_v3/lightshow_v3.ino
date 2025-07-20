@@ -86,7 +86,7 @@ struct DataFieldSet {
 
 const float BYTE_TO_FLOAT = 1.0 / 255;
 const float CALM_COLOR_BRIGHTNESS = 0.8; //The brightness of the color LEDs in non-pulsed modes(prevents overheating)
-const int BEAT_SHORTEST_SWITCH_TIME = 50; //The holding time between to music peaks to prevent too fast switching
+const int BEAT_SHORTEST_SWITCH_TIME = 40; //The holding time between to music peaks to prevent too fast switching
 const int BEAT_MIN_DURATION = 1; //The number if cycles in a row that the beat line has to be pulled high to count as a beat
 const int POWER_THRESHOLD_OFF = 20;
 const int POWER_THRESHOLD_MAX = 1000;
@@ -500,18 +500,18 @@ void transmitColors(DualColor outputColor) {
   pwm.setPWM(11, 0, pwmValA);
   pwm.setPWM(10, 0, pwmValUV);
 
-  uint16_t sendValR = outputColor.Boxi1.Red * MAX_PWM;
-  uint16_t sendValG = outputColor.Boxi1.Green * MAX_PWM;
-  uint16_t sendValB = outputColor.Boxi1.Blue * MAX_PWM;
-  uint16_t sendValW = outputColor.Boxi1.White * MAX_PWM;
-  uint16_t sendValA = outputColor.Boxi1.Amber * MAX_PWM;
-  uint16_t sendValUV = outputColor.Boxi1.UltraViolet * MAX_PWM;
+  uint16_t sendValR = outputColor.Boxi2.Red * MAX_PWM;
+  uint16_t sendValG = outputColor.Boxi2.Green * MAX_PWM;
+  uint16_t sendValB = outputColor.Boxi2.Blue * MAX_PWM;
+  uint16_t sendValW = outputColor.Boxi2.White * MAX_PWM;
+  uint16_t sendValA = outputColor.Boxi2.Amber * MAX_PWM;
+  uint16_t sendValUV = outputColor.Boxi2.UltraViolet * MAX_PWM;
   uint8_t bytesToSend[] = {
-    0xe6, 0x21,
+    0xFF, 0xe6, 0x21,
     sendValR>>8, sendValR, sendValG>>8, sendValG,
     sendValB>>8, sendValB, sendValW>>8, sendValW,
     sendValA>>8, sendValA, sendValUV>>8, sendValUV};
-  Serial.write(bytesToSend, 14);
+  Serial.write(bytesToSend, 15);
 
   //Update external lighting via DMX
   uint8_t dmxValR1 = outputColor.Boxi1.Red * MAX_DMX;
@@ -613,7 +613,7 @@ void setup() {
   printSplashScreen();
   digitalWrite(TFT_LIGHT, HIGH);
 
-  Serial.begin(19200);
+  Serial.begin(38400);
 }
 
 void loop() {
