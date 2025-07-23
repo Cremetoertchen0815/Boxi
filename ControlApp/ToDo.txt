@@ -1,5 +1,4 @@
 Bugs:
--Animation Shroom only on one screen
 -Party mode not working
 -Overwrite animation not stored
 
