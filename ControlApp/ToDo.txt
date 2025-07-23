@@ -1,6 +1,10 @@
+Bugs:
+-Animation Shroom only on one screen
+-Party mode not working
+-Overwrite animation not stored
+
 Software steps:
 -Show disk usage and CPU temperature of host and client on start page
 
 Hardware issues:
 -Fix backlight PWM colliding with screen logic (add filter???)
--Add Zener diodes to UART bus
