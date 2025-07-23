@@ -1,5 +1,4 @@
 Bugs:
--Party mode not working
 -Overwrite animation not stored
 
 Software steps:
