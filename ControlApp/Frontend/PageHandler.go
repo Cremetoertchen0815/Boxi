@@ -229,7 +229,7 @@ func (Me PageProvider) HandleAnimationPage(w http.ResponseWriter, r *http.Reques
 			break
 		}
 
-		nsfwStr := "Not NSFW"
+		nsfwStr := "SFW"
 		if animation.IsNsfw {
 			nsfwStr = "NSFW"
 		}
