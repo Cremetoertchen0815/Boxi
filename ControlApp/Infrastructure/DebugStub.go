@@ -35,6 +35,10 @@ func (manager DebugStub) SendBrightnessChange(brightness *float64, blinkSpeed ui
 	log.Printf("Brightness instruction sent, brightness: %+v, speed: %d \n", brightness, blinkSpeed)
 }
 
+func (manager DebugStub) SendInternalLedConfig(enable bool) {
+	log.Printf("Internal LED config instruction sent, enabled: %+v\n", enable)
+}
+
 func (manager DebugStub) SendBeatToDisplay(force bool) {
 	log.Printf("Beat sent, forced: %t \n", force)
 }

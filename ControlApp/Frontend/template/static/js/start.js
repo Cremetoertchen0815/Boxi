@@ -1,5 +1,6 @@
 $('#mood').change(moodChanged)
 $('#nsfw').change(nsfwChanged)
+$('#internal-leds').change(internalLedsChanged)
 $('#brightness').change(brightnessChanged)
 
 async function moodChanged(e) {
@@ -18,6 +19,15 @@ async function nsfwChanged(e) {
 
     if (response != null) {
         alert("Error submitting NSFW change: " + response);
+    }
+}
+
+async function internalLedsChanged(e) {
+    const value = e.target.checked;
+    const response = await sendInternalLedsConfig(value);
+
+    if (response != null) {
+        alert("Error submitting internal LEDS config change: " + response);
     }
 }
 
@@ -40,6 +50,13 @@ async function sendMoodChange(mood) {
 async function sendNsfwChange(allowNsfw) {
     const response = await fetch('/api/config/nsfw?' + new URLSearchParams({
         value: allowNsfw ? "true" : "false"
+    }), {method: 'POST'});
+    return response.status === 200 ? null : await response.text();
+}
+
+async function sendInternalLedsConfig(enableLeds) {
+    const response = await fetch('/api/lighting/internal-leds?' + new URLSearchParams({
+        value: enableLeds ? "true" : "false"
     }), {method: 'POST'});
     return response.status === 200 ? null : await response.text();
 }

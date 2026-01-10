@@ -14,6 +14,7 @@ type HardwareInterface interface {
 	SendAnimationInstruction(animation Display.AnimationId, displays []Display.ServerDisplay)
 	SendTextInstruction(text string, displays []Display.ServerDisplay)
 	SendBrightnessChange(brightness *float64, blinkSpeed uint16)
+	SendInternalLedConfig(enable bool)
 	SendBeatToDisplay(force bool)
 	UploadAnimation(id Display.AnimationId)
 }

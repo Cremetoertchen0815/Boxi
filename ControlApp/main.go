@@ -41,6 +41,7 @@ func main() {
 
 	//Handle lighting override endpoints
 	http.HandleFunc("/api/lighting/mode", fixture.HandleSetLightingOverrideAutoApi)
+	http.HandleFunc("/api/lighting/internal-leds", fixture.HandleSetInternalLedsEnabled)
 
 	//Handle screen override endpoints
 	http.HandleFunc("/api/screen/animation", fixture.HandleSetScreenOverrideAnimationSetApi)

@@ -15,6 +15,7 @@ type VisualManager struct {
 	lightingIsOverwritten         bool
 	animationOverwrite            *AnimationsInstruction
 	brightnessValue               float64
+	internalLedsEnabled           bool
 	lightingCurrentAutoSelection  LightingInstruction
 	animationCurrentAutoSelection AnimationsInstruction
 	textValues                    TextsInstruction
@@ -22,7 +23,7 @@ type VisualManager struct {
 }
 
 func CreateVisualManager(hardwareManager Infrastructure.HardwareInterface) *VisualManager {
-	visual := VisualManager{hardwareManager: hardwareManager, accessLock: &sync.Mutex{}, brightnessValue: 1}
+	visual := VisualManager{hardwareManager: hardwareManager, accessLock: &sync.Mutex{}, brightnessValue: 1, internalLedsEnabled: true}
 	visual.animations = LoadAnimations()
 	visual.palettes = LoadPalettes()
 	visual.autoContext = CreateAutoMode(&visual, load())
@@ -204,6 +205,14 @@ func (manager *VisualManager) SetBrightness(value float64) {
 	manager.hardwareManager.SendBrightnessChange(&manager.brightnessValue, 0)
 }
 
+func (manager *VisualManager) SetInternalLeds(enable bool) {
+	manager.accessLock.Lock()
+	defer manager.accessLock.Unlock()
+
+	manager.internalLedsEnabled = enable
+	manager.hardwareManager.SendInternalLedConfig(enable)
+}
+
 func (manager *VisualManager) getAllAnimations() []Display.AnimationId {
 	var ids []Display.AnimationId
 
@@ -224,6 +233,10 @@ func (manager *VisualManager) GetConfiguration() *AutoModeConfiguration {
 
 func (manager *VisualManager) GetBrightness() float64 {
 	return manager.brightnessValue
+}
+
+func (manager *VisualManager) GetInternalLeds() bool {
+	return manager.internalLedsEnabled
 }
 
 func (manager *VisualManager) StoreConfiguration(markAsDirty bool) {

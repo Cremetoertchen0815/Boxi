@@ -33,6 +33,14 @@
             </tr>
             <tr>
                 <td class="input-header">
+                    <label for="internal-leds">Enable internal LEDs:</label>
+                </td>
+                <td>
+                    <input type="checkbox" id="internal-leds" name="internal-leds" {{ if eq .InternalLeds true }} checked {{ end }}>
+                </td>
+            </tr>
+            <tr>
+                <td class="input-header">
                     <label for="brightness">Display brightness:</label>
                 </td>
                 <td>

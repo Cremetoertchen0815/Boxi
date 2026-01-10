@@ -17,6 +17,7 @@ type startPageInformation struct {
 	ScaffoldInformation
 	Mood              int
 	Nsfw              bool
+	InternalLeds      bool
 	Brightness        int
 	ConnectedDisplays string
 }
@@ -90,8 +91,9 @@ func (Me PageProvider) HandleStartPage(w http.ResponseWriter, r *http.Request) {
 	mood := int(Me.Data.Visuals.GetConfiguration().Mood)
 	isNsfw := Me.Data.Visuals.GetConfiguration().AllowNsfw
 	brightness := int(Me.Data.Visuals.GetBrightness() * 100)
+	enableInternalLeds := Me.Data.Visuals.GetInternalLeds()
 	displays := fmt.Sprintf("%+v", Me.Data.Hardware.GetConnectedDisplays())
-	startData := startPageInformation{scaffoldData, mood, isNsfw, brightness, displays}
+	startData := startPageInformation{scaffoldData, mood, isNsfw, enableInternalLeds, brightness, displays}
 
 	//Disable caching
 	w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")

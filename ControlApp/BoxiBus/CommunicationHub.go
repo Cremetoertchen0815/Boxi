@@ -2,14 +2,16 @@ package BoxiBus
 
 import (
 	"fmt"
-	"go.bug.st/serial"
 	"sync"
+
+	"go.bug.st/serial"
 )
 
 type MemoryField byte
 
 type MessageBlock []BusMessage
 
+// Arduino's memory fields/actions
 const (
 	StatusCode             MemoryField = 0x01
 	LightingApply          MemoryField = 0x02
@@ -19,6 +21,8 @@ const (
 	LightingGeneralPurpose MemoryField = 0x06
 	LightingPaletteSize    MemoryField = 0x07
 	LightingPaletteA       MemoryField = 0x08
+	LightingPaletteB       MemoryField = 0x09
+	EnableInternalLights   MemoryField = 0x10
 )
 
 type BusMessage struct {
