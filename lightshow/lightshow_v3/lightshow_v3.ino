@@ -30,6 +30,7 @@ enum DataField {
   LIGHTING_PALLETTE_F = 0x0D,
   LIGHTING_PALLETTE_G = 0x0E,
   LIGHTING_PALLETTE_H = 0x0F,
+  SET_INTERNAL_LEDS = 0x10,
 }; 
 
 enum LightingMode {
@@ -85,7 +86,7 @@ struct DataFieldSet {
 }; 
 
 const float BYTE_TO_FLOAT = 1.0 / 255;
-const float CALM_COLOR_BRIGHTNESS = 0.8; //The brightness of the color LEDs in non-pulsed modes(prevents overheating)
+const float CALM_COLOR_BRIGHTNESS = 0.7; //The brightness of the color LEDs in non-pulsed modes(prevents overheating)
 const int BEAT_SHORTEST_SWITCH_TIME = 40; //The holding time between to music peaks to prevent too fast switching
 const int BEAT_MIN_DURATION = 1; //The number if cycles in a row that the beat line has to be pulled high to count as a beat
 const int POWER_THRESHOLD_OFF = 20;
@@ -108,6 +109,7 @@ uint8_t activeField = 0;
 bool applyOnNextBeat = false;
 DisplayStatusCode dspStatusCode = BOOTING;
 bool updatedMode = false;
+bool enableInternalLeds = true;
 
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
@@ -277,6 +279,7 @@ void processUart() {
     case LIGHTING_COLOR_SHIFT:
     case LIGHTING_GENERAL_PURPOSE:
     case LIGHTING_APPLY:
+    case SET_INTERNAL_LEDS:
       dataLen = 1;
       break;
     case DISPLAY_STATUS_CODE:
@@ -329,6 +332,8 @@ void processUart() {
     case LIGHTING_GENERAL_PURPOSE:
       fieldSet->GeneralPurpose = receivedData[0];
       break;
+    case SET_INTERNAL_LEDS:
+        enableInternalLeds = receivedData[0] > 0;
     default:
       uint8_t index = field - LIGHTING_PALLETTE_A;
       if (index < 0 || index > 7) return;
@@ -478,13 +483,14 @@ DualColor handleModeG(DataFieldSet* settings) {
 
 //Transmits the colors via PWM and DMX
 void transmitColors(DualColor outputColor) {
+  uint16_t internalMultiplier = enableInternalLeds ? MAX_PWM : 0;
   //Calculate final RGBW values
-  uint16_t pwmValR = outputColor.Boxi1.Red * MAX_PWM;
-  uint16_t pwmValG = outputColor.Boxi1.Green * MAX_PWM;
-  uint16_t pwmValB = outputColor.Boxi1.Blue * MAX_PWM;
-  uint16_t pwmValW = outputColor.Boxi1.White * MAX_PWM;
-  uint16_t pwmValA = outputColor.Boxi1.Amber * MAX_PWM;
-  uint16_t pwmValUV = outputColor.Boxi1.UltraViolet * MAX_PWM;
+  uint16_t pwmValR = outputColor.Boxi1.Red * internalMultiplier;
+  uint16_t pwmValG = outputColor.Boxi1.Green * internalMultiplier;
+  uint16_t pwmValB = outputColor.Boxi1.Blue * internalMultiplier;
+  uint16_t pwmValW = outputColor.Boxi1.White * internalMultiplier;
+  uint16_t pwmValA = outputColor.Boxi1.Amber * internalMultiplier;
+  uint16_t pwmValUV = outputColor.Boxi1.UltraViolet * internalMultiplier;
 
   //Update internal PWM signals accordingly
   pwm.setPWM(0, 0, pwmValR);
@@ -500,12 +506,12 @@ void transmitColors(DualColor outputColor) {
   pwm.setPWM(11, 0, pwmValA);
   pwm.setPWM(10, 0, pwmValUV);
 
-  uint16_t sendValR = outputColor.Boxi2.Red * MAX_PWM;
-  uint16_t sendValG = outputColor.Boxi2.Green * MAX_PWM;
-  uint16_t sendValB = outputColor.Boxi2.Blue * MAX_PWM;
-  uint16_t sendValW = outputColor.Boxi2.White * MAX_PWM;
-  uint16_t sendValA = outputColor.Boxi2.Amber * MAX_PWM;
-  uint16_t sendValUV = outputColor.Boxi2.UltraViolet * MAX_PWM;
+  uint16_t sendValR = outputColor.Boxi2.Red * internalMultiplier;
+  uint16_t sendValG = outputColor.Boxi2.Green * internalMultiplier;
+  uint16_t sendValB = outputColor.Boxi2.Blue * internalMultiplier;
+  uint16_t sendValW = outputColor.Boxi2.White * internalMultiplier;
+  uint16_t sendValA = outputColor.Boxi2.Amber * internalMultiplier;
+  uint16_t sendValUV = outputColor.Boxi2.UltraViolet * internalMultiplier;
   uint8_t bytesToSend[] = {
     0xFF, 0xe6, 0x21,
     sendValR>>8, sendValR, sendValG>>8, sendValG,

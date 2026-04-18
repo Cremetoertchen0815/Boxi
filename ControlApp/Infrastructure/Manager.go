@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"time"
+
 	"periph.io/x/conn/v3/gpio"
 	"periph.io/x/host/v3"
 	"periph.io/x/host/v3/rpi"
-	"time"
 )
 
 type Manager struct {
@@ -142,6 +143,13 @@ func (manager *Manager) SendBrightnessChange(brightness *float64, blinkSpeed uin
 	manager.blinkSpeed = blinkSpeed
 	if manager.blinkSpeed != oldSpeed || math.Abs(manager.brightness-oldBrightness) > 0.001 {
 		manager.SendBeatToDisplay(true)
+	}
+}
+
+func (manager *Manager) SendInternalLedConfig(enable bool) {
+	err := manager.microController.Send(BoxiBus.CreateConfigInternalLeds(enable))
+	if err != nil {
+		log.Printf("Error sending lighting instruction: %s", err)
 	}
 }
 

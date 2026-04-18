@@ -72,9 +72,9 @@ func (context *AutoModeContext) calculateAutoMode() {
 			if context.animationBeatsLeft <= 0 {
 				var animation AnimationsInstruction
 				if context.isDirty {
-					context.getNextAnimation(FirstBeat)
+					animation = context.getNextAnimation(FirstBeat)
 				} else {
-					context.getNextAnimation(OnBeat)
+					animation = context.getNextAnimation(OnBeat)
 				}
 				context.manager.applyAnimation(animation)
 

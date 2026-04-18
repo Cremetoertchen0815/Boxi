@@ -4,6 +4,7 @@ import "errors"
 
 type DisplayStatusCode byte
 
+// Error codes
 const (
 	HostAwake           DisplayStatusCode = 0x01
 	DisplayServerFailed DisplayStatusCode = 0x03
@@ -11,6 +12,7 @@ const (
 
 type LightingModeId byte
 
+// Lighting modes
 const (
 	Off                    LightingModeId = 0x00
 	SetColor               LightingModeId = 0x01
@@ -43,16 +45,16 @@ func CreateLightingOff(applyOnBeat bool) MessageBlock {
 }
 
 func CreateLightingSetColor(boxi1 Color, boxi2 Color, applyOnBeat bool) MessageBlock {
-	colorAMessage := BusMessage{LightingPaletteA + 0, convertColor(boxi1)}
-	colorBMessage := BusMessage{LightingPaletteA + 1, convertColor(boxi2)}
+	colorAMessage := BusMessage{LightingPaletteA, convertColor(boxi1)}
+	colorBMessage := BusMessage{LightingPaletteB, convertColor(boxi2)}
 	modeMessage := BusMessage{LightingMode, []byte{byte(SetColor)}}
 	applyMessage := BusMessage{LightingApply, convertBool(applyOnBeat)}
 	return []BusMessage{colorAMessage, colorBMessage, modeMessage, applyMessage}
 }
 
 func CreateLightingFadeToColor(boxi1 Color, boxi2 Color, speed uint16, applyOnBeat bool) MessageBlock {
-	colorAMessage := BusMessage{LightingPaletteA + 0, convertColor(boxi1)}
-	colorBMessage := BusMessage{LightingPaletteA + 1, convertColor(boxi2)}
+	colorAMessage := BusMessage{LightingPaletteA, convertColor(boxi1)}
+	colorBMessage := BusMessage{LightingPaletteB, convertColor(boxi2)}
 	speedMessage := BusMessage{LightingSpeed, convertShort(speed)}
 	modeMessage := BusMessage{LightingMode, []byte{byte(FadeToColor)}}
 	applyMessage := BusMessage{LightingApply, convertBool(applyOnBeat)}
@@ -114,12 +116,22 @@ func CreateLightingPaletteHueFlash(palette []Color, fadeOutSpeed uint16, palette
 
 func CreateLightingStrobe(color Color, frequency uint16, rolloff byte, applyOnBeat bool) MessageBlock {
 
-	colorMessage := BusMessage{LightingPaletteA + 0, convertColor(color)}
+	colorMessage := BusMessage{LightingPaletteA, convertColor(color)}
 	speedMessage := BusMessage{LightingSpeed, convertShort(frequency)}
 	gpMessage := BusMessage{LightingGeneralPurpose, []byte{rolloff}}
 	modeMessage := BusMessage{LightingMode, []byte{byte(Strobe)}}
 	applyMessage := BusMessage{LightingApply, convertBool(applyOnBeat)}
 	return []BusMessage{colorMessage, speedMessage, gpMessage, modeMessage, applyMessage}
+}
+
+func CreateConfigInternalLeds(enableLeds bool) MessageBlock {
+	var bitSetVar byte
+	if enableLeds {
+		bitSetVar = 1
+	}
+
+	message := BusMessage{EnableInternalLights, []byte{bitSetVar}}
+	return []BusMessage{message}
 }
 
 func convertShort(short uint16) []byte {

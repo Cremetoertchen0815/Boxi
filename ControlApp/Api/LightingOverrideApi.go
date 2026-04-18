@@ -167,3 +167,15 @@ func (fixture Fixture) HandleSetLightingOverrideAutoApi(w http.ResponseWriter, r
 
 	fixture.Data.Visuals.SetLightingOverwrite(&instruction)
 }
+
+func (fixture Fixture) HandleSetInternalLedsEnabled(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != "POST" {
+		w.WriteHeader(http.StatusNotImplemented)
+		return
+	}
+
+	//Get animation ID
+	value := r.FormValue("value") == "true" || r.FormValue("value") == "1"
+	fixture.Data.Visuals.SetInternalLeds(value)
+}
